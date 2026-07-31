@@ -1,73 +1,46 @@
-# React + TypeScript + Vite
+# 0x00: IDENTITY_CONFIRMED
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> WARNING: UNAUTHORIZED ACCESS DETECTED.
+> INITIATING PROTOCOL: `shailesh_portfolio_override`
+> ...
+> ...
+> ACCESS GRANTED. WELCOME, ROOT.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## █ ABOUT THE OPERATIVE
+**CODENAME:** Shailesh R.S. Upadhyay  
+**CLASS:** Cyber-Architect // Frontend Engineer  
+**STATUS:** ACTIVE AND COMPILING  
 
-## React Compiler
+You have bypassed the firewall and gained access to my primary node. This repository contains the source code for my digital footprint. It is built with high-velocity technologies to ensure maximum performance and evasion.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## █ ARSENAL // TECH STACK
+- **Core Engine:** React + Vite
+- **Typing Syntax:** TypeScript (Strict Enforcement)
+- **Styling Protocols:** Modern CSS / Dynamic UI Interfaces
+- **Deployment Sector:** Vercel / GitHub Pages
 
-## Expanding the ESLint configuration
+## █ INITIATING BUILD SEQUENCE
+To compile this node locally and inspect the source architecture:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# 1. Clone the encrypted repository into your local system
+git clone https://github.com/SHAILESH-RS-UPADHYAY/shailesh-portfolio-.git
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# 2. Infiltrate the directory
+cd shailesh-portfolio
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# 3. Install dependencies (Decrypting packages...)
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 4. Boot up the local development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## █ SECURE TRANSMISSIONS
+- **Live Node:** [Portfolio Under Construction]
+- **Direct Comm Link:** [Insert your email/LinkedIn here]
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+_END OF TRANSMISSION_
