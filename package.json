@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://SHAILESH-RS-UPADHYAY.github.io/shailesh-portfolio-",
+  "homepage": "https://SHAILESH-RS-UPADHYAY.github.io/shailesh-upadhyay",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
