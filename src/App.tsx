@@ -421,7 +421,7 @@ function HeroSection() {
 
                 {/* Main image box */}
                 <div className="relative bg-black/40 border border-white/[0.08] rounded-3xl overflow-hidden group-hover:border-white/15 transition-colors duration-500">
-                  <img src="/profile.png" alt="Shailesh Upadhyay" className="w-full h-auto object-cover object-top"
+                  <img src={`${import.meta.env.BASE_URL}profile.png`} alt="Shailesh Upadhyay" className="w-full h-auto object-cover object-top"
                     style={{ filter: 'grayscale(20%) contrast(1.05) brightness(0.95)' }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 </div>
