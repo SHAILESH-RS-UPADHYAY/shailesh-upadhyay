@@ -3,50 +3,174 @@
 @theme {
   --font-oxanium: 'Oxanium', sans-serif;
   --font-geist-mono: 'Geist Mono', monospace;
-  --font-museo: 'Museo Moderno', sans-serif;
-  --font-inter: 'Inter', sans-serif;
+  --font-museo: 'MuseoModerno', sans-serif;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* Theme tokens: text-fg / bg-bg / text-acc etc. follow <html data-theme>. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-acc: var(--acc);
+}
+
+:root {
+  color-scheme: dark;
+  --bg: #000;
+  --fg: #fff;
+  --acc: #34d399;
+  --grid: rgba(38, 38, 38, 0.6);
+  --grad: linear-gradient(135deg, #34d399 0%, #22d3ee 35%, #a78bfa 68%, #fb7185 100%);
+  --emerald: #34d399;
+  --cyan: #22d3ee;
+  --violet: #a78bfa;
+  --rose: #fb7185;
+  --amber: #fbbf24;
+  --card: rgba(255, 255, 255, 0.03);
+  --card-shadow: 0 0 #0000;
+  --screen-shadow: 0 0 #0000;
+  --rain-opacity: 0.16;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f6f3;
+  --fg: #0b1210;
+  --acc: #047857;
+  --grid: rgba(11, 18, 16, 0.07);
+  --grad: linear-gradient(135deg, #047857 0%, #0e7490 35%, #6d28d9 68%, #be123c 100%);
+  --emerald: #047857;
+  --cyan: #0e7490;
+  --violet: #6d28d9;
+  --rose: #be123c;
+  --amber: #b45309;
+  /* light mode = "lab paper": white cards that lift off the page, dark screens that float above it */
+  --card: rgba(255, 255, 255, 0.82);
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(6, 40, 30, 0.06), 0 18px 40px -22px rgba(6, 70, 50, 0.35);
+  --screen-shadow: 0 2px 4px rgba(6, 30, 22, 0.08), 0 30px 60px -26px rgba(6, 40, 30, 0.55);
+  --rain-opacity: 0.2;
+}
+
+/* Terminals and project visuals are dark "screens" in both themes, so their accents stay neon. */
+.screen {
+  color-scheme: dark;
+  --grad: linear-gradient(135deg, #34d399 0%, #22d3ee 35%, #a78bfa 68%, #fb7185 100%);
+  --emerald: #34d399;
+  --cyan: #22d3ee;
+  --violet: #a78bfa;
+  --rose: #fb7185;
+  --amber: #fbbf24;
+}
 
 html {
-  scroll-behavior: auto;
+  position: relative; /* lets framer-motion measure scroll offsets against the page */
+  background: var(--bg);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--acc) 50%, transparent) transparent;
 }
 
 body {
-  background: #000;
-  color: white;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-oxanium);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.4s, color 0.4s;
 }
 
-html, body {
-  height: 100%;
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--acc) 45%, transparent); border-radius: 8px; }
+::selection { background: color-mix(in srgb, var(--acc) 35%, transparent); color: var(--fg); }
+
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 6px; }
+section[id] { scroll-margin-top: 80px; }
+
+.text-gradient {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-#root {
-  height: 100%;
+/* Components layer, so Tailwind utilities (hover states etc.) still win over these. */
+@layer components {
+  .card {
+    background-color: var(--card);
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(6px);
+  }
+  .screen-panel { box-shadow: var(--screen-shadow); }
+  .terminal { box-shadow: var(--screen-shadow); }
+  .terminal[data-done] { box-shadow: 0 0 40px -12px var(--ac), var(--screen-shadow); }
+  .rain { opacity: var(--rain-opacity); }
+
+  /* Aurora: slow-drifting pastel light, light mode only (dark mode has the matrix rain). */
+  .aurora { display: none; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  :root[data-theme="light"] .aurora { display: block; }
+  .aurora > span {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.55;
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+
+  /* Light mode draws the surname as an outline, echoing the '26 on the education card. */
+  :root[data-theme="light"] .surname {
+    color: transparent;
+    -webkit-text-stroke: 1.5px color-mix(in srgb, var(--fg) 45%, transparent);
+  }
 }
 
-::-webkit-scrollbar { width: 0; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: transparent; }
-
-* {
-  scrollbar-width: none;
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(8%, -10%) scale(1.15); }
+  100% { transform: translate(-8%, 8%) scale(0.92); }
 }
 
-::selection { background: rgba(255,255,255,0.3); color: #000; }
-
-@keyframes heartbeat {
-  0%, 100% { transform: scaleY(0.6); opacity: 0.4; }
-  50% { transform: scaleY(1.2); opacity: 1; }
+.scanlines {
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
 }
+
+.terminal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 3px);
+}
+
+/* Border glow that follows the cursor; --mx/--my are set on mousemove. */
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--ac) 14%, transparent), transparent 60%);
+}
+.spotlight:hover::before { opacity: 1; }
+
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: -80px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--acc);
+  color: var(--bg);
+  font-family: var(--font-geist-mono);
+  font-size: 13px;
+}
+.skip-link:focus { top: 16px; }
 
 @keyframes loadingBar {
   0%, 100% { height: 4px; }
-  50% { height: 56px; }
+  50% { height: 100%; }
 }
 
 @keyframes marquee {
@@ -54,35 +178,18 @@ html, body {
   100% { transform: translateX(-50%); }
 }
 
-@keyframes marquee-reverse {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
-}
+.animate-marquee { animation: marquee 45s linear infinite; }
 
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
 
-.animate-marquee-reverse {
-  animation: marquee-reverse 30s linear infinite;
-}
-
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

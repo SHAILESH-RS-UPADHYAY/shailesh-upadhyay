@@ -1,46 +1,41 @@
-# 0x00: IDENTITY_CONFIRMED
+# Shailesh Upadhyay · Portfolio
 
-> WARNING: UNAUTHORIZED ACCESS DETECTED.
-> INITIATING PROTOCOL: `shailesh_portfolio_override`
-> ...
-> ...
-> ACCESS GRANTED. WELCOME, ROOT.
+Personal site of an AI Backend Engineer: LLM pipelines, RAG systems, AI agents and Python backends.
 
----
+**Live:** https://shailesh-rs-upadhyay.github.io/shailesh-upadhyay/
 
-## █ ABOUT THE OPERATIVE
-**CODENAME:** Shailesh R.S. Upadhyay  
-**CLASS:** Cyber-Architect // Frontend Engineer  
-**STATUS:** ACTIVE AND COMPILING  
+## What's inside
 
-You have bypassed the firewall and gained access to my primary node. This repository contains the source code for my digital footprint. It is built with high-velocity technologies to ensure maximum performance and evasion.
+- **Neural boot intro**: a neural net draws itself, a greeting decodes in four scripts, then "Hi, Welcome" assembles from the network. Click or press any key to skip.
+- **Self-typing terminals**: every experience, project and skill card decrypts and types itself out as its section scrolls into view. No clicks needed.
+- **Dark and light themes**: follows the OS setting, with a manual toggle that's remembered.
+- **Resume viewer**: hover the thumbnail to peek, click to open it full size, download the PDF.
+- Scroll-spy navigation, a timeline that draws as you scroll, live project illustrations and reduced-motion support.
 
-## █ ARSENAL // TECH STACK
-- **Core Engine:** React + Vite
-- **Typing Syntax:** TypeScript (Strict Enforcement)
-- **Styling Protocols:** Modern CSS / Dynamic UI Interfaces
-- **Deployment Sector:** Vercel / GitHub Pages
+## Stack
 
-## █ INITIATING BUILD SEQUENCE
-To compile this node locally and inspect the source architecture:
+React 19 · TypeScript · Vite · Tailwind CSS v4 · Framer Motion · Lenis
+
+## Edit the content
+
+All text lives in [`src/data.ts`](src/data.ts): profile, experience, projects, skills and education.
+To update the resume, replace `public/resume.pdf` and regenerate `public/resume.webp` (page 1 rendered to an image).
+
+## Run locally
 
 ```bash
-# 1. Clone the encrypted repository into your local system
-git clone https://github.com/SHAILESH-RS-UPADHYAY/shailesh-portfolio-.git
-
-# 2. Infiltrate the directory
-cd shailesh-portfolio
-
-# 3. Install dependencies (Decrypting packages...)
+git clone https://github.com/SHAILESH-RS-UPADHYAY/shailesh-upadhyay.git
+cd shailesh-upadhyay
 npm install
-
-# 4. Boot up the local development server
 npm run dev
 ```
 
-## █ SECURE TRANSMISSIONS
-- **Live Node:** [Portfolio Under Construction]
-- **Direct Comm Link:** [Insert your email/LinkedIn here]
+## Deploy
 
----
-_END OF TRANSMISSION_
+```bash
+npm run deploy   # builds, then publishes dist/ to the gh-pages branch
+```
+
+## Contact
+
+shaileshrsupadhyay@gmail.com · [LinkedIn](https://linkedin.com/in/shailesh-upadhyay-6a112624a) · [GitHub](https://github.com/SHAILESH-RS-UPADHYAY)

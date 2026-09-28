@@ -1,598 +1,413 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { AnimatePresence, MotionConfig, motion, useScroll } from 'framer-motion'
 import Lenis from 'lenis'
+import Intro from './Intro'
+import { education, experience, greetings, marquee, moreBuilds, profile, projects, skills, stats, whoami } from './data'
+import { acVar, asset, EASE } from './lib'
+import { Chips, CountUp, ExtLink, MailPicker, MatrixRain, ProjectVisual, ResumeCard, SectionHeader, Terminal } from './ui'
 
-/* ====== LOADING SCREEN — Multi-Color Gradient ====== */
-function LoadingScreen({ onDone }: { onDone: () => void }) {
-  const [phase, setPhase] = useState<'bars' | 'welcome' | 'done'>('bars')
-  const gradientColors = ['#34d399', '#22d3ee', '#a78bfa', '#fb7185', '#f59e0b']
-  useEffect(() => {
-    const t1 = setTimeout(() => setPhase('welcome'), 1000)
-    const t2 = setTimeout(() => setPhase('done'), 2800)
-    const t3 = setTimeout(onDone, 3600)
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
-  }, [onDone])
-  if (phase === 'done') return null
+const NAV = [
+  { id: 'about', label: 'About' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'education', label: 'Education' },
+]
+const SPY = ['home', ...NAV.map((n) => n.id), 'contact']
+
+/* ====== ICONS ====== */
+function Icon({ name, className = 'w-5 h-5' }: { name: 'github' | 'linkedin' | 'mail' | 'file'; className?: string }) {
+  if (name === 'mail' || name === 'file')
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        {name === 'mail' ? <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></> : <><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" /><path d="M14 3v5h5M9 13h6M9 17h6" /></>}
+      </svg>
+    )
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black overflow-hidden">
-      {phase === 'bars' && (
-        <div className="flex items-end gap-[2px] h-16">
-          {Array.from({ length: 40 }).map((_, i) => {
-            const delay = i * 0.04
-            const color = gradientColors[i % gradientColors.length]
-            return (
-              <div key={i} className="w-[2px] rounded-full" style={{
-                height: '4px', backgroundColor: color,
-                animation: 'loadingBar 1s ease-in-out infinite',
-                animationDelay: `${delay}s`,
-                transformOrigin: 'bottom',
-              }} />
-            )
-          })}
-        </div>
-      )}
-      {phase === 'welcome' && (
-        <div className="relative flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="text-5xl md:text-6xl lg:text-7xl font-oxanium font-bold tracking-widest">
-              {'Hi, Welcome'.split('').map((ch, i) => {
-                const color = gradientColors[i % gradientColors.length]
-                return (
-                  <motion.span key={i} className="inline-block"
-                    initial={{ opacity: 0, y: 50, rotateX: -90, scale: 0.3 }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-                    transition={{ delay: i * 0.07, duration: 0.6, type: 'spring', stiffness: 180 }}
-                    style={{
-                      background: `linear-gradient(135deg, ${color}, ${gradientColors[(i + 1) % gradientColors.length]})`,
-                      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                      filter: `drop-shadow(0 0 12px ${color}60)`,
-                      whiteSpace: ch === ' ' ? 'pre' : 'normal'
-                    }}>
-                    {ch === ' ' ? '\u00A0' : ch}
-                  </motion.span>
-                )
-              })}
-            </div>
-            <motion.div className="absolute -inset-6 rounded-3xl"
-              animate={{
-                boxShadow: [
-                  '0 0 40px rgba(52,211,153,0.12), 0 0 80px rgba(34,211,238,0.06)',
-                  '0 0 40px rgba(167,139,250,0.12), 0 0 80px rgba(251,113,133,0.06)',
-                  '0 0 40px rgba(52,211,153,0.12), 0 0 80px rgba(34,211,238,0.06)',
-                ]
-              }}
-              transition={{ duration: 2.5, repeat: Infinity }} />
-          </div>
-          <motion.div className="font-geist-mono text-sm tracking-wider"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
-            <span className="text-emerald-400/40">{'>'}</span>{' '}
-            <span className="text-white/25">initializing portfolio</span>
-            <motion.span className="text-emerald-400/60" animate={{ opacity: [1, 0] }} transition={{ duration: 0.6, repeat: Infinity }}>█</motion.span>
-          </motion.div>
-        </div>
-      )}
-    </div>
+    <svg className={className} viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <path d={name === 'github'
+        ? 'M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z'
+        : 'M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z'} />
+    </svg>
   )
 }
 
-/* ====== BLACKHOLE OVERLAY ====== */
-function BlackholeOverlay({ revealed, onRevealed }: { revealed: boolean; onRevealed?: () => void }) {
+/* ====== BLACKHOLE REVEAL ====== */
+function BlackholeOverlay({ onDone }: { onDone: () => void }) {
   return (
-    <motion.div className="fixed inset-0 z-[9999] pointer-events-none" initial={false}
-      animate={{ background: revealed ? 'radial-gradient(circle at center, transparent 100%, black 100%)' : 'radial-gradient(circle at center, transparent 0%, black 100%)' }}
-      transition={{ duration: 0.8, ease: 'easeInOut', delay: 0.3 }}
-      onAnimationComplete={() => revealed && onRevealed?.()} />
+    <motion.div className="fixed inset-0 z-[65] pointer-events-none"
+      initial={{ background: 'radial-gradient(circle at center, transparent 0%, black 100%)' }}
+      animate={{ background: 'radial-gradient(circle at center, transparent 100%, black 100%)' }}
+      transition={{ duration: 0.9, ease: 'easeInOut' }} onAnimationComplete={onDone} />
   )
 }
 
-/* ====== FLOATING WRAPPER ====== */
-function Float({ children, delay = 0, intensity = 6 }: { children: React.ReactNode; delay?: number; intensity?: number }) {
+function Float({ children, delay = 0, y = 6 }: { children: ReactNode; delay?: number; y?: number }) {
   return (
-    <motion.div
-      animate={{ y: [0, -intensity, 0] }}
-      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay }}
-    >
+    <motion.div animate={{ y: [0, -y, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay }}>
       {children}
     </motion.div>
   )
 }
 
-/* ====== NAVBAR — Full-width Professional Layout ====== */
-function Navbar({ visible }: { visible: boolean }) {
-  const links = [
-    { label: 'Home', href: '#home' },
-    { label: 'Experience', href: '#experience' },
-    { label: 'Projects', href: '#projects' },
-    { label: 'Skills', href: '#skills' },
-  ]
-  const [active, setActive] = useState('home')
+function Rise({ d = 0, children, className }: { d?: number; children: ReactNode; className?: string }) {
   return (
-    <motion.nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-2xl border-b border-white/[0.05]"
-      initial={{ y: -100, opacity: 0 }} animate={visible ? { y: 0, opacity: 1 } : {}} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 1.5 }}>
-      <div className="relative w-full px-8 md:px-12 lg:px-16 py-4 flex items-center justify-between">
-        {/* Brand */}
-        <a href="#home" onClick={(e) => { e.preventDefault(); setActive('home'); document.querySelector('#home')?.scrollIntoView({ behavior: 'smooth' }) }}
-          className="font-museo text-2xl font-bold tracking-wider relative z-10">
-          <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text" style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            SHAILESH
-          </span>
-        </a>
-
-        {/* Absolutely Centered Links */}
-        <div className="hidden lg:flex items-center gap-2 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          {links.map((l) => (
-            <a key={l.label} href={l.href} onClick={(e) => {
-              e.preventDefault(); setActive(l.label.toLowerCase())
-              document.querySelector(l.href)?.scrollIntoView({ behavior: 'smooth' })
-            }}>
-              <motion.div
-                className={`relative px-5 py-2 rounded-lg font-oxanium text-sm tracking-wide transition-all duration-300 ${
-                  active === l.label.toLowerCase()
-                    ? 'text-white font-medium'
-                    : 'text-white/40 hover:text-white/70'
-                }`}
-                whileHover={{ scale: 1.04 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              >
-                {active === l.label.toLowerCase() && (
-                  <motion.div className="absolute inset-0 rounded-lg" layoutId="navBg"
-                    style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.1), rgba(34,211,238,0.06))', border: '1px solid rgba(52,211,153,0.12)' }}
-                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">{l.label}</span>
-              </motion.div>
-            </a>
-          ))}
-        </div>
-
-        {/* Contact CTA */}
-        <a href="#connect" className="relative z-10" onClick={(e) => { e.preventDefault(); setActive('contact'); document.querySelector('#connect')?.scrollIntoView({ behavior: 'smooth' }) }}>
-          <motion.button
-            className="relative px-7 py-2.5 rounded-xl font-oxanium text-sm font-medium tracking-wide text-white overflow-hidden cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-            style={{
-              background: 'linear-gradient(135deg, rgba(52,211,153,0.15), rgba(34,211,238,0.1))',
-              border: '1px solid rgba(52,211,153,0.2)',
-            }}
-          >
-            Contact
-          </motion.button>
-        </a>
-      </div>
-    </motion.nav>
-  )
-}
-
-/* ====== GLITCH CARD ====== */
-function GlitchCard({ title, subtitle, icon, lines, accent = 'emerald', onRevealed }: {
-  title: string; subtitle: string; icon: string; lines: string[]; accent?: 'emerald' | 'cyan' | 'amber' | 'rose'; onRevealed?: () => void
-}) {
-  const [state, setState] = useState<'idle' | 'glitching' | 'typing' | 'revealed'>('idle')
-  const [typedLines, setTypedLines] = useState<string[]>([])
-  const typingRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const accentMap = {
-    emerald: { text: 'text-emerald-400', border: 'border-emerald-500/20', bg: 'bg-emerald-500/[0.04]', glow: 'rgba(52,211,153,0.15)' },
-    cyan: { text: 'text-cyan-400', border: 'border-cyan-500/20', bg: 'bg-cyan-500/[0.04]', glow: 'rgba(34,211,238,0.15)' },
-    amber: { text: 'text-amber-400', border: 'border-amber-500/20', bg: 'bg-amber-500/[0.04]', glow: 'rgba(251,191,36,0.15)' },
-    rose: { text: 'text-rose-400', border: 'border-rose-500/20', bg: 'bg-rose-500/[0.04]', glow: 'rgba(251,113,133,0.15)' },
-  }
-  const ac = accentMap[accent]
-  const fullText = lines.join('\n')
-  function startReveal() {
-    if (state !== 'idle') return
-    setState('glitching')
-    setTimeout(() => {
-      setState('typing'); setTypedLines([])
-      let charIdx = 0
-      typingRef.current = setInterval(() => {
-        if (charIdx >= fullText.length) { clearInterval(typingRef.current!); setState('revealed'); onRevealed?.(); return }
-        const ch = fullText[charIdx]; charIdx++
-        if (ch === '\n') { setTypedLines(prev => [...prev, '']) }
-        else { setTypedLines(prev => { const c = [...prev]; if (!c.length) c.push(''); c[c.length - 1] += ch; return c }) }
-      }, 18)
-    }, 600)
-  }
-  useEffect(() => { return () => { if (typingRef.current) clearInterval(typingRef.current) } }, [])
-  return (
-    <motion.div className={`relative cursor-pointer select-none ${state === 'idle' ? 'hover:border-white/20' : ''}`}
-      onClick={startReveal} whileHover={state === 'idle' ? { scale: 1.015 } : {}} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-      <AnimatePresence>
-        {state === 'idle' && (
-          <motion.div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 md:p-8 transition-colors duration-500 w-full"
-            initial={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}>
-            <div className="flex flex-col md:flex-row items-start justify-between gap-4 text-left w-full">
-              <div className="flex-1 min-w-0">
-                {icon && <div className="text-4xl md:text-5xl text-white/10 mb-4">{icon}</div>}
-                <h3 className="font-museo text-xl md:text-2xl font-bold text-white/80 mb-2 truncate whitespace-normal">{title}</h3>
-                <p className="font-oxanium text-sm md:text-base text-white/30 whitespace-normal">{subtitle}</p>
-              </div>
-              <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
-                <span className={`font-geist-mono text-[10px] tracking-widest uppercase ${ac.text}`}>CLICK TO REVEAL</span>
-                <div className={`w-8 h-8 rounded-full border ${ac.border} flex items-center justify-center`}>
-                  <span className={`${ac.text} text-sm`}>→</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {state === 'glitching' && (
-        <motion.div className="bg-black border border-emerald-500/30 rounded-2xl p-6 md:p-8 w-full"
-          animate={{ x: [0, -4, 4, -2, 2, 0], opacity: [1, 0.3, 1, 0.5, 1, 1] }} transition={{ duration: 0.5, ease: 'linear' }}>
-          <div className="font-geist-mono text-emerald-400/80 text-lg">ACCESSING DATA...
-            <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity }}>█</motion.span>
-          </div>
-        </motion.div>
-      )}
-      {(state === 'typing' || state === 'revealed') && (
-        <motion.div className="bg-black border border-emerald-500/30 rounded-2xl p-6 md:p-8 w-full text-left"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/5">
-            <div className="w-3 h-3 rounded-full bg-red-500/60" /><div className="w-3 h-3 rounded-full bg-yellow-500/60" /><div className="w-3 h-3 rounded-full bg-green-500/60" />
-            <span className="font-geist-mono text-xs text-white/20 ml-2">{title.toLowerCase().replace(/\s+/g, '-')}.data</span>
-          </div>
-          <div className="font-geist-mono text-sm md:text-base space-y-2 min-h-[120px]">
-            {typedLines.map((line, i) => (
-              <div key={i} className="flex gap-3">
-                <span className="text-emerald-500/40 shrink-0">{i === 0 ? '$' : ' '}</span>
-                <span className="text-white/60">{line}</span>
-              </div>
-            ))}
-            {state === 'typing' && (
-              <div className="flex gap-3"><span className="text-emerald-500/40 shrink-0">$</span>
-                <motion.span className="text-emerald-400" animate={{ opacity: [1, 0] }} transition={{ duration: 0.6, repeat: Infinity }}>█</motion.span>
-              </div>
-            )}
-          </div>
-          {state === 'revealed' && (
-            <motion.button className={`mt-8 px-5 py-2 rounded-lg text-xs font-geist-mono tracking-widest border ${ac.border} ${ac.text} hover:bg-white/5 transition-colors`}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-              onClick={(e) => { e.stopPropagation(); setState('idle'); setTypedLines([]) }}>
-              [ CLOSE ]
-            </motion.button>
-          )}
-        </motion.div>
-      )}
+    <motion.div className={className} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: EASE, delay: 0.35 + d }}>
+      {children}
     </motion.div>
   )
 }
 
-/* ====== SECTION HEADER ====== */
-function SectionHeader({ number, label }: { number: string; label: string }) {
+/* ====== THEME — <html data-theme> is set before paint by index.html, from localStorage or the OS ====== */
+function ThemeToggle() {
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme ?? 'dark')
+  useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
+  const choose = (t: string) => {
+    try { localStorage.setItem('theme', t) } catch { /* private mode: theme just won't persist */ }
+    setTheme(t)
+  }
   return (
-    <div className="flex items-center justify-center gap-5 mb-12">
-      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-emerald-500/15 to-transparent" />
-      <span className="font-geist-mono text-base text-emerald-400/50 tracking-widest whitespace-nowrap">{number} — {label}</span>
-      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-emerald-500/15 to-transparent" />
-    </div>
-  )
-}
-
-/* ====== HERO — Complete Redesign ====== */
-const languageNames: Record<number, string> = {
-  0: 'EN', 1: 'HI', 2: 'JP', 3: 'KO', 4: 'EN', 5: 'HI',
-}
-
-function HeroSection() {
-  const languages = ['SHAILESH', 'शैलेश', 'シャーリーシュ', '샤일레시', 'SHAILESH', 'शाइलेश']
-  const [langIdx, setLangIdx] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => setLangIdx(prev => (prev + 1) % languages.length), 2200)
-    return () => clearInterval(interval)
-  }, [])
-
-  const gradientStyle = useMemo(() => ({
-    background: 'linear-gradient(135deg, #34d399 0%, #22d3ee 30%, #a78bfa 60%, #fb7185 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-  }), [])
-
-  return (
-    <section id="home" className="relative min-h-screen overflow-hidden flex items-center">
-      {/* Grid overlay — matching DIVFLIX style */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: 'linear-gradient(to right, rgba(38,38,38,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(38,38,38,0.6) 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }} />
-      {/* Center vignette */}
-      <div className="absolute inset-0 pointer-events-none flex items-center justify-center bg-black" style={{
-        maskImage: 'radial-gradient(ellipse at center, transparent 20%, black)',
-        WebkitMaskImage: 'radial-gradient(ellipse at center, transparent 20%, black)',
-      }} />
-
-      <div className="relative z-10 w-full px-8 md:px-12 lg:px-16 py-32">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
-
-          {/* Left: Greeting + Name + Bio + Resume + Contact */}
-          <div className="flex-1 flex flex-col gap-6">
-
-            {/* "Hi, I'm" greeting */}
-            <motion.div
-              className="font-oxanium text-lg md:text-xl lg:text-2xl text-white/40 tracking-wide"
-              initial={{ opacity: 0, y: 60 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
-            >
-              Hi, I'm
-            </motion.div>
-
-            {/* Name with cycling languages + superscript label */}
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, x: -80 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
-            >
-              <Float delay={0} intensity={4}>
-                <div className="relative inline-block">
-                  <div className="font-museo text-[3.5rem] md:text-[5rem] lg:text-[6.5rem] leading-[0.9] tracking-tight">
-                    <AnimatePresence mode="wait">
-                      <motion.span key={langIdx}
-                        initial={{ opacity: 0, y: 40, filter: 'blur(10px)', scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 }}
-                        exit={{ opacity: 0, y: -40, filter: 'blur(10px)', scale: 0.9 }}
-                        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                        className="block"
-                        style={gradientStyle}
-                      >
-                        {languages[langIdx]}
-                      </motion.span>
-                    </AnimatePresence>
-                  </div>
-                  {/* Superscript language label */}
-                  <motion.div
-                    className="absolute -top-1 -right-6 md:-right-8 font-geist-mono text-[8px] md:text-[9px] tracking-widest uppercase px-1.5 py-0.5 rounded-md"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(52,211,153,0.2), rgba(34,211,238,0.2))',
-                      border: '1px solid rgba(52,211,153,0.25)',
-                      color: '#34d399',
-                    }}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {languageNames[langIdx]}
-                  </motion.div>
-                  {/* "UPADHYAY" below */}
-                  <div className="font-museo text-[2rem] md:text-[2.8rem] lg:text-[3.5rem] leading-[0.9] tracking-tight text-white/20 mt-1">
-                    UPADHYAY
-                  </div>
-                </div>
-              </Float>
-            </motion.div>
-
-            {/* Bio text */}
-            <motion.p
-              className="font-oxanium text-sm md:text-base lg:text-[15px] text-white/35 leading-relaxed max-w-xl"
-              initial={{ opacity: 0, y: 60 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 1.1 }}
-            >
-              CS grad with an AI/ML background who loves building things that don't break at 3 AM. Backend systems, CI/CD pipelines, and automating everything I can get my hands on — that's my thing. Curious about AI research, comfortable with Python, SQL, Linux, and cloud. I ship stuff that works.
-            </motion.p>
-
-            {/* Resume Box */}
-            <Float delay={0.4} intensity={5}>
-              <motion.a
-                href="https://drive.google.com/file/d/1Xsp7-PNJrwxLjrFg5ZQTvgmGEn6PRcM8/view?usp=sharing" target="_blank" rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-4 bg-white/[0.02] border border-white/[0.08] rounded-2xl px-8 py-5 hover:border-emerald-500/30 transition-all duration-500 hover:shadow-[0_0_40px_rgba(52,211,153,0.06)]"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 1.4 }}
-              >
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500/[0.04] via-cyan-500/[0.04] to-purple-500/[0.04] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 w-12 h-12 rounded-xl border border-white/10 flex items-center justify-center group-hover:border-emerald-500/30 transition-colors duration-300">
-                  <svg className="w-5 h-5 text-white/50 group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                  </svg>
-                </div>
-                <div className="relative z-10">
-                  <div className="font-oxanium text-base font-semibold text-white/60 group-hover:text-white/80 transition-colors">View Resume</div>
-                  <div className="font-geist-mono text-[10px] text-white/20 mt-0.5 tracking-wider">OPEN IN DRIVE ↗</div>
-                </div>
-                <div className="relative z-10 ml-4 text-white/20 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all duration-300">→</div>
-              </motion.a>
-            </Float>
-
-
-          </div>
-
-          {/* Right: Profile Picture — slides from right */}
-          <motion.div
-            className="relative lg:w-[360px] xl:w-[400px] shrink-0"
-            initial={{ opacity: 0, x: 150 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.0 }}
-          >
-            <Float delay={0.2} intensity={7}>
-              <div className="relative group">
-                {/* Multi-color outer glow */}
-                <div className="absolute -inset-1 rounded-3xl opacity-50 group-hover:opacity-90 transition-opacity duration-700" style={{
-                  background: 'linear-gradient(135deg, rgba(52,211,153,0.2), rgba(34,211,238,0.15), rgba(167,139,250,0.15), rgba(251,113,133,0.1))',
-                  filter: 'blur(12px)'
-                }} />
-                <div className="absolute -inset-3 rounded-3xl opacity-25 group-hover:opacity-50 transition-opacity duration-700" style={{
-                  background: 'linear-gradient(135deg, rgba(52,211,153,0.1), rgba(167,139,250,0.1))',
-                  filter: 'blur(24px)'
-                }} />
-
-                {/* Main image box */}
-                <div className="relative bg-black/40 border border-white/[0.08] rounded-3xl overflow-hidden group-hover:border-white/15 transition-colors duration-500">
-                  <img src={`${import.meta.env.BASE_URL}profile.png`} alt="Shailesh Upadhyay" className="w-full h-auto object-cover object-top"
-                    style={{ filter: 'grayscale(20%) contrast(1.05) brightness(0.95)' }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                </div>
-
-                {/* Corner accents */}
-                <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 rounded-tl-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500" style={{ borderColor: '#34d399' }} />
-                <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 rounded-tr-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500" style={{ borderColor: '#22d3ee' }} />
-                <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 rounded-bl-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500" style={{ borderColor: '#a78bfa' }} />
-                <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 rounded-br-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500" style={{ borderColor: '#fb7185' }} />
-
-                {/* Floating badge */}
-                <motion.div
-                  className="absolute -bottom-3 -right-3 bg-black/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2"
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
-                >
-                  <span className="font-geist-mono text-[10px] tracking-wider" style={{
-                    background: 'linear-gradient(135deg, #34d399, #22d3ee)',
-                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
-                  }}>ML ENGINEER</span>
-                </motion.div>
-              </div>
-            </Float>
-          </motion.div>
-        </div>
-      </div>
-
-
-
-      {/* Bottom left info */}
-      <div className="absolute bottom-6 left-6 font-geist-mono text-[10px] text-white/12 tracking-widest">
-        <div>BASED IN INDIA</div>
-        <div>2026</div>
-      </div>
-    </section>
-  )
-}
-
-/* ====== ABOUT — Centered Layout ====== */
-function AboutSection() {
-  return (
-    <section id="about" className="relative py-48 px-6 md:px-20 lg:px-32 text-center">
-      <div className="max-w-5xl mx-auto">
-        <SectionHeader number="02" label="ABOUT" />
-        <motion.div className="text-center" initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
-          <h2 className="font-museo text-[3rem] md:text-[4.5rem] lg:text-[6rem] leading-[0.9] tracking-tight mb-8">
-            I build<br /><span className="text-emerald-400/70">systems</span><br />that think.
-          </h2>
-          <p className="font-oxanium text-xl md:text-2xl text-white/50 leading-relaxed max-w-2xl mx-auto mb-12">
-            ML Engineer who thinks in Python, dreams in neural networks, and believes the best AI isn't the most complex — it's the one that actually ships.
-          </p>
-        </motion.div>
-        <motion.div className="space-y-6 max-w-2xl mx-auto" initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}>
-          <div className="bg-black/60 border border-white/10 rounded-xl overflow-hidden text-left">
-            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" /><div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" /><div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
-              <span className="ml-2 font-geist-mono text-[11px] text-white/25">whoami</span>
-            </div>
-            <div className="p-5 font-geist-mono text-sm space-y-1.5">
-              <div className="flex gap-2"><span className="text-emerald-500/60">$</span><span className="text-white/70">cat /etc/resume</span></div>
-              <div className="pl-4 text-white/40">{'>'} ML Engineer @ FAR Labs / Dizzaract</div>
-              <div className="pl-4 text-white/40">{'>'} Digital Twin · LSTM · PPO · ONNX/TensorRT</div>
-              <div className="pl-4 text-white/40">{'>'} Python 95% · C++ 60% · Git 75%</div>
-              <div className="pl-4 text-emerald-400/50">{'>'} "Perceive. Design. Build."</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[{ value: '12+', label: 'Projects' }, { value: '8', label: 'Models Trained' }, { value: '<15ms', label: 'Inference Time' }, { value: 'PY/JS/TS', label: 'Languages' }].map((s) => (
-              <div key={s.label} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 text-center">
-                <div className="font-museo text-3xl md:text-4xl text-emerald-400/70">{s.value}</div>
-                <div className="font-geist-mono text-xs text-white/25 mt-2 tracking-wide">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
-/* ====== SEQUENTIAL REVEAL CARDS ====== */
-function SequentialCards<T extends { title: string; subtitle: string; icon: string; lines: string[]; accent: 'emerald' | 'cyan' | 'amber' | 'rose' }>({
-  items, cols = 1
-}: {
-  items: T[]; cols?: 1 | 2 | 3
-}) {
-  const [revealed, setRevealed] = useState(0)
-
-  return (
-    <div className={`grid grid-cols-1 ${cols === 2 ? 'md:grid-cols-2' : ''} ${cols === 3 ? 'md:grid-cols-2 lg:grid-cols-3' : ''} gap-6 md:gap-8 w-full`}>
-      {items.map((item, i) => (
-        <AnimatePresence key={item.title}>
-          {i <= revealed && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1], delay: i === revealed ? 0 : 0 }}>
-              <GlitchCard {...item} onRevealed={() => {
-                if (i === revealed && revealed < items.length - 1) {
-                  setRevealed(prev => prev + 1)
-                }
-              }} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+    <div role="group" aria-label="Color theme" className="flex items-center p-1 rounded-xl border border-fg/15 font-geist-mono text-[10px] md:text-[11px] tracking-widest">
+      {['dark', 'light'].map((t) => (
+        <button key={t} type="button" aria-pressed={theme === t} onClick={() => choose(t)}
+          className={`relative px-2.5 md:px-3 py-1.5 rounded-lg cursor-pointer transition-colors ${theme === t ? 'text-fg' : 'text-fg/50 hover:text-fg/80'}`}>
+          {theme === t && <motion.span layoutId="themePill" className="absolute inset-0 rounded-lg bg-fg/10" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
+          <span className="relative">{t.toUpperCase()}</span>
+        </button>
       ))}
     </div>
   )
 }
 
-/* ====== EXPERIENCE ====== */
-const experienceData = [
-  {
-    title: 'ML Engineer', subtitle: 'FAR Labs / Dizzaract · Feb 2026 – Mar 2026', icon: '', accent: 'emerald' as const, lines: [
-      'ROLE: ML Engineer — Player Behavior Cloning', '', 'DESIGNED 4 SUB-MODELS:',
-      '  → Aim LSTM         — Predicts target acquisition patterns', '  → Movement Transformer — Clones navigation & positioning',
-      '  → Tactical MLP     — Decision-making under pressure', '  → Style Discriminator — Validates twin realism', '',
-      'TRAINED IDM to pseudo-label 500+ hours of gameplay data', 'PPO fine-tuning for adaptive in-game behavior',
-      'ONNX/TensorRT export achieving <15ms inference', 'Style discriminator <58% accuracy — near-indistinguishable digital twin', '',
-      'STACK: PyTorch · LSTM · Transformer · PPO · ONNX · TensorRT',
-    ]},
-  {
-    title: 'Data Analytics Intern', subtitle: 'Labmentix · Nov 2025 – Dec 2025', icon: '', accent: 'cyan' as const, lines: [
-      'ROLE: Data Analytics Intern — Pipeline Optimization', '', 'KEY ACHIEVEMENTS:',
-      '  → Processed 10,000+ rows using Python/Pandas', '  → Improved data quality by 35%',
-      '  → Automated 5 reporting workflows — saved 8 hrs/week', '  → Optimized ETL pipelines — reduced latency by 40%', '',
-      'STACK: Python · Pandas · ETL · SQL',
-    ]},
-  {
-    title: 'AI Developer', subtitle: 'LÜQ · 2025', icon: '', accent: 'rose' as const, lines: [
-      'ROLE: Freelance AI Developer — Emotion Engine', '', 'KEY ACHIEVEMENTS:',
-      '  → Built custom sentiment engine detecting 7 emotional states', '  → Custom NLP pipeline with transformer backbone',
-      '  → Real-time inference for conversational agents', '  → Shipped from concept to prototype in rapid cycles', '',
-      'STACK: Python · NLP · Transformers · FastAPI',
-    ]},
-]
+/* ====== NAVBAR — scroll-spy, progress bar, mobile menu ====== */
+function useActiveSection(ids: string[]) {
+  const [active, setActive] = useState(ids[0])
+  useEffect(() => {
+    const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && setActive(e.target.id)), { rootMargin: '-45% 0px -50% 0px' })
+    ids.forEach((id) => { const el = document.getElementById(id); if (el) io.observe(el) })
+    return () => io.disconnect()
+  }, [ids])
+  return active
+}
 
-function ExperienceSection() {
+function Navbar() {
+  const active = useActiveSection(SPY)
+  const [menu, setMenu] = useState(false)
+  const { scrollYProgress } = useScroll()
   return (
-    <section id="experience" className="relative py-32 md:py-48 px-6 md:px-12 lg:px-24 border-t border-white/[0.04] text-center flex flex-col items-center">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center">
-        <SectionHeader number="03" label="EXPERIENCE" />
-        <p className="font-oxanium text-lg text-white/30 mb-12 max-w-xl mx-auto">Unlock each role one at a time.</p>
-        <SequentialCards items={experienceData} cols={3} />
+    <motion.header className="fixed top-0 inset-x-0 z-50 bg-bg/75 backdrop-blur-xl border-b border-fg/[0.06]"
+      initial={{ y: -100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, ease: EASE, delay: 0.3 }}>
+      <nav aria-label="Primary" className="relative mx-auto max-w-7xl h-18 md:h-20 px-5 md:px-10 flex items-center justify-between">
+        <a href="#home" className="font-museo text-2xl md:text-[1.9rem] font-bold tracking-wider text-gradient" aria-label="Shailesh Upadhyay, home">
+          SHAILESH
+        </a>
+        <ul className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+          {NAV.map((l) => (
+            <li key={l.id}>
+              <a href={`#${l.id}`} aria-current={active === l.id ? 'true' : undefined}
+                className={`relative block px-4 py-2 rounded-xl font-oxanium text-[15px] tracking-wide transition-colors ${active === l.id ? 'text-fg' : 'text-fg/60 hover:text-fg'}`}>
+                {active === l.id && (
+                  <motion.span layoutId="navPill" className="absolute inset-0 rounded-xl border border-acc/25 bg-gradient-to-br from-acc/15 to-cyan-400/5"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
+                )}
+                <span className="relative">{l.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div className="flex items-center gap-2 md:gap-3">
+          <ThemeToggle />
+          <a href="#contact"
+            className="hidden sm:inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-oxanium text-[15px] font-medium text-fg border border-acc/30 bg-gradient-to-br from-acc/20 to-cyan-400/10 hover:from-acc/30 hover:shadow-[0_0_30px_-8px_var(--acc)] active:scale-[0.97] transition-all">
+            <span className="w-1.5 h-1.5 rounded-full bg-acc animate-pulse" /> Let's talk
+          </a>
+          <button type="button" className="lg:hidden w-11 h-11 rounded-xl border border-fg/15 flex flex-col items-center justify-center gap-1.5 cursor-pointer"
+            aria-label="Menu" aria-expanded={menu} aria-controls="mobile-menu" onClick={() => setMenu((m) => !m)}>
+            <span className={`block w-5 h-px bg-fg transition-transform ${menu ? 'translate-y-[3.5px] rotate-45' : ''}`} />
+            <span className={`block w-5 h-px bg-fg transition-transform ${menu ? '-translate-y-[3.5px] -rotate-45' : ''}`} />
+          </button>
+        </div>
+      </nav>
+      <AnimatePresence>
+        {menu && (
+          <motion.ul id="mobile-menu" className="lg:hidden border-t border-fg/[0.06] px-5 py-3 bg-bg/95"
+            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+            {[...NAV, { id: 'contact', label: 'Contact' }].map((l) => (
+              <li key={l.id}>
+                <a href={`#${l.id}`} onClick={() => setMenu(false)}
+                  className={`block py-3 font-oxanium text-lg ${active === l.id ? 'text-acc' : 'text-fg/80'}`}>{l.label}</a>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+      <motion.div className="absolute bottom-0 inset-x-0 h-[2px] origin-left bg-gradient-to-r from-acc via-cyan-400 to-violet-400" style={{ scaleX: scrollYProgress }} />
+    </motion.header>
+  )
+}
+
+/* ====== HERO ====== */
+function Hero() {
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setI((v) => (v + 1) % greetings.length), 2600)
+    return () => clearInterval(t)
+  }, [])
+  const g = greetings[i]
+  const socials = [
+    { href: profile.github, label: 'GitHub', icon: 'github' as const },
+    { href: profile.linkedin, label: 'LinkedIn', icon: 'linkedin' as const },
+  ]
+  const iconBtn = 'card w-12 h-12 rounded-xl border border-fg/10 flex items-center justify-center text-fg/70 hover:text-acc hover:border-acc/40 hover:-translate-y-0.5 active:scale-95 transition-all'
+
+  return (
+    <section id="home" className="relative min-h-[100dvh] overflow-hidden flex items-center">
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: 'linear-gradient(to right, var(--grid) 1px, transparent 1px), linear-gradient(to bottom, var(--grid) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+      }} />
+      <div className="absolute inset-0 pointer-events-none bg-bg" style={{
+        maskImage: 'radial-gradient(ellipse at center, transparent 20%, black)', WebkitMaskImage: 'radial-gradient(ellipse at center, transparent 20%, black)',
+      }} />
+      <div aria-hidden className="aurora">
+        <span className="left-[46%] top-[4%] w-[36vw] h-[36vw] bg-emerald-300" />
+        <span className="left-[72%] top-[42%] w-[28vw] h-[28vw] bg-violet-300" style={{ animationDelay: '-6s' }} />
+        <span className="left-[4%] top-[52%] w-[26vw] h-[26vw] bg-cyan-200" style={{ animationDelay: '-11s' }} />
+        <span className="left-[26%] top-[-12%] w-[20vw] h-[20vw] bg-rose-200" style={{ animationDelay: '-3s' }} />
+      </div>
+      <MatrixRain />
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-10 pt-32 pb-36 lg:pt-28 grid lg:grid-cols-[1.15fr_0.85fr] items-center gap-16">
+        <div className="flex flex-col gap-6 md:gap-7">
+          <Rise>
+            <AnimatePresence mode="wait">
+              <motion.div key={i} aria-hidden className="flex flex-wrap items-center gap-3 min-h-9"
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3, ease: EASE }}>
+                <span className="font-oxanium text-xl md:text-2xl text-fg/65">{g.hi}</span>
+                <span className="font-geist-mono text-[10px] md:text-[11px] tracking-widest px-2 py-1 rounded-md border border-acc/30 bg-acc/10 text-acc">
+                  {g.code} · {g.lang}
+                </span>
+              </motion.div>
+            </AnimatePresence>
+          </Rise>
+          <Rise d={0.1}>
+            <Float y={4}>
+              <h1 className="font-museo leading-none tracking-tight">
+                <span className="sr-only">Shailesh Upadhyay</span>
+                <span aria-hidden className="relative block text-[3.3rem] sm:text-[4.5rem] md:text-[5.5rem] lg:text-[6.3rem]">
+                  <span className="invisible block py-[0.08em]">SHAILESH</span>
+                  <AnimatePresence mode="wait">
+                    {/* Scanner wipe: clip-path reveal plus a glowing bar riding the edge. The extra padding gives tall
+                        scripts (Tamil, Malayalam, Devanagari) room, since gradient-clipped text only paints inside its box. */}
+                    <motion.span key={i} className="absolute left-0 top-0 w-max"
+                      exit={{ opacity: 0, y: -24 }} transition={{ duration: 0.3, ease: EASE }}>
+                      <motion.span className="block -mt-[0.2em] py-[0.28em] -mx-[0.08em] px-[0.08em] text-gradient whitespace-nowrap"
+                        initial={{ clipPath: 'inset(0 100% 0 0)' }} animate={{ clipPath: 'inset(0 0% 0 0)' }} transition={{ duration: 0.8, ease: EASE }}>
+                        {g.name}
+                      </motion.span>
+                      <motion.span className="absolute top-[0.05em] bottom-[0.05em] w-[3px] rounded-full bg-acc" style={{ boxShadow: '0 0 18px 3px var(--acc)' }}
+                        initial={{ left: '0%', opacity: 0 }} animate={{ left: '100%', opacity: [0, 1, 1, 0] }} transition={{ duration: 0.8, ease: EASE }} />
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
+                <span aria-hidden className="surname block text-[2rem] md:text-[2.9rem] lg:text-[3.4rem] text-fg/30 mt-1">{profile.last}</span>
+              </h1>
+            </Float>
+          </Rise>
+          <Rise d={0.2}>
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="font-geist-mono text-sm md:text-base text-acc px-3 py-1.5 rounded-lg border border-acc/30 bg-acc/10">
+                {profile.role}
+              </span>
+              {profile.focus.map((f) => <span key={f} className="font-oxanium text-sm md:text-base text-fg/60"><span className="text-acc/60">/</span> {f}</span>)}
+            </p>
+          </Rise>
+          <Rise d={0.3}>
+            <p className="font-oxanium text-lg md:text-xl text-fg/85 leading-relaxed max-w-xl text-pretty">
+              {profile.tagline} <span className="text-fg/55">Right now I build LLM infrastructure with a US team at {profile.current}.</span>
+            </p>
+          </Rise>
+          <Rise d={0.4} className="flex flex-wrap items-center gap-4 mt-2">
+            <ResumeCard />
+            <div className="flex gap-3">
+              {socials.map((s) => (
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} className={iconBtn}>
+                  <Icon name={s.icon} />
+                </a>
+              ))}
+              <MailPicker email={profile.email} label="Email me" className={iconBtn}><Icon name="mail" /></MailPicker>
+            </div>
+          </Rise>
+        </div>
+
+        {/* Portrait — slides in, then keeps bouncing */}
+        <motion.div className="relative mx-auto w-full max-w-[330px] md:max-w-[380px] lg:max-w-[410px]"
+          initial={{ opacity: 0, x: 120 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1.1, ease: EASE, delay: 0.3 }}>
+          <motion.div animate={{ y: [0, -22, 0, -7, 0] }}
+            transition={{ duration: 2.4, times: [0, 0.38, 0.66, 0.83, 1], ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.5, delay: 1.4 }}>
+            <div className="relative group">
+              <div className="absolute -inset-1 rounded-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-md"
+                style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.3), rgba(34,211,238,0.2), rgba(167,139,250,0.2), rgba(251,113,133,0.15))' }} />
+              <div className="relative rounded-3xl overflow-hidden border border-fg/10 bg-bg/40">
+                <img src={asset('profile.webp')} alt="Portrait of Shailesh Upadhyay" width={1024} height={1536} fetchPriority="high"
+                  className="block w-full h-auto" style={{ filter: 'grayscale(15%) contrast(1.05) brightness(0.96)' }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              </div>
+              {(['top-3 left-3 border-t-2 border-l-2 rounded-tl-lg border-acc', 'top-3 right-3 border-t-2 border-r-2 rounded-tr-lg border-cyan-400',
+                'bottom-3 left-3 border-b-2 border-l-2 rounded-bl-lg border-violet-400', 'bottom-3 right-3 border-b-2 border-r-2 rounded-br-lg border-rose-400']).map((c) => (
+                <div key={c} className={`absolute w-6 h-6 opacity-70 group-hover:opacity-100 transition-opacity ${c}`} />
+              ))}
+              <div className="screen screen-panel absolute -top-4 left-6 flex items-center gap-2 rounded-full border border-emerald-400/25 bg-black/90 backdrop-blur px-3.5 py-1.5 font-geist-mono text-[11px] text-white/85">
+                <span className="relative flex w-2 h-2"><span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping" /><span className="relative w-2 h-2 rounded-full bg-emerald-400" /></span>
+                Currently @ {profile.current}
+              </div>
+              <div className="screen screen-panel absolute -bottom-4 -right-3 rounded-xl border border-white/10 bg-black/90 backdrop-blur px-4 py-2 font-geist-mono text-[11px] tracking-widest">
+                <span className="text-gradient">AI BACKEND ENGINEER</span>
+              </div>
+              <div className="screen-panel hidden md:block absolute top-[58%] -left-16 rounded-xl border border-emerald-400/25 bg-black/90 backdrop-blur px-4 py-3 font-geist-mono text-[11px] leading-relaxed shadow-[0_0_40px_-10px_#34d399]">
+                <div className="text-emerald-400">$ curl -N /v1/chat/stream</div>
+                <div className="text-white/60">p95 <span className="text-white/40 line-through">1.2s</span> → <span className="text-emerald-300">660ms</span> ✓</div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+
+      <div className="absolute bottom-0 inset-x-0 z-10 border-t border-fg/[0.06] bg-bg/70 py-4 overflow-hidden" aria-hidden>
+        <div className="flex w-max animate-marquee">
+          {[...marquee, ...marquee].map((t, k) => (
+            <span key={k} className="flex items-center gap-8 pr-8 font-geist-mono text-xs md:text-sm tracking-[0.2em] text-fg/45 uppercase">
+              {t}<span className="text-acc/60 text-[8px]">◆</span>
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
-/* ====== EDUCATION — Centered ====== */
-function EducationSection() {
+/* ====== ABOUT ====== */
+function About() {
   return (
-    <section className="relative py-32 md:py-48 px-6 md:px-12 lg:px-24 border-t border-white/[0.04] text-center flex flex-col items-center">
-      <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
-        <SectionHeader number="04" label="EDUCATION" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 w-full max-w-4xl mx-auto">
-          <motion.div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-8 md:p-10 hover:border-white/15 transition-colors duration-500"
-            initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}>
-            <div className="font-geist-mono text-xs text-emerald-400/50 tracking-widest mb-3">2022 – 2026</div>
-            <h3 className="font-oxanium text-xl md:text-2xl font-bold text-white/80 mb-2">B.Tech Computer Science</h3>
-            <p className="font-oxanium text-base text-white/40">Specialization in Machine Learning & AI</p>
+    <section id="about" className="relative py-28 md:py-40 px-5 md:px-10">
+      <div className="max-w-6xl mx-auto">
+        <SectionHeader n="01" label="ABOUT" title={<>I build <span className="text-acc/80">systems</span> that think.</>} />
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-14 items-start">
+          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8, ease: EASE }}>
+            <p className="font-oxanium text-lg md:text-xl text-fg/75 leading-relaxed text-pretty">{profile.summary}</p>
+            <dl className="mt-10 grid grid-cols-2 gap-4">
+              {stats.map((s) => (
+                <div key={s.label} className="card flex flex-col-reverse rounded-2xl border border-fg/[0.08] p-5 md:p-6 hover:border-acc/30 transition-colors">
+                  <dt className="font-oxanium text-sm text-fg/60 mt-2 leading-snug">{s.label}</dt>
+                  <dd className="font-museo text-3xl md:text-4xl text-gradient"><CountUp to={s.to} dec={s.dec} prefix={s.prefix} suffix={s.suffix} /></dd>
+                </div>
+              ))}
+            </dl>
           </motion.div>
-          <motion.div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-8 md:p-10 hover:border-white/15 transition-colors duration-500"
-            initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6, delay: 0.25, ease: [0.34, 1.56, 0.64, 1] }}>
-            <div className="font-geist-mono text-xs text-cyan-400/50 tracking-widest mb-3">CERTIFICATIONS</div>
-            <h3 className="font-oxanium text-xl md:text-2xl font-bold text-white/80 mb-2">Deep Learning Specialization</h3>
-            <p className="font-oxanium text-base text-white/40">Andrew Ng · Coursera</p>
-          </motion.div>
+          <Terminal lines={whoami} file="~/whoami.sh" accent="emerald" />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ====== EXPERIENCE — timeline that draws itself as you scroll ====== */
+function Experience() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 70%', 'end 60%'] })
+  return (
+    <section id="experience" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05]">
+      <div className="max-w-6xl mx-auto">
+        <SectionHeader n="02" label="EXPERIENCE" title="Where I've shipped" />
+        <div ref={ref} className="relative">
+          <div className="absolute left-[7px] md:left-[227px] top-2 bottom-2 w-px bg-fg/10" />
+          <motion.div className="absolute left-[7px] md:left-[227px] top-2 bottom-2 w-px origin-top bg-gradient-to-b from-acc via-violet-400 to-rose-400"
+            style={{ scaleY: scrollYProgress }} />
+          <ol className="space-y-16 md:space-y-20">
+            {experience.map((e) => (
+              <motion.li key={e.role} style={acVar(e.accent)} className="relative grid md:grid-cols-[200px_1fr] gap-3 md:gap-14 pl-9 md:pl-0"
+                initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.7, ease: EASE }}>
+                <span className="absolute left-0 md:left-[220px] top-1.5 w-[15px] h-[15px] rounded-full border-2 border-(--ac) bg-bg shadow-[0_0_16px_var(--ac)]" />
+                <p className="font-geist-mono text-sm text-(--ac) md:text-right md:pt-1.5">{e.period}</p>
+                <div className="min-w-0">
+                  <h3 className="font-museo text-2xl md:text-3xl text-fg/95">{e.role}</h3>
+                  <p className="font-oxanium text-base md:text-lg text-fg/65 mt-1.5">
+                    <span className="text-fg/90">{e.org}</span> — {e.note}
+                  </p>
+                  {e.links.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-4">{e.links.map((l) => <ExtLink key={l.href} href={l.href}>{l.label}</ExtLink>)}</div>
+                  )}
+                  <Terminal className="mt-5" lines={e.lines} file={e.file} accent={e.accent} />
+                  <Chips className="mt-4" items={e.stack} />
+                </div>
+              </motion.li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ====== PROJECTS ====== */
+function spotlight(e: MouseEvent<HTMLElement>) {
+  const r = e.currentTarget.getBoundingClientRect()
+  e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`)
+  e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
+}
+
+function Private() {
+  return <span className="font-geist-mono text-xs text-fg/55 px-3 py-1.5 rounded-lg border border-fg/10">Private repo · demo on request</span>
+}
+
+function Projects() {
+  return (
+    <section id="projects" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05]">
+      <div className="max-w-7xl mx-auto">
+        <SectionHeader n="03" label="PROJECTS" title="Things I've built" />
+        <div className="space-y-24 md:space-y-32">
+          {projects.map((p, i) => (
+            <motion.article key={p.name} style={acVar(p.accent)} className="grid lg:grid-cols-2 gap-8 lg:gap-14 items-start"
+              initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8, ease: EASE }}>
+              <div className={i % 2 ? 'lg:order-2' : ''}>
+                <ProjectVisual kind={p.visual} accent={p.accent} />
+                <p className="mt-7 font-geist-mono text-xs tracking-[0.2em] uppercase text-(--ac)">{p.kind}</p>
+                <h3 className="font-museo text-4xl md:text-5xl text-fg mt-2">{p.name}</h3>
+                <p className="font-oxanium text-lg text-fg/75 mt-3 leading-relaxed text-pretty">{p.pitch}</p>
+                <dl className="flex flex-wrap gap-x-10 gap-y-4 mt-6">
+                  {p.metrics.map((m) => (
+                    <div key={m.l} className="flex flex-col-reverse">
+                      <dt className="font-oxanium text-xs text-fg/55 mt-1">{m.l}</dt>
+                      <dd className="font-museo text-2xl md:text-3xl text-(--ac)">{m.v}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="flex flex-wrap gap-2 mt-7">
+                  {p.links.length ? p.links.map((l) => <ExtLink key={l.href} href={l.href}>{l.label}</ExtLink>) : <Private />}
+                </div>
+              </div>
+              <div className={i % 2 ? 'lg:order-1' : ''}>
+                <Terminal lines={p.lines} file={p.file} accent={p.accent} />
+                <Chips className="mt-4" items={p.stack} />
+              </div>
+            </motion.article>
+          ))}
+        </div>
+
+        <h3 className="font-museo text-3xl md:text-4xl text-fg/90 text-center mt-32 mb-10">More builds</h3>
+        <div className="grid md:grid-cols-2 gap-5">
+          {moreBuilds.map((b, i) => (
+            <motion.div key={b.name} style={acVar(b.accent)} onMouseMove={spotlight}
+              className="card spotlight relative flex flex-col rounded-2xl border border-fg/[0.08] p-6 md:p-8 hover:border-(--ac)/40 transition-colors"
+              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.6, delay: (i % 2) * 0.1, ease: EASE }}>
+              <p className="font-geist-mono text-[11px] tracking-[0.18em] uppercase text-(--ac)">{b.kind}</p>
+              <h4 className="font-museo text-2xl md:text-3xl text-fg mt-2">{b.name}</h4>
+              <p className="font-oxanium text-fg/70 mt-3 leading-relaxed flex-1">{b.text}</p>
+              <Chips className="mt-5" items={b.stack} />
+              <div className="mt-5 flex flex-wrap gap-2">{b.links.length ? b.links.map((l) => <ExtLink key={l.href} href={l.href}>{l.label}</ExtLink>) : <Private />}</div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
@@ -600,84 +415,20 @@ function EducationSection() {
 }
 
 /* ====== SKILLS ====== */
-const skillData = [
-  { title: 'Deep Learning', subtitle: 'Neural Network Architectures', icon: '⟁', accent: 'emerald' as const, lines: [
-    'LSTM / GRU — Sequence modeling for player behavior cloning', 'Transformers — Attention-based architectures',
-    'CNNs — Image recognition and feature extraction', 'GANs — Style discriminators for digital twin validation',
-    '500+ hours of gameplay data processed and labeled', 'Sub-15ms inference latency via TensorRT optimization',
-  ]},
-  { title: 'Languages', subtitle: 'Core Tech Stack', icon: '{}', accent: 'cyan' as const, lines: [
-    'Python  — 95% — Primary language for ML/AI development', 'C++     — 60% — Performance-critical model inference',
-    'SQL     — 75% — Data querying and pipeline management', 'TypeScript — 70% — Full-stack prototyping & APIs',
-    'Bash    — 70% — Automation scripts and deployment',
-  ]},
-  { title: 'Frameworks', subtitle: 'Tools & Libraries', icon: '', accent: 'amber' as const, lines: [
-    'PyTorch   — Core framework for model development', 'ONNX      — Model export and cross-platform deployment',
-    'TensorRT  — GPU-accelerated inference optimization', 'Pandas    — Data manipulation and analysis',
-    'FastAPI   — High-performance API development', 'Ray       — Distributed reinforcement learning',
-  ]},
-  { title: 'Domains', subtitle: 'Areas of Expertise', icon: '◎', accent: 'rose' as const, lines: [
-    'Digital Twin   — Player behavior cloning & simulation', 'Reinforcement Learning — PPO agents for adaptive AI',
-    'NLP / Emotion AI — 7-state sentiment detection', 'Data Engineering — ETL pipelines, 40% latency reduction',
-    'MLOps — Model monitoring, versioning, deployment',
-  ]},
-]
-
-function SkillsSection() {
+function Skills() {
   return (
-    <section id="skills" className="relative py-32 md:py-48 px-6 md:px-12 lg:px-24 border-t border-white/[0.04] text-center flex flex-col items-center">
-      <div className="w-full max-w-6xl mx-auto flex flex-col items-center">
-        <SectionHeader number="05" label="SKILLS" />
-        <p className="font-oxanium text-lg text-white/30 mb-12 max-w-xl mx-auto">Master a skill to unlock the next one.</p>
-        <SequentialCards items={skillData} cols={2} />
-      </div>
-    </section>
-  )
-}
-
-/* ====== PROJECTS ====== */
-const projectData = [
-  { title: 'Digital Twin Agent', subtitle: 'Game AI — FAR Labs / Dizzaract', icon: '', accent: 'emerald' as const, lines: [
-    'PROJECT: Player Behavior Cloning — Digital Twin Agent', '', 'DESIGNED 4 SUB-MODELS:',
-    '  → Aim LSTM         — Predicts target acquisition patterns', '  → Movement Trans.  — Clones navigation & positioning',
-    '  → Tactical MLP     — Decision-making under pressure', '  → Style Discrim.   — Validates twin realism', '',
-    'TRAINED IDM to pseudo-label 500+ hours of gameplay data', 'PPO fine-tuning for adaptive in-game behavior',
-    'ONNX/TensorRT export achieving <15ms inference', 'Style discriminator <58% accuracy — near-indistinguishable', '',
-    'STACK: PyTorch · LSTM · Transformer · PPO · TensorRT',
-  ]},
-  { title: 'AutoFlow', subtitle: 'Workflow Automation Engine', icon: '', accent: 'cyan' as const, lines: [
-    'PROJECT: AutoFlow — Automated Data Pipeline', '', 'BUILT end-to-end automation for data processing',
-    '  → Ingest → Clean → Transform → Load → Report', '',
-    'PROCESSED 10,000+ rows with 35% quality improvement', 'AUTOMATED 5 reporting workflows — saved 8 hrs/week',
-    'OPTIMIZED ETL pipelines — 40% latency reduction', '', 'STACK: Python · Pandas · SQL · ETL · Airflow',
-  ]},
-  { title: 'RADAR Sim', subtitle: 'Sensor Simulation & Tracking', icon: '', accent: 'amber' as const, lines: [
-    'PROJECT: RADAR — Sensor Simulation System', '', 'BUILT real-time RADAR simulation environment',
-    '  → Object detection and tracking algorithms', '  → Signal processing pipeline',
-    '  → Multi-target tracking with Kalman filters', '',
-    'ACHIEVED real-time performance with optimized C++ backend', 'INTEGRATED with Python ML layer for classification', '',
-    'STACK: C++ · Python · Kalman Filter · Signal Processing',
-  ]},
-  { title: 'Emotion Engine', subtitle: 'NLP — LÜQ Japan Client', icon: '', accent: 'rose' as const, lines: [
-    'PROJECT: Emotion Engine — Sentiment Analysis', '', 'BUILT custom sentiment engine for Japanese client at LÜQ',
-    '  → Detects 7 emotional states from text input', '  → Custom NLP pipeline with transformer backbone',
-    '  → Real-time inference for conversational agents', '',
-    'SHIPPED from concept to prototype in rapid cycles', 'DEPLOYED with FastAPI backend for production use', '',
-    'STACK: Python · Transformers · FastAPI · NLP',
-  ]},
-]
-
-function ProjectsSection() {
-  return (
-    <section id="projects" className="relative py-32 md:py-48 px-6 md:px-12 lg:px-24 border-t border-white/[0.04] text-center flex flex-col items-center">
-      <div className="w-full max-w-6xl mx-auto flex flex-col items-center">
-        <SectionHeader number="06" label="PROJECTS" />
-        <p className="font-oxanium text-lg text-white/30 mb-12 max-w-xl mx-auto">Click any project to reveal full details.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {projectData.map((p, i) => (
-            <motion.div key={p.title} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6, delay: i * 0.15, ease: [0.16, 1, 0.3, 1] }}>
-              <GlitchCard {...p} />
-            </motion.div>
+    <section id="skills" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05]">
+      <div className="max-w-6xl mx-auto">
+        <SectionHeader n="04" label="SKILLS" title="The toolbelt" />
+        <div className="grid md:grid-cols-2 gap-8">
+          {skills.map((s) => (
+            <div key={s.title} className="flex flex-col">
+              <div className="flex items-baseline justify-between gap-4 mb-3 px-1">
+                <h3 className="font-museo text-xl md:text-2xl text-fg/90">{s.title}</h3>
+                <span className="font-oxanium text-sm text-fg/50 text-right">{s.sub}</span>
+              </div>
+              <Terminal className="flex-1" lines={s.lines} file={s.file} accent={s.accent} />
+            </div>
           ))}
         </div>
       </div>
@@ -685,73 +436,137 @@ function ProjectsSection() {
   )
 }
 
-/* ====== CONNECT — Clean & Aligned ====== */
-function ConnectSection() {
+/* ====== EDUCATION ====== */
+function Education() {
   return (
-    <section id="connect" className="relative py-40 px-6 md:px-20 lg:px-32 border-t border-white/[0.05] text-center">
-      <div className="max-w-3xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
-          <div className="font-geist-mono text-[10px] md:text-xs text-emerald-400/40 mb-5 tracking-[0.2em] uppercase">READY TO BUILD?</div>
-          <h2 className="font-museo text-[2.5rem] md:text-[3.5rem] leading-tight tracking-tight mb-8">
-            Let's <span className="text-emerald-400/50">connect</span>
-          </h2>
-          <a href="mailto:shaileshrsupdhyay@gmail.com" className="inline-block font-oxanium text-base md:text-lg text-white/35 hover:text-white transition-colors duration-300 border-b border-white/10 hover:border-white/30 pb-0.5">
-            shaileshrsupdhyay@gmail.com
-          </a>
-          <div className="flex items-center justify-center gap-6 mt-10">
-            <a href="https://github.com/SHAILESH-RS-UPADHYAY" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-geist-mono text-xs tracking-widest text-white/20 hover:text-emerald-400 transition-colors duration-300 uppercase">
-              <span className="w-5 h-5 rounded border border-white/10 flex items-center justify-center text-[10px]">&lt;/&gt;</span>
-              GitHub
-            </a>
-            <span className="text-white/8 text-[10px]">·</span>
-            <a href="https://linkedin.com/in/shailesh-upadhyay-6a112624a" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-geist-mono text-xs tracking-widest text-white/20 hover:text-emerald-400 transition-colors duration-300 uppercase">
-              <span className="w-5 h-5 rounded border border-white/10 flex items-center justify-center text-[10px]">in</span>
-              LinkedIn
-            </a>
+    <section id="education" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05]">
+      <div className="max-w-5xl mx-auto">
+        <SectionHeader n="05" label="EDUCATION" title="Foundations" />
+        <motion.div className="card relative overflow-hidden rounded-3xl border border-fg/[0.08] p-8 md:p-12"
+          initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.7, ease: EASE }}>
+          <span aria-hidden className="absolute -right-4 -bottom-10 font-museo text-[9rem] md:text-[13rem] leading-none text-transparent select-none"
+            style={{ WebkitTextStroke: '1.5px color-mix(in srgb, var(--acc) 40%, transparent)' }}>'26</span>
+          <div className="relative">
+            <p className="font-geist-mono text-sm text-acc">{education.period}</p>
+            <h3 className="font-museo text-3xl md:text-4xl text-fg mt-3">{education.degree}</h3>
+            <p className="font-oxanium text-lg text-fg/70 mt-2">{education.spec} · <span className="text-fg/90">{education.school}</span></p>
+            <p className="font-oxanium text-sm text-fg/50 mt-8 mb-3">Relevant coursework</p>
+            <Chips items={education.coursework} />
           </div>
-          <div className="font-geist-mono text-[9px] text-white/8 tracking-[0.2em] mt-16">SHAILESH UPADHYAY · 2026</div>
         </motion.div>
       </div>
     </section>
   )
 }
 
-/* ====== MAIN APP ====== */
-export default function App() {
-  const [loading, setLoading] = useState(true)
-  const [loaded, setLoaded] = useState(false)
-  const [blackholeDone, setBlackholeDone] = useState(false)
-  const lenisRef = useRef<Lenis | null>(null)
-  useEffect(() => {
-    if (!loading) {
-      document.body.style.overflow = ''
-      const t = setTimeout(() => {
-        setLoaded(true)
-        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true, wheelMultiplier: 1 })
-        lenisRef.current = lenis
-        function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf) }
-        requestAnimationFrame(raf)
-      }, 500)
-      return () => clearTimeout(t)
-    } else { document.body.style.overflow = 'hidden' }
-  }, [loading])
-  useEffect(() => { return () => { lenisRef.current?.destroy() } }, [])
+/* ====== CONTACT ====== */
+function Contact() {
+  const [copied, setCopied] = useState(false)
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(profile.email)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch { /* clipboard blocked: the mailto link still works */ }
+  }
+  const cards = [
+    { label: 'GitHub', sub: '@SHAILESH-RS-UPADHYAY', href: profile.github, icon: 'github' as const },
+    { label: 'LinkedIn', sub: 'Shailesh Upadhyay', href: profile.linkedin, icon: 'linkedin' as const },
+    { label: 'Resume', sub: 'PDF · 1 page', href: asset('resume.pdf'), icon: 'file' as const },
+  ]
   return (
-    <>
-      {loading && <LoadingScreen onDone={() => setLoading(false)} />}
-      <div style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.5s' }}>
-        {!blackholeDone && <BlackholeOverlay revealed={loaded} onRevealed={() => setBlackholeDone(true)} />}
-        <Navbar visible={blackholeDone} />
-        <main>
-          <HeroSection />
-          <AboutSection />
-          <ExperienceSection />
-          <EducationSection />
-          <SkillsSection />
-          <ProjectsSection />
-          <ConnectSection />
-        </main>
+    <section id="contact" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05] overflow-hidden">
+      <div aria-hidden className="aurora">
+        <span className="left-[18%] top-[10%] w-[30vw] h-[30vw] bg-emerald-200" />
+        <span className="left-[58%] top-[30%] w-[26vw] h-[26vw] bg-violet-200" style={{ animationDelay: '-7s' }} />
       </div>
-    </>
+      <div aria-hidden className="absolute left-1/2 top-40 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+        {[0, 1, 2].map((k) => (
+          <motion.div key={k} className="absolute left-1/2 top-1/2 w-[520px] h-[520px] -ml-[260px] -mt-[260px] rounded-full border border-acc/20"
+            animate={{ scale: [0.3, 1.4], opacity: [0.6, 0] }} transition={{ duration: 4.5, repeat: Infinity, delay: k * 1.5, ease: 'easeOut' }} />
+        ))}
+      </div>
+      <motion.div className="relative max-w-5xl mx-auto text-center"
+        initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8, ease: EASE }}>
+        <p className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em]">06 / CONTACT</p>
+        <h2 className="font-museo text-[2.6rem] md:text-[4.2rem] lg:text-[5rem] leading-[1.02] tracking-tight mt-6 text-fg/90 text-balance">
+          Let's build something that <span className="text-gradient">ships.</span>
+        </h2>
+        <p className="font-oxanium text-lg text-fg/70 mt-6 max-w-xl mx-auto text-pretty">
+          Working on AI backends, LLM pipelines or a product that needs both? Send me a note.
+        </p>
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <MailPicker email={profile.email} label={`Email ${profile.email}`} side="down"
+            className="inline-flex items-center gap-3 font-oxanium text-base md:text-xl text-fg px-6 py-4 rounded-2xl border border-acc/30 bg-acc/10 hover:bg-acc/20 hover:shadow-[0_0_40px_-10px_var(--acc)] transition-all break-all">
+            <Icon name="mail" /> {profile.email}
+          </MailPicker>
+          <button type="button" onClick={copy} aria-live="polite"
+            className="font-geist-mono text-xs tracking-widest px-5 py-[18px] rounded-2xl border border-fg/15 text-fg/80 hover:bg-fg/10 active:scale-[0.97] transition cursor-pointer">
+            {copied ? 'COPIED ✓' : 'COPY EMAIL'}
+          </button>
+        </div>
+        <ul className="mt-12 grid sm:grid-cols-3 gap-4 text-left">
+          {cards.map((c) => (
+            <li key={c.label}>
+              <a href={c.href} target="_blank" rel="noopener noreferrer" onMouseMove={spotlight} style={acVar('emerald')}
+                className="card spotlight group relative flex items-center gap-4 rounded-2xl border border-fg/[0.08] p-5 hover:border-acc/40 transition-colors">
+                <span className="w-11 h-11 shrink-0 rounded-xl border border-fg/10 flex items-center justify-center text-fg/75 group-hover:text-acc transition-colors">
+                  <Icon name={c.icon} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-oxanium font-semibold text-fg/90">{c.label}</span>
+                  <span className="block font-geist-mono text-[11px] text-fg/50 truncate">{c.sub}</span>
+                </span>
+                <span aria-hidden className="ml-auto text-fg/40 group-hover:text-acc group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all">↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </motion.div>
+    </section>
+  )
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-fg/[0.06] px-5 md:px-10 py-8">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 font-geist-mono text-xs text-fg/50">
+        <span>© 2026 Shailesh Upadhyay · Based in {profile.location}</span>
+        <a href="#home" className="hover:text-acc transition-colors">Back to top ↑</a>
+      </div>
+    </footer>
+  )
+}
+
+/* ====== APP ====== */
+export default function App() {
+  const [ready, setReady] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [revealed, setRevealed] = useState(false)
+  useEffect(() => {
+    if (!ready) return
+    const lenis = new Lenis({ autoRaf: true, anchors: { offset: -80 } })
+    return () => lenis.destroy()
+  }, [ready])
+  return (
+    <MotionConfig reducedMotion="user">
+      <a href="#main" className="skip-link">Skip to content</a>
+      {!ready && <Intro onDone={() => setReady(true)} />}
+      {ready && (
+        <>
+          {!revealed && <BlackholeOverlay onDone={() => setRevealed(true)} />}
+          <Navbar />
+          <main id="main">
+            <Hero />
+            <About />
+            <Experience />
+            <Projects />
+            <Skills />
+            <Education />
+            <Contact />
+          </main>
+          <Footer />
+        </>
+      )}
+    </MotionConfig>
   )
 }
