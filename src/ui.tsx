@@ -54,8 +54,11 @@ function lineClass(l: string) {
   return 'text-white/65'
 }
 
-const CHARS_PER_TICK = 2
-const TICK_MS = 26
+const CHARS_PER_TICK = 3
+const TICK_MS = 20
+const SETTLE_MS = 6000
+// Terminals a visitor has already spent 6s+ with: they stay fully written instead of replaying.
+const settled = new Set<string>()
 
 export function Terminal({ lines, file, accent, className = '' }: {
   lines: string[]; file: string; accent: Accent; className?: string
@@ -74,28 +77,33 @@ export function Terminal({ lines, file, accent, className = '' }: {
   const started = phase === 'typing'
   const done = started && n >= total
 
-  // Start when 30% of the box is on screen; reset once it has fully left, so it replays on every visit.
+  // Start when 30% of the box is on screen and replay on every visit — until the visitor has spent
+  // 6s with it; after that it stays written (a return visit shows it complete, no retyping).
   useEffect(() => {
     const el = ref.current
     if (!el) return
     let t = 0
+    let settle = 0
     const keepWatching = () => {} // returning a function keeps inView observing; returning nothing makes it one-shot
     const stopEnter = onInView(el, () => {
       if (running.current) return keepWatching
       running.current = true
-      if (reduce) { setPhase('typing'); setN(total); return keepWatching }
+      if (reduce || settled.has(file)) { setPhase('typing'); setN(total); return keepWatching }
       setPhase('glitch')
       t = window.setTimeout(() => setPhase('typing'), 650)
+      settle = window.setTimeout(() => settled.add(file), SETTLE_MS)
       return keepWatching
     }, { amount: 0.3 })
     const stopLeave = onInView(el, () => () => {
       clearTimeout(t)
+      clearTimeout(settle)
       running.current = false
+      if (settled.has(file)) { setPhase('typing'); setN(total); return }
       setPhase('idle')
       setN(0)
     })
-    return () => { clearTimeout(t); stopEnter(); stopLeave() }
-  }, [reduce, total])
+    return () => { clearTimeout(t); clearTimeout(settle); stopEnter(); stopLeave() }
+  }, [reduce, total, file])
 
   useEffect(() => {
     if (!started || n >= total) return
