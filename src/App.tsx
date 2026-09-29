@@ -4,7 +4,8 @@ import Lenis from 'lenis'
 import Intro from './Intro'
 import { education, experience, greetings, marquee, moreBuilds, profile, projects, skills, stats, whoami } from './data'
 import { acVar, asset, EASE } from './lib'
-import { Chips, CountUp, ExtLink, MailPicker, MatrixRain, ProjectVisual, ResumeCard, SectionHeader, Terminal } from './ui'
+import { Chips, CountUp, ExtLink, MailPicker, MatrixRain, ResumeCard, SectionHeader, Terminal } from './ui'
+import { ProjectMark, ProjectVisual } from './visuals'
 
 const NAV = [
   { id: 'about', label: 'About' },
@@ -60,7 +61,7 @@ function Rise({ d = 0, children, className }: { d?: number; children: ReactNode;
 }
 
 /* ====== THEME — <html data-theme> is set before paint by index.html, from localStorage or the OS ====== */
-function ThemeToggle() {
+function ThemeToggle({ id, className = 'flex' }: { id: string; className?: string }) {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme ?? 'dark')
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
   const choose = (t: string) => {
@@ -68,11 +69,11 @@ function ThemeToggle() {
     setTheme(t)
   }
   return (
-    <div role="group" aria-label="Color theme" className="flex items-center p-1 rounded-xl border border-fg/15 font-geist-mono text-[10px] md:text-[11px] tracking-widest">
+    <div role="group" aria-label="Color theme" className={`${className} w-max items-center p-1 rounded-xl border border-fg/15 font-geist-mono text-[0.6875rem] tracking-widest`}>
       {['dark', 'light'].map((t) => (
         <button key={t} type="button" aria-pressed={theme === t} onClick={() => choose(t)}
-          className={`relative px-2.5 md:px-3 py-1.5 rounded-lg cursor-pointer transition-colors ${theme === t ? 'text-fg' : 'text-fg/50 hover:text-fg/80'}`}>
-          {theme === t && <motion.span layoutId="themePill" className="absolute inset-0 rounded-lg bg-fg/10" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
+          className={`relative px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-lg cursor-pointer transition-colors ${theme === t ? 'text-fg' : 'text-fg/50 hover:text-fg/80'}`}>
+          {theme === t && <motion.span layoutId={`themePill-${id}`} className="absolute inset-0 rounded-lg bg-fg/10" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
           <span className="relative">{t.toUpperCase()}</span>
         </button>
       ))}
@@ -102,11 +103,11 @@ function Navbar() {
         <a href="#home" className="font-museo text-2xl md:text-[1.9rem] font-bold tracking-wider text-gradient" aria-label="Shailesh Upadhyay, home">
           SHAILESH
         </a>
-        <ul className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+        <ul className="hidden xl:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
           {NAV.map((l) => (
             <li key={l.id}>
               <a href={`#${l.id}`} aria-current={active === l.id ? 'true' : undefined}
-                className={`relative block px-4 py-2 rounded-xl font-oxanium text-[15px] tracking-wide transition-colors ${active === l.id ? 'text-fg' : 'text-fg/60 hover:text-fg'}`}>
+                className={`relative block px-4 py-2 rounded-xl font-oxanium text-[0.9375rem] tracking-wide transition-colors ${active === l.id ? 'text-fg' : 'text-fg/60 hover:text-fg'}`}>
                 {active === l.id && (
                   <motion.span layoutId="navPill" className="absolute inset-0 rounded-xl border border-acc/25 bg-gradient-to-br from-acc/15 to-cyan-400/5"
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
@@ -117,12 +118,12 @@ function Navbar() {
           ))}
         </ul>
         <div className="flex items-center gap-2 md:gap-3">
-          <ThemeToggle />
+          <ThemeToggle id="bar" className="hidden sm:flex" />
           <a href="#contact"
-            className="hidden sm:inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-oxanium text-[15px] font-medium text-fg border border-acc/30 bg-gradient-to-br from-acc/20 to-cyan-400/10 hover:from-acc/30 hover:shadow-[0_0_30px_-8px_var(--acc)] active:scale-[0.97] transition-all">
+            className="hidden sm:inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-oxanium text-[0.9375rem] font-medium text-fg border border-acc/30 bg-gradient-to-br from-acc/20 to-cyan-400/10 hover:from-acc/30 hover:shadow-[0_0_30px_-8px_var(--acc)] active:scale-[0.97] transition-all">
             <span className="w-1.5 h-1.5 rounded-full bg-acc animate-pulse" /> Let's talk
           </a>
-          <button type="button" className="lg:hidden w-11 h-11 rounded-xl border border-fg/15 flex flex-col items-center justify-center gap-1.5 cursor-pointer"
+          <button type="button" className="xl:hidden w-11 h-11 rounded-xl border border-fg/15 flex flex-col items-center justify-center gap-1.5 cursor-pointer"
             aria-label="Menu" aria-expanded={menu} aria-controls="mobile-menu" onClick={() => setMenu((m) => !m)}>
             <span className={`block w-5 h-px bg-fg transition-transform ${menu ? 'translate-y-[3.5px] rotate-45' : ''}`} />
             <span className={`block w-5 h-px bg-fg transition-transform ${menu ? '-translate-y-[3.5px] -rotate-45' : ''}`} />
@@ -131,7 +132,7 @@ function Navbar() {
       </nav>
       <AnimatePresence>
         {menu && (
-          <motion.ul id="mobile-menu" className="lg:hidden border-t border-fg/[0.06] px-5 py-3 bg-bg/95"
+          <motion.ul id="mobile-menu" className="xl:hidden border-t border-fg/[0.06] px-5 py-3 bg-bg/95"
             initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
             {[...NAV, { id: 'contact', label: 'Contact' }].map((l) => (
               <li key={l.id}>
@@ -139,6 +140,7 @@ function Navbar() {
                   className={`block py-3 font-oxanium text-lg ${active === l.id ? 'text-acc' : 'text-fg/80'}`}>{l.label}</a>
               </li>
             ))}
+            <li className="sm:hidden py-3"><ThemeToggle id="menu" /></li>
           </motion.ul>
         )}
       </AnimatePresence>
@@ -148,6 +150,21 @@ function Navbar() {
 }
 
 /* ====== HERO ====== */
+// Scales a hero name down (never up) until it fits the column. Re-fits on resize and when web fonts load.
+function fitToBox(el: HTMLSpanElement | null) {
+  const box = el?.closest<HTMLElement>('[data-name-box]')
+  if (!el || !box) return
+  const fit = () => {
+    const s = Math.min(1, (box.clientWidth * 0.97) / el.offsetWidth) // 3% slack: some scripts' glyphs overhang their advance width
+    el.style.transform = s < 1 ? `scale(${s})` : ''
+  }
+  fit()
+  const ro = new ResizeObserver(fit)
+  ro.observe(box)
+  ro.observe(el)
+  return () => ro.disconnect()
+}
+
 function Hero() {
   const [i, setI] = useState(0)
   useEffect(() => {
@@ -171,21 +188,22 @@ function Hero() {
         maskImage: 'radial-gradient(ellipse at center, transparent 20%, black)', WebkitMaskImage: 'radial-gradient(ellipse at center, transparent 20%, black)',
       }} />
       <div aria-hidden className="aurora">
-        <span className="left-[46%] top-[4%] w-[36vw] h-[36vw] bg-emerald-300" />
-        <span className="left-[72%] top-[42%] w-[28vw] h-[28vw] bg-violet-300" style={{ animationDelay: '-6s' }} />
-        <span className="left-[4%] top-[52%] w-[26vw] h-[26vw] bg-cyan-200" style={{ animationDelay: '-11s' }} />
-        <span className="left-[26%] top-[-12%] w-[20vw] h-[20vw] bg-rose-200" style={{ animationDelay: '-3s' }} />
+        <span className="left-[58%] top-[6%] w-[32vw] h-[32vw] bg-violet-200" />
+        <span className="left-[74%] top-[48%] w-[24vw] h-[24vw] bg-rose-200" style={{ animationDelay: '-6s' }} />
+        <span className="left-[2%] top-[50%] w-[24vw] h-[24vw] bg-cyan-200" style={{ animationDelay: '-11s' }} />
+        <span className="left-[28%] top-[-14%] w-[20vw] h-[20vw] bg-amber-100" style={{ animationDelay: '-3s' }} />
+        <span className="left-[44%] top-[40%] w-[14vw] h-[14vw] bg-emerald-200" style={{ animationDelay: '-8s' }} />
       </div>
       <MatrixRain />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-10 pt-32 pb-36 lg:pt-28 grid lg:grid-cols-[1.15fr_0.85fr] items-center gap-16">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-10 pt-28 sm:pt-32 pb-36 lg:pt-28 grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] items-center gap-14 lg:gap-16">
         <div className="flex flex-col gap-6 md:gap-7">
           <Rise>
             <AnimatePresence mode="wait">
               <motion.div key={i} aria-hidden className="flex flex-wrap items-center gap-3 min-h-9"
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3, ease: EASE }}>
                 <span className="font-oxanium text-xl md:text-2xl text-fg/65">{g.hi}</span>
-                <span className="font-geist-mono text-[10px] md:text-[11px] tracking-widest px-2 py-1 rounded-md border border-acc/30 bg-acc/10 text-acc">
+                <span className="font-geist-mono text-[0.625rem] md:text-[0.6875rem] tracking-widest px-2 py-1 rounded-md border border-acc/30 bg-acc/10 text-acc">
                   {g.code} · {g.lang}
                 </span>
               </motion.div>
@@ -195,19 +213,21 @@ function Hero() {
             <Float y={4}>
               <h1 className="font-museo leading-none tracking-tight">
                 <span className="sr-only">Shailesh Upadhyay</span>
-                <span aria-hidden className="relative block text-[3.3rem] sm:text-[4.5rem] md:text-[5.5rem] lg:text-[6.3rem]">
+                <span aria-hidden data-name-box className="relative block text-[3.3rem] sm:text-[4.5rem] md:text-[5.5rem] lg:text-[6.3rem]">
                   <span className="invisible block py-[0.08em]">SHAILESH</span>
                   <AnimatePresence mode="wait">
                     {/* Scanner wipe: clip-path reveal plus a glowing bar riding the edge. The extra padding gives tall
                         scripts (Tamil, Malayalam, Devanagari) room, since gradient-clipped text only paints inside its box. */}
                     <motion.span key={i} className="absolute left-0 top-0 w-max"
                       exit={{ opacity: 0, y: -24 }} transition={{ duration: 0.3, ease: EASE }}>
+                      <span ref={fitToBox} className="relative block origin-left">
                       <motion.span className="block -mt-[0.2em] py-[0.28em] -mx-[0.08em] px-[0.08em] text-gradient whitespace-nowrap"
                         initial={{ clipPath: 'inset(0 100% 0 0)' }} animate={{ clipPath: 'inset(0 0% 0 0)' }} transition={{ duration: 0.8, ease: EASE }}>
                         {g.name}
                       </motion.span>
                       <motion.span className="absolute top-[0.05em] bottom-[0.05em] w-[3px] rounded-full bg-acc" style={{ boxShadow: '0 0 18px 3px var(--acc)' }}
                         initial={{ left: '0%', opacity: 0 }} animate={{ left: '100%', opacity: [0, 1, 1, 0] }} transition={{ duration: 0.8, ease: EASE }} />
+                      </span>
                     </motion.span>
                   </AnimatePresence>
                 </span>
@@ -242,7 +262,7 @@ function Hero() {
         </div>
 
         {/* Portrait — slides in, then keeps bouncing */}
-        <motion.div className="relative mx-auto w-full max-w-[330px] md:max-w-[380px] lg:max-w-[410px]"
+        <motion.div className="relative mx-auto w-full max-w-[20.625rem] md:max-w-[23.75rem] lg:max-w-[25.625rem]"
           initial={{ opacity: 0, x: 120 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1.1, ease: EASE, delay: 0.3 }}>
           <motion.div animate={{ y: [0, -22, 0, -7, 0] }}
             transition={{ duration: 2.4, times: [0, 0.38, 0.66, 0.83, 1], ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.5, delay: 1.4 }}>
@@ -258,14 +278,14 @@ function Hero() {
                 'bottom-3 left-3 border-b-2 border-l-2 rounded-bl-lg border-violet-400', 'bottom-3 right-3 border-b-2 border-r-2 rounded-br-lg border-rose-400']).map((c) => (
                 <div key={c} className={`absolute w-6 h-6 opacity-70 group-hover:opacity-100 transition-opacity ${c}`} />
               ))}
-              <div className="screen screen-panel absolute -top-4 left-6 flex items-center gap-2 rounded-full border border-emerald-400/25 bg-black/90 backdrop-blur px-3.5 py-1.5 font-geist-mono text-[11px] text-white/85">
+              <div className="screen screen-panel absolute -top-4 left-6 flex items-center gap-2 rounded-full border border-emerald-400/25 bg-black/90 backdrop-blur px-3.5 py-1.5 font-geist-mono text-[0.6875rem] text-white/85">
                 <span className="relative flex w-2 h-2"><span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping" /><span className="relative w-2 h-2 rounded-full bg-emerald-400" /></span>
                 Currently @ {profile.current}
               </div>
-              <div className="screen screen-panel absolute -bottom-4 -right-3 rounded-xl border border-white/10 bg-black/90 backdrop-blur px-4 py-2 font-geist-mono text-[11px] tracking-widest">
+              <div className="screen screen-panel absolute -bottom-4 -right-3 rounded-xl border border-white/10 bg-black/90 backdrop-blur px-4 py-2 font-geist-mono text-[0.6875rem] tracking-widest">
                 <span className="text-gradient">AI BACKEND ENGINEER</span>
               </div>
-              <div className="screen-panel hidden md:block absolute top-[58%] -left-16 rounded-xl border border-emerald-400/25 bg-black/90 backdrop-blur px-4 py-3 font-geist-mono text-[11px] leading-relaxed shadow-[0_0_40px_-10px_#34d399]">
+              <div className="screen-panel hidden md:block absolute top-[58%] -left-16 rounded-xl border border-emerald-400/25 bg-black/90 backdrop-blur px-4 py-3 font-geist-mono text-[0.6875rem] leading-relaxed shadow-[0_0_40px_-10px_#34d399]">
                 <div className="text-emerald-400">$ curl -N /v1/chat/stream</div>
                 <div className="text-white/60">p95 <span className="text-white/40 line-through">1.2s</span> → <span className="text-emerald-300">660ms</span> ✓</div>
               </div>
@@ -278,7 +298,7 @@ function Hero() {
         <div className="flex w-max animate-marquee">
           {[...marquee, ...marquee].map((t, k) => (
             <span key={k} className="flex items-center gap-8 pr-8 font-geist-mono text-xs md:text-sm tracking-[0.2em] text-fg/45 uppercase">
-              {t}<span className="text-acc/60 text-[8px]">◆</span>
+              {t}<span className="text-acc/60 text-[0.5rem]">◆</span>
             </span>
           ))}
         </div>
@@ -293,7 +313,7 @@ function About() {
     <section id="about" className="relative py-28 md:py-40 px-5 md:px-10">
       <div className="max-w-6xl mx-auto">
         <SectionHeader n="01" label="ABOUT" title={<>I build <span className="text-acc/80">systems</span> that think.</>} />
-        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-14 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-10 lg:gap-14 items-start">
           <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8, ease: EASE }}>
             <p className="font-oxanium text-lg md:text-xl text-fg/75 leading-relaxed text-pretty">{profile.summary}</p>
             <dl className="mt-10 grid grid-cols-2 gap-4">
@@ -321,14 +341,14 @@ function Experience() {
       <div className="max-w-6xl mx-auto">
         <SectionHeader n="02" label="EXPERIENCE" title="Where I've shipped" />
         <div ref={ref} className="relative">
-          <div className="absolute left-[7px] md:left-[227px] top-2 bottom-2 w-px bg-fg/10" />
-          <motion.div className="absolute left-[7px] md:left-[227px] top-2 bottom-2 w-px origin-top bg-gradient-to-b from-acc via-violet-400 to-rose-400"
+          <div className="absolute left-[7px] md:left-[14.25rem] top-2 bottom-2 w-px bg-fg/10" />
+          <motion.div className="absolute left-[7px] md:left-[14.25rem] top-2 bottom-2 w-px origin-top bg-gradient-to-b from-acc via-violet-400 to-rose-400"
             style={{ scaleY: scrollYProgress }} />
           <ol className="space-y-16 md:space-y-20">
             {experience.map((e) => (
-              <motion.li key={e.role} style={acVar(e.accent)} className="relative grid md:grid-cols-[200px_1fr] gap-3 md:gap-14 pl-9 md:pl-0"
+              <motion.li key={e.role} style={acVar(e.accent)} className="relative grid grid-cols-1 md:grid-cols-[12.5rem_minmax(0,1fr)] gap-3 md:gap-14 pl-9 md:pl-0"
                 initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.7, ease: EASE }}>
-                <span className="absolute left-0 md:left-[220px] top-1.5 w-[15px] h-[15px] rounded-full border-2 border-(--ac) bg-bg shadow-[0_0_16px_var(--ac)]" />
+                <span className="absolute left-0 md:left-[calc(14.25rem-7px)] top-1.5 w-[15px] h-[15px] rounded-full border-2 border-(--ac) bg-bg shadow-[0_0_16px_var(--ac)]" />
                 <p className="font-geist-mono text-sm text-(--ac) md:text-right md:pt-1.5">{e.period}</p>
                 <div className="min-w-0">
                   <h3 className="font-museo text-2xl md:text-3xl text-fg/95">{e.role}</h3>
@@ -368,12 +388,14 @@ function Projects() {
         <SectionHeader n="03" label="PROJECTS" title="Things I've built" />
         <div className="space-y-24 md:space-y-32">
           {projects.map((p, i) => (
-            <motion.article key={p.name} style={acVar(p.accent)} className="grid lg:grid-cols-2 gap-8 lg:gap-14 items-start"
+            <motion.article key={p.name} style={acVar(p.accent)} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start"
               initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8, ease: EASE }}>
               <div className={i % 2 ? 'lg:order-2' : ''}>
-                <ProjectVisual kind={p.visual} accent={p.accent} />
+                <ProjectVisual kind={p.visual} />
                 <p className="mt-7 font-geist-mono text-xs tracking-[0.2em] uppercase text-(--ac)">{p.kind}</p>
-                <h3 className="font-museo text-4xl md:text-5xl text-fg mt-2">{p.name}</h3>
+                <h3 className="flex items-center gap-4 font-museo text-4xl md:text-5xl text-fg mt-3">
+                  <ProjectMark kind={p.visual} /> {p.name}
+                </h3>
                 <p className="font-oxanium text-lg text-fg/75 mt-3 leading-relaxed text-pretty">{p.pitch}</p>
                 <dl className="flex flex-wrap gap-x-10 gap-y-4 mt-6">
                   {p.metrics.map((m) => (
@@ -396,12 +418,12 @@ function Projects() {
         </div>
 
         <h3 className="font-museo text-3xl md:text-4xl text-fg/90 text-center mt-32 mb-10">More builds</h3>
-        <div className="grid md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {moreBuilds.map((b, i) => (
             <motion.div key={b.name} style={acVar(b.accent)} onMouseMove={spotlight}
               className="card spotlight relative flex flex-col rounded-2xl border border-fg/[0.08] p-6 md:p-8 hover:border-(--ac)/40 transition-colors"
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.6, delay: (i % 2) * 0.1, ease: EASE }}>
-              <p className="font-geist-mono text-[11px] tracking-[0.18em] uppercase text-(--ac)">{b.kind}</p>
+              <p className="font-geist-mono text-[0.6875rem] tracking-[0.18em] uppercase text-(--ac)">{b.kind}</p>
               <h4 className="font-museo text-2xl md:text-3xl text-fg mt-2">{b.name}</h4>
               <p className="font-oxanium text-fg/70 mt-3 leading-relaxed flex-1">{b.text}</p>
               <Chips className="mt-5" items={b.stack} />
@@ -420,7 +442,7 @@ function Skills() {
     <section id="skills" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05]">
       <div className="max-w-6xl mx-auto">
         <SectionHeader n="04" label="SKILLS" title="The toolbelt" />
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {skills.map((s) => (
             <div key={s.title} className="flex flex-col">
               <div className="flex items-baseline justify-between gap-4 mb-3 px-1">
@@ -482,7 +504,7 @@ function Contact() {
       </div>
       <div aria-hidden className="absolute left-1/2 top-40 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
         {[0, 1, 2].map((k) => (
-          <motion.div key={k} className="absolute left-1/2 top-1/2 w-[520px] h-[520px] -ml-[260px] -mt-[260px] rounded-full border border-acc/20"
+          <motion.div key={k} className="absolute left-1/2 top-1/2 w-[32.5rem] h-[32.5rem] -ml-[16.25rem] -mt-[16.25rem] rounded-full border border-acc/20"
             animate={{ scale: [0.3, 1.4], opacity: [0.6, 0] }} transition={{ duration: 4.5, repeat: Infinity, delay: k * 1.5, ease: 'easeOut' }} />
         ))}
       </div>
@@ -501,11 +523,11 @@ function Contact() {
             <Icon name="mail" /> {profile.email}
           </MailPicker>
           <button type="button" onClick={copy} aria-live="polite"
-            className="font-geist-mono text-xs tracking-widest px-5 py-[18px] rounded-2xl border border-fg/15 text-fg/80 hover:bg-fg/10 active:scale-[0.97] transition cursor-pointer">
+            className="font-geist-mono text-xs tracking-widest px-5 py-[1.125rem] rounded-2xl border border-fg/15 text-fg/80 hover:bg-fg/10 active:scale-[0.97] transition cursor-pointer">
             {copied ? 'COPIED ✓' : 'COPY EMAIL'}
           </button>
         </div>
-        <ul className="mt-12 grid sm:grid-cols-3 gap-4 text-left">
+        <ul className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
           {cards.map((c) => (
             <li key={c.label}>
               <a href={c.href} target="_blank" rel="noopener noreferrer" onMouseMove={spotlight} style={acVar('emerald')}
@@ -515,7 +537,7 @@ function Contact() {
                 </span>
                 <span className="min-w-0">
                   <span className="block font-oxanium font-semibold text-fg/90">{c.label}</span>
-                  <span className="block font-geist-mono text-[11px] text-fg/50 truncate">{c.sub}</span>
+                  <span className="block font-geist-mono text-[0.6875rem] text-fg/50 truncate">{c.sub}</span>
                 </span>
                 <span aria-hidden className="ml-auto text-fg/40 group-hover:text-acc group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all">↗</span>
               </a>
@@ -532,7 +554,7 @@ function Footer() {
     <footer className="border-t border-fg/[0.06] px-5 md:px-10 py-8">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 font-geist-mono text-xs text-fg/50">
         <span>© 2026 Shailesh Upadhyay · Based in {profile.location}</span>
-        <a href="#home" className="hover:text-acc transition-colors">Back to top ↑</a>
+        <a href="#home" className="py-2 hover:text-acc transition-colors">Back to top ↑</a>
       </div>
     </footer>
   )

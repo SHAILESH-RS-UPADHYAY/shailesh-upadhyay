@@ -28,7 +28,8 @@
   --card: rgba(255, 255, 255, 0.03);
   --card-shadow: 0 0 #0000;
   --screen-shadow: 0 0 #0000;
-  --rain-opacity: 0.16;
+  --rain-opacity: 0.32;
+  --rain-head: #f5fff9;
 }
 
 :root[data-theme="light"] {
@@ -47,7 +48,8 @@
   --card: rgba(255, 255, 255, 0.82);
   --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(6, 40, 30, 0.06), 0 18px 40px -22px rgba(6, 70, 50, 0.35);
   --screen-shadow: 0 2px 4px rgba(6, 30, 22, 0.08), 0 30px 60px -26px rgba(6, 40, 30, 0.55);
-  --rain-opacity: 0.2;
+  --rain-opacity: 0.34;
+  --rain-head: #053d2e;
 }
 
 /* Terminals and project visuals are dark "screens" in both themes, so their accents stay neon. */
@@ -63,6 +65,9 @@
 
 html {
   position: relative; /* lets framer-motion measure scroll offsets against the page */
+  /* Everything is sized in rem, so this scales the whole layout on big screens: 16px up to 1920px wide,
+     then growing with the viewport (≈21px at 2560, capped at 28px on 4K). % keeps the user's font setting. */
+  font-size: clamp(100%, 0.8333vw, 175%);
   background: var(--bg);
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--acc) 50%, transparent) transparent;
@@ -172,6 +177,66 @@ section[id] { scroll-margin-top: 80px; }
   0%, 100% { height: 4px; }
   50% { height: 100%; }
 }
+
+/* ---- project visuals (visuals.tsx) ---- */
+@keyframes spin { to { transform: rotate(360deg); } }
+.rd-sweep { transform-box: view-box; transform-origin: 100px 100px; animation: spin 4s linear infinite; }
+.rd-blip { opacity: 0.15; animation: rblip 4s linear infinite; }
+@keyframes rblip { 0% { opacity: 1; } 70%, 100% { opacity: 0.15; } }
+.rd-ping { transform-box: fill-box; transform-origin: center; opacity: 0; animation: rping 4s ease-out infinite; }
+@keyframes rping { 0% { transform: scale(1); opacity: 0.9; } 45%, 100% { transform: scale(5); opacity: 0; } }
+.rd-ticker { animation: rticker 22s linear infinite; }
+@keyframes rticker { to { transform: translateY(-200px); } }
+.rd-cone {
+  position: absolute;
+  border-radius: 9999px;
+  background: conic-gradient(from 90deg, transparent 0deg 285deg, rgba(0, 255, 65, 0.05) 300deg, rgba(0, 255, 65, 0.32) 352deg, rgba(182, 255, 198, 0.95) 359.3deg, transparent 360deg);
+  animation: spin 4s linear infinite;
+}
+.rd-cell { animation: rcell 3.6s linear infinite; }
+@keyframes rcell { 0% { opacity: 1; } 25%, 100% { opacity: 0.28; } }
+.rd-flash { opacity: 0; animation: rflash 4s ease-out infinite; }
+@keyframes rflash { 0% { opacity: 1; } 30%, 100% { opacity: 0; } }
+.rd-packet { animation: rpacket 4s linear infinite; }
+@keyframes rpacket { 0% { transform: translateX(0); opacity: 1; } 80% { transform: translateX(264px); opacity: 1; } 90%, 100% { transform: translateX(264px); opacity: 0; } }
+.spin-rev { transform-box: view-box; animation: spin 10s linear infinite reverse; }
+.vt-card { animation: vcard 5.6s ease-out infinite; }
+@keyframes vcard { 0% { opacity: 0; transform: translateX(-10px); } 12%, 90% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.vt-bar { transform-box: fill-box; transform-origin: bottom; animation: vbar 5.6s ease-out infinite; }
+@keyframes vbar { 0%, 84% { transform: scaleY(0.15); } 93%, 98% { transform: scaleY(1); } 100% { transform: scaleY(0.15); } }
+.vt-track { opacity: 0.35; animation: vtrack 4.5s linear infinite; }
+@keyframes vtrack { 0%, 10% { opacity: 1; } 12%, 100% { opacity: 0.35; } }
+.ev-playhead { animation: evplay 10s linear infinite; }
+@keyframes evplay { to { transform: translateX(292px); } }
+.rd-live { animation: live 1.2s steps(2, jump-none) infinite; }
+@keyframes live { 50% { opacity: 0.15; } }
+.spin-slow { transform-box: view-box; animation: spin 14s linear infinite; }
+.spin-orbit { transform-box: view-box; animation: spin 6s linear infinite; }
+.ev-scan { animation: evscan 3.4s ease-in-out infinite; }
+@keyframes evscan { 0%, 100% { transform: translateY(0); opacity: 0.05; } 50% { transform: translateY(var(--scan-d, 150px)); opacity: 0.55; } }
+.ev-lid { transform-box: view-box; transform-origin: 160px 96px; animation: blink 5s ease-in-out infinite; }
+@keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.06); } }
+.ev-eq { transform-box: fill-box; transform-origin: 50% 100%; animation: eq 0.8s ease-in-out infinite alternate; }
+@keyframes eq { from { transform: scaleY(0.2); } to { transform: scaleY(1); } }
+.ev-pupil { transform-box: fill-box; transform-origin: center; animation: pupil 2.4s ease-in-out infinite; }
+@keyframes pupil { 50% { transform: scale(1.35); } }
+.ev-pill { opacity: 0.3; animation: pill 3.6s ease-in-out infinite; }
+@keyframes pill { 0%, 45%, 100% { opacity: 0.3; } 10%, 32% { opacity: 1; } }
+.vt-fill { transform-box: fill-box; transform-origin: left center; animation: vfill 5.2s ease-in-out infinite; }
+@keyframes vfill { 0% { transform: scaleX(0); } 15%, 90% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
+.vt-hub { transform-box: fill-box; transform-origin: center; animation: hub 2.6s ease-in-out infinite; }
+@keyframes hub { 50% { transform: scale(1.12); } }
+/* spatial logo marks */
+.mark-float { animation: markfloat 4.5s ease-in-out infinite; }
+@keyframes markfloat { 50% { transform: translateY(-4px); } }
+.gl-spin { transform-box: view-box; transform-origin: 12px 12px; animation: spin 3.2s linear infinite; }
+.gl-ping { transform-box: fill-box; transform-origin: center; animation: glping 3.2s ease-out infinite; }
+@keyframes glping { 0%, 100% { opacity: 0.35; transform: scale(0.8); } 12% { opacity: 1; transform: scale(1.35); } }
+.gl-blink { transform-box: view-box; transform-origin: 12px 12px; animation: blink 4.5s ease-in-out infinite; }
+.gl-look { animation: gllook 4.5s ease-in-out infinite; }
+@keyframes gllook { 0%, 30%, 100% { transform: translateX(0); } 45%, 60% { transform: translateX(1.2px); } 72%, 85% { transform: translateX(-1.2px); } }
+.gl-node { transform-box: fill-box; transform-origin: center; animation: glnode 1.4s ease-in-out infinite; }
+@keyframes glnode { 0%, 100% { transform: scale(0.8); opacity: 0.75; } 30% { transform: scale(1.3); opacity: 1; } }
 
 @keyframes marquee {
   0% { transform: translateX(0); }

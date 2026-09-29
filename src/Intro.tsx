@@ -115,21 +115,21 @@ export default function Intro({ onDone }: { onDone: () => void }) {
       </motion.svg>
 
       {/* HUD frame */}
-      <div className="absolute inset-0 p-5 md:p-8 font-geist-mono text-[10px] md:text-xs tracking-widest pointer-events-none">
+      <div className="absolute inset-0 p-5 md:p-8 font-geist-mono text-[0.625rem] md:text-xs tracking-widest pointer-events-none">
         <motion.div className="absolute top-5 left-5 md:top-8 md:left-8 text-white/55" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
           SHAILESH.OS <span className="text-emerald-400">//</span> BOOT
         </motion.div>
         <motion.div className="absolute top-5 right-5 md:top-8 md:right-8 text-white/40" initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0.5, 1] }} transition={{ delay: 0.4, duration: 1 }}>
-          CLICK OR PRESS ANY KEY TO SKIP
+          <span className="sm:hidden">TAP TO SKIP</span><span className="hidden sm:inline">CLICK OR PRESS ANY KEY TO SKIP</span>
         </motion.div>
-        <ul className="absolute bottom-5 left-5 md:bottom-8 md:left-8 space-y-1 normal-case tracking-normal">
+        <ul className="absolute bottom-5 left-5 right-5 md:bottom-8 md:left-8 md:right-auto space-y-1 normal-case tracking-normal">
           {BOOT.slice(0, log).map((l) => (
-            <motion.li key={l} className="text-white/55" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
+            <motion.li key={l} className="text-white/55 truncate" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
               <span className="text-emerald-400">[ OK ]</span> {l}
             </motion.li>
           ))}
         </ul>
-        <div className="absolute bottom-5 right-5 md:bottom-8 md:right-8 flex flex-col items-end gap-2">
+        <div className="absolute top-12 right-5 sm:top-auto sm:bottom-8 md:right-8 flex flex-col items-end gap-2">
           <div className="flex items-end gap-[2px] h-8">
             {Array.from({ length: 24 }, (_, i) => (
               <div key={i} className="w-[2px] rounded-full" style={{
@@ -151,7 +151,7 @@ export default function Intro({ onDone }: { onDone: () => void }) {
               <Scramble text={GREETINGS[g]} />
             </motion.p>
           ) : (
-            <motion.div key="welcome" className="relative flex flex-col items-center gap-6 px-8 py-6 md:px-14 md:py-10"
+            <motion.div key="welcome" className="relative flex flex-col items-center gap-6 px-5 py-6 sm:px-8 md:px-14 md:py-10"
               initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {/* corner brackets close in around the words */}
               {['top-0 left-0 border-t-2 border-l-2', 'top-0 right-0 border-t-2 border-r-2', 'bottom-0 left-0 border-b-2 border-l-2', 'bottom-0 right-0 border-b-2 border-r-2'].map((c, i) => (
@@ -159,7 +159,7 @@ export default function Intro({ onDone }: { onDone: () => void }) {
                   initial={{ opacity: 0, x: i % 2 ? 40 : -40, y: i < 2 ? -30 : 30 }} animate={{ opacity: 1, x: 0, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }} />
               ))}
-              <div className="relative text-5xl sm:text-6xl md:text-8xl font-oxanium font-bold tracking-wider whitespace-nowrap">
+              <div className="relative text-[clamp(2rem,10.5vw,6rem)] font-oxanium font-bold tracking-wide sm:tracking-wider whitespace-nowrap">
                 {WELCOME.split('').map((ch, i) => (
                   <motion.span key={i} className="inline-block"
                     initial={{ opacity: 0, x: rand(i, 1) * 600, y: rand(i, 2) * 320, rotate: rand(i, 3) * 180, scale: 0.2 }}
