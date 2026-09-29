@@ -331,7 +331,7 @@ export function MailPicker({ email, label, side: prefer = 'up', className, child
 
   const panel = (
           <motion.div ref={menu} role="menu" aria-label="Write an email with"
-            className={`screen z-[80] rounded-2xl border border-emerald-400/25 bg-[#070a09]/95 backdrop-blur-xl p-2 text-left shadow-[0_24px_60px_-20px_rgba(0,0,0,0.7),0_0_40px_-14px_#34d399] ${sheet
+            className={`screen z-[80] rounded-2xl border border-emerald-400/25 bg-[#070a09] p-2 text-left shadow-[0_24px_60px_-20px_rgba(0,0,0,0.7),0_0_40px_-14px_#34d399] ${sheet
               ? 'fixed inset-x-3 bottom-3 mx-auto max-w-sm pb-[max(0.5rem,env(safe-area-inset-bottom))]'
               : `absolute left-1/2 -translate-x-1/2 w-[min(18.5rem,calc(100vw-2rem))] ${side === 'up' ? 'bottom-full mb-3 origin-bottom' : 'top-full mt-3 origin-top'}`}`}
             initial={sheet ? { opacity: 0, y: 60 } : { opacity: 0, scale: 0.92, y: side === 'up' ? 10 : -10 }}

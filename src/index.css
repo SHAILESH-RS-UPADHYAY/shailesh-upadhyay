@@ -207,6 +207,70 @@ section[id] { scroll-margin-top: 80px; }
 .intro-nebula { animation: spin 40s linear infinite; }
 
 /* ---- project visuals (visuals.tsx) ---- */
+.rd-spin { transform-box: view-box; animation: spin 4s linear infinite; }
+.vt-429 { opacity: 0; animation: vt429 5.6s ease-in-out infinite; }
+@keyframes vt429 { 0%, 20% { opacity: 0; } 23%, 36% { opacity: 1; } 40%, 100% { opacity: 0; } }
+.vt-200 { opacity: 0; animation: vt200 5.6s ease-in-out infinite; }
+@keyframes vt200 { 0%, 46% { opacity: 0; } 50%, 90% { opacity: 1; } 94%, 100% { opacity: 0; } }
+.vt-ans { stroke-dasharray: 1; stroke-dashoffset: 1; animation: vtans 5.6s ease-in-out infinite; }
+@keyframes vtans { 0%, 60% { stroke-dashoffset: 1; } 76%, 95% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1; } }
+.vt-ring { stroke-dasharray: 1; stroke-dashoffset: 1; animation: vtring 5.6s ease-in-out infinite; }
+@keyframes vtring { 0%, 76% { stroke-dashoffset: 1; } 88%, 97% { stroke-dashoffset: 0.12; } 100% { stroke-dashoffset: 1; } }
+.vt-p1 { opacity: 0; animation: vtp1 5.6s ease-in-out infinite; }
+@keyframes vtp1 { 0% { transform: translate(70px, 92px); opacity: 0; } 10% { transform: translate(132px, 107px); opacity: 1; } 14% { transform: translate(184px, 112px); opacity: 1; } 22% { transform: translate(240px, 50px); opacity: 1; } 28%, 100% { transform: translate(240px, 50px); opacity: 0; } }
+.vt-p2 { opacity: 0; animation: vtp2 5.6s ease-in-out infinite; }
+@keyframes vtp2 { 0%, 40% { transform: translate(184px, 112px); opacity: 0; } 50% { transform: translate(240px, 90px); opacity: 1; } 60% { transform: translate(240px, 90px); opacity: 1; } 68% { transform: translate(225px, 150px); opacity: 1; } 78%, 100% { transform: translate(223px, 196px); opacity: 0; } }
+.au-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: audraw 3.5s linear infinite; }
+@keyframes audraw { 0% { stroke-dashoffset: 1; } 70%, 100% { stroke-dashoffset: 0; } }
+.au-live { animation: aulive 1.6s ease-in-out infinite; }
+@keyframes aulive { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+.au-s0 { opacity: 0; animation: au-s0 7s ease-out infinite; }
+@keyframes au-s0 { 0%, 2.0% { opacity: 0; } 6.0%, 93% { opacity: 1; } 100% { opacity: 0; } }
+.au-s1 { opacity: 0; animation: au-s1 7s ease-out infinite; }
+@keyframes au-s1 { 0%, 22.0% { opacity: 0; } 26.0%, 93% { opacity: 1; } 100% { opacity: 0; } }
+.au-s2 { opacity: 0; animation: au-s2 7s ease-out infinite; }
+@keyframes au-s2 { 0%, 42.0% { opacity: 0; } 46.0%, 93% { opacity: 1; } 100% { opacity: 0; } }
+.au-p0 { opacity: 0.3; animation: au-p0 7s ease-out infinite; }
+@keyframes au-p0 { 0%, 50.0% { opacity: 0.3; } 54.0%, 93% { opacity: 1; } 100% { opacity: 0.3; } }
+.au-p1 { opacity: 0.3; animation: au-p1 7s ease-out infinite; }
+@keyframes au-p1 { 0%, 60.0% { opacity: 0.3; } 64.0%, 93% { opacity: 1; } 100% { opacity: 0.3; } }
+.au-p2 { opacity: 0.3; animation: au-p2 7s ease-out infinite; }
+@keyframes au-p2 { 0%, 70.0% { opacity: 0.3; } 74.0%, 93% { opacity: 1; } 100% { opacity: 0.3; } }
+.au-p3 { opacity: 0.3; animation: au-p3 7s ease-out infinite; }
+@keyframes au-p3 { 0%, 80.0% { opacity: 0.3; } 84.0%, 93% { opacity: 1; } 100% { opacity: 0.3; } }
+
+.rd-sonar { transform-box: fill-box; transform-origin: center; opacity: 0; animation: rsonar 3.2s ease-out infinite; }
+@keyframes rsonar { 0% { transform: scale(0.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 0; } }
+.rd-lock { transform-box: view-box; opacity: 0; animation: rlock 4s linear infinite; }
+@keyframes rlock { 0% { opacity: 0; transform: scale(2.2); } 6% { opacity: 1; transform: scale(1); } 55% { opacity: 1; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(1); } }
+.rd-card { opacity: 0; animation: rcard 4s ease-out infinite; }
+@keyframes rcard { 0%, 3% { opacity: 0; transform: translateX(-6px); } 10%, 55% { opacity: 1; transform: none; } 70%, 100% { opacity: 0; transform: none; } }
+.vt-flow { animation: vflow 1.4s linear infinite; }
+@keyframes vflow { to { stroke-dashoffset: -34; } }
+.vt-float { animation: vfloat 4s ease-in-out infinite; }
+@keyframes vfloat { 50% { transform: translateY(-3px); } }
+.vt-shine { animation: vshine 2.8s ease-in-out infinite; }
+@keyframes vshine { 0% { transform: translateX(0) skewX(-18deg); } 60%, 100% { transform: translateX(78px) skewX(-18deg); } }
+.vt-twinkle { transform-box: fill-box; transform-origin: center; animation: vtwinkle 1.8s ease-in-out infinite; }
+@keyframes vtwinkle { 0%, 100% { opacity: 0.1; transform: scale(0.4); } 50% { opacity: 1; transform: scale(1.1); } }
+.gl-eq { transform-box: fill-box; transform-origin: center; animation: gleq 0.9s ease-in-out infinite alternate; }
+@keyframes gleq { from { transform: scaleY(0.5); } to { transform: scaleY(1); } }
+.ev-eqc { transform-box: fill-box; transform-origin: center; animation: eq 0.8s ease-in-out infinite alternate; }
+.ev-type { clip-path: inset(0 100% 0 0); animation: evtype 8s steps(52) infinite; }
+@keyframes evtype { 0%, 4% { clip-path: inset(0 100% 0 0); } 34%, 95% { clip-path: inset(0 0 0 0); } 100% { clip-path: inset(0 100% 0 0); } }
+.ev-sub { opacity: 0; animation: evsub 8s ease-out infinite; }
+@keyframes evsub { 0%, 34% { opacity: 0; } 38%, 94% { opacity: 1; } 100% { opacity: 0; } }
+.ev-chip { opacity: 0; animation: evchip 8s ease-out infinite; }
+@keyframes evchip { 0% { opacity: 0; transform: translateY(3px); } 3%, 62% { opacity: 1; transform: none; } 66%, 100% { opacity: 0; } }
+.ev-neon { opacity: 0.12; animation: evneon 8s linear infinite; }
+@keyframes evneon { 0% { opacity: 0.12; } 1% { opacity: 0.9; } 2% { opacity: 0.25; } 3.5% { opacity: 1; } 4.5% { opacity: 0.5; } 6%, 50% { opacity: 1; } 56%, 100% { opacity: 0.12; } }
+.ev-press { opacity: 0; transform-box: fill-box; transform-origin: center; animation: evpress 8s ease-out infinite; }
+@keyframes evpress { 0%, 76% { opacity: 0; transform: scale(1); } 78% { opacity: 1; transform: scale(0.94); } 81% { transform: scale(1.04); } 84%, 92% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; } }
+.ev-sweep { animation: evsweep 8s ease-in-out infinite; }
+@keyframes evsweep { 0%, 62% { transform: translateX(0) skewX(-20deg); } 74%, 100% { transform: translateX(420px) skewX(-20deg); } }
+.ev-toast { opacity: 0; animation: evtoast 8s ease-out infinite; }
+@keyframes evtoast { 0%, 80% { opacity: 0; transform: translateY(6px); } 83%, 95% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 .rd-sweep { transform-box: view-box; transform-origin: 100px 100px; animation: spin 4s linear infinite; }
 .rd-blip { opacity: 0.15; animation: rblip 4s linear infinite; }
@@ -215,12 +279,6 @@ section[id] { scroll-margin-top: 80px; }
 @keyframes rping { 0% { transform: scale(1); opacity: 0.9; } 45%, 100% { transform: scale(5); opacity: 0; } }
 .rd-ticker { animation: rticker 22s linear infinite; }
 @keyframes rticker { to { transform: translateY(-200px); } }
-.rd-cone {
-  position: absolute;
-  border-radius: 9999px;
-  background: conic-gradient(from 90deg, transparent 0deg 285deg, rgba(0, 255, 65, 0.05) 300deg, rgba(0, 255, 65, 0.32) 352deg, rgba(182, 255, 198, 0.95) 359.3deg, transparent 360deg);
-  animation: spin 4s linear infinite;
-}
 .rd-cell { animation: rcell 3.6s linear infinite; }
 @keyframes rcell { 0% { opacity: 1; } 25%, 100% { opacity: 0.28; } }
 .rd-flash { opacity: 0; animation: rflash 4s ease-out infinite; }

@@ -8,7 +8,8 @@ import type { Visual } from './data'
   Vettly  priority context stack → failover router → scored, humanized answer
   EVES    meeting waveform → hex "eye" whose pupil is an equalizer → diarized transcript → prompts
   Styling borrows from the cyberpunk-ui skill: chamfered plates, barcode accents, neon glow.
-  Looping motion is CSS (index.css, "project visuals") or framer keyframes, and stops under reduced motion.
+  All motion is CSS (index.css, "project visuals"): the SVGs are self-contained, so the README cards are rendered
+  straight from them. It stops under reduced motion.
 */
 
 const MONO = 'Geist Mono, monospace'
@@ -50,324 +51,377 @@ function Glow({ id, blur = 1.6 }: { id: string; blur?: number }) {
   )
 }
 
-// Fade in at `start` (fraction of the loop), hold, fade out together at the end.
-const seq = (start: number, dur = 7, from = 0) => ({
-  initial: { opacity: from },
-  animate: { opacity: [from, from, 1, 1, from] },
-  transition: { duration: dur, repeat: Infinity, times: [0, start, start + 0.04, 0.93, 1], ease: 'easeOut' as const },
-})
-
 /* ================= RADAR ================= */
 const G = '#00FF41'
 const MINT = '#B6FFC6'
 const GOLD = '#FACC15'
-const RS = { x: 88, y: 100, r: 56 }
+const RS = { x: 96, y: 112, r: 62 }
 const onScope = (a: number, r: number) => ({ x: RS.x + r * Math.cos(deg(a)), y: RS.y + r * Math.sin(deg(a)) })
 const sweepDelay = (a: number) => `${(a / 360) * 4 - 4}s` // the beam crosses angle a at this point of its 4s turn
-const JOBS: [number, number, string][] = [[28, 40, 'BE 72'], [120, 44, 'ML 64'], [200, 28, ''], [236, 46, 'SRE 58'], [334, 22, ''], [160, 14, '']]
-const TARGET: [number, number] = [300, 40]
+const JOBS: [number, number, string][] = [[28, 44, 'BE 72'], [118, 48, 'ML 64'], [200, 30, ''], [238, 52, 'SRE 58'], [336, 24, ''], [160, 16, '']]
+const TARGET: [number, number] = [302, 44]
 const SOURCES = [
   'Greenhouse', 'Lever', 'Ashby', 'Workable', 'SmartRecruiters', 'Recruitee', 'Personio', 'Breezy HR', 'Teamtailor', 'Workday',
   'Amazon Jobs', 'Hacker News', 'Remotive', 'Remote OK', 'Arbeitnow', 'Himalayas', 'Jobicy', 'The Muse', 'Adzuna', 'Jooble',
 ]
+// The beam: thin slices whose opacity ramps up toward the leading edge (at 0°), approximating a conic gradient.
+const CONE = Array.from({ length: 38 }, (_, i) => {
+  const a0 = -76 + i * 2
+  const p0 = onScope(a0, RS.r)
+  const p1 = onScope(a0 + 2, RS.r)
+  const t = (i + 1) / 38
+  return { d: `M${RS.x} ${RS.y}L${p0.x.toFixed(2)} ${p0.y.toFixed(2)}A${RS.r} ${RS.r} 0 0 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}Z`, o: +(0.02 + 0.34 * t ** 2.4).toFixed(3) }
+})
 const STAGES: [string, string][] = [['DISCOVER', 'robots.txt'], ['INGEST', '20 feeds'], ['VERIFY', 'link alive'], ['MATCH', '0–100'], ['VAULT', '≥ 80 kept']]
 
 function Radar() {
   const t = onScope(...TARGET)
+  const bracket = (sx: number, sy: number) => `M${t.x + sx * 11} ${t.y + sy * 5}V${t.y + sy * 11}H${t.x + sx * 5}`
   return (
     <g>
       <defs>
         <Glow id="rd-glow" />
+        <Glow id="rd-bloom" blur={3.2} />
         <radialGradient id="rd-glass">
-          <stop offset="0" stopColor={G} stopOpacity="0.14" />
-          <stop offset="1" stopColor={G} stopOpacity="0.02" />
+          <stop offset="0" stopColor={G} stopOpacity="0.2" />
+          <stop offset="0.7" stopColor={G} stopOpacity="0.05" />
+          <stop offset="1" stopColor={G} stopOpacity="0.12" />
         </radialGradient>
         <linearGradient id="rd-fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.3" stopColor="#fff" />
-          <stop offset="0.7" stopColor="#fff" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.25" stopColor="#fff" />
+          <stop offset="0.75" stopColor="#fff" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
-        <mask id="rd-ticker" maskUnits="userSpaceOnUse" x="176" y="100" width="130" height="44">
-          <rect x="176" y="100" width="130" height="44" fill="url(#rd-fade)" />
+        <mask id="rd-ticker" maskUnits="userSpaceOnUse" x="188" y="102" width="120" height="58">
+          <rect x="188" y="102" width="120" height="58" fill="url(#rd-fade)" />
         </mask>
+        <filter id="rd-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" /></filter>
+        <linearGradient id="rd-tail" x1="0" x2="1"><stop offset="0" stopColor={G} stopOpacity="0" /><stop offset="1" stopColor={MINT} /></linearGradient>
+        <linearGradient id="rd-rail" x1="0" x2="1"><stop offset="0" stopColor={G} stopOpacity="0.15" /><stop offset="0.6" stopColor={G} stopOpacity="0.6" /><stop offset="1" stopColor={GOLD} stopOpacity="0.8" /></linearGradient>
       </defs>
       <Frame title="RADAR · JOB INTELLIGENCE" right="01:30 UTC" color={G} live={G} />
 
-      {/* scope (the smooth beam itself is the .rd-cone HTML layer underneath) */}
+      {/* the beam, then the scope drawn over it */}
+      {['url(#rd-soft)', undefined].map((f) => (
+        <g key={f ?? 'beam'} className="rd-spin" filter={f} opacity={f ? 0.9 : 1} style={{ transformOrigin: `${RS.x}px ${RS.y}px` }}>
+          {CONE.map((s, i) => <path key={i} d={s.d} fill={G} fillOpacity={s.o} />)}
+          <path d={`M${RS.x} ${RS.y}L${RS.x + RS.r} ${RS.y}`} stroke={MINT} strokeWidth="1.5" strokeLinecap="round" />
+        </g>
+      ))}
       {Array.from({ length: 72 }, (_, i) => {
         const major = i % 6 === 0
-        const a = onScope(i * 5, major ? 58 : 60)
-        const b = onScope(i * 5, 63)
-        return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={G} strokeOpacity={major ? 0.9 : 0.35} strokeWidth={major ? 1.1 : 0.6} />
+        const a = onScope(i * 5, major ? 64 : 66)
+        const b = onScope(i * 5, 70)
+        return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={G} strokeOpacity={major ? 0.95 : 0.35} strokeWidth={major ? 1.2 : 0.6} />
       })}
-      {([[270, '000'], [0, '090'], [90, '180'], [180, '270']] as [number, string][]).map(([a, l]) => {
-        const p = onScope(a, 69)
+      {([[270, '000'], [0, '090'], [180, '270']] as [number, string][]).map(([a, l]) => {
+        const p = onScope(a, 76)
         return <text key={l} x={p.x} y={p.y + 2} fill={MINT} fillOpacity="0.55" fontSize="5.2" textAnchor="middle" fontFamily={MONO}>{l}</text>
       })}
-      <circle cx={RS.x} cy={RS.y} r={RS.r} fill="url(#rd-glass)" stroke={G} strokeOpacity="0.6" />
-      {[19, 38].map((r) => <circle key={r} cx={RS.x} cy={RS.y} r={r} fill="none" stroke={G} strokeOpacity="0.25" strokeDasharray="1.5 3" />)}
-      <line x1={RS.x - RS.r} y1={RS.y} x2={RS.x + RS.r} y2={RS.y} stroke={G} strokeOpacity="0.14" />
-      <line x1={RS.x} y1={RS.y - RS.r} x2={RS.x} y2={RS.y + RS.r} stroke={G} strokeOpacity="0.14" />
+      <circle cx={RS.x} cy={RS.y} r={RS.r} fill="url(#rd-glass)" stroke={G} strokeOpacity="0.7" filter="url(#rd-glow)" />
+      {[21, 42].map((r) => <circle key={r} cx={RS.x} cy={RS.y} r={r} fill="none" stroke={G} strokeOpacity="0.28" strokeDasharray="1.5 3" />)}
+      <path d={`M${RS.x - RS.r} ${RS.y}H${RS.x + RS.r}M${RS.x} ${RS.y - RS.r}V${RS.y + RS.r}`} stroke={G} strokeOpacity="0.16" />
+      {/* sonar pings rolling out from the centre */}
+      {[0, 1].map((k) => <circle key={k} className="rd-sonar" cx={RS.x} cy={RS.y} r={RS.r} fill="none" stroke={G} strokeWidth="1.2" style={{ animationDelay: `${-k * 1.6}s` }} />)}
       <g filter="url(#rd-glow)">
         {JOBS.map(([a, r, label]) => {
           const p = onScope(a, r)
           return (
             <g key={`${a}-${r}`} className="rd-blip" style={{ animationDelay: sweepDelay(a) }}>
-              <circle cx={p.x} cy={p.y} r="2.4" fill={G} />
+              <circle cx={p.x} cy={p.y} r="2.5" fill={G} />
               {label && <text x={p.x + 4.5} y={p.y - 3.5} fill={MINT} fontSize="5.4" fontFamily={MONO}>{label}</text>}
             </g>
           )
         })}
-        <circle className="rd-ping" cx={t.x} cy={t.y} r="3" fill="none" stroke={GOLD} strokeWidth="0.8" style={{ animationDelay: sweepDelay(TARGET[0]) }} />
-        <g className="rd-blip" style={{ animationDelay: sweepDelay(TARGET[0]) }}>
-          <circle cx={t.x} cy={t.y} r="3" fill={GOLD} />
-          <text x={t.x + 5} y={t.y - 4} fill={GOLD} fontSize="6" fontWeight="600" fontFamily={MONO}>91 → VAULT</text>
-        </g>
       </g>
-      <circle cx={RS.x} cy={RS.y} r="1.8" fill={MINT} />
+      {/* the 80+ match: a gold reticle snaps onto it and a card flies out */}
+      <circle className="rd-ping" cx={t.x} cy={t.y} r="3" fill="none" stroke={GOLD} strokeWidth="0.9" style={{ animationDelay: sweepDelay(TARGET[0]) }} />
+      <g className="rd-blip" style={{ animationDelay: sweepDelay(TARGET[0]) }}>
+        <circle cx={t.x} cy={t.y} r="3.2" fill={GOLD} filter="url(#rd-bloom)" />
+      </g>
+      <g className="rd-lock" style={{ animationDelay: sweepDelay(TARGET[0]), transformOrigin: `${t.x}px ${t.y}px` }} stroke={GOLD} strokeWidth="1.3" fill="none">
+        <path d={bracket(-1, -1)} /><path d={bracket(1, -1)} /><path d={bracket(-1, 1)} /><path d={bracket(1, 1)} />
+      </g>
+      <g className="rd-card" style={{ animationDelay: sweepDelay(TARGET[0]) }}>
+        <path d={`M${t.x + 6} ${t.y - 8}L${t.x + 14} ${t.y - 16}H${t.x + 20}`} fill="none" stroke={GOLD} strokeOpacity="0.8" />
+        <rect x={t.x + 6} y={t.y - 42} width="58" height="24" rx="5" fill="#0a0d02" stroke={GOLD} strokeOpacity="0.8" />
+        <text x={t.x + 12} y={t.y - 31.5} fill={GOLD} fontSize="7" fontWeight="700" fontFamily={MONO}>MATCH 91</text>
+        <text x={t.x + 12} y={t.y - 23} fill={MINT} fontSize="5.2" fontFamily={MONO}>backend → VAULT</text>
+      </g>
+      <circle cx={RS.x} cy={RS.y} r="2" fill={MINT} filter="url(#rd-glow)" />
 
-      {/* source HUD */}
-      <polygon points={plate(168, 30, 142, 136)} fill="#000d04" fillOpacity="0.8" stroke={G} strokeOpacity="0.35" />
-      <text x="176" y="42" fill={MINT} fillOpacity="0.6" fontSize="5.8" letterSpacing="1.4" fontFamily={MONO}>LIVE SOURCES</text>
-      <text x="176" y="68" fill={G} fontSize="25" fontWeight="600" fontFamily={MONO} filter="url(#rd-glow)">20</text>
-      <text x="212" y="55" fill={G} fontSize="6.4" fontFamily={MONO}>■ 11 ATS feeds</text>
-      <text x="212" y="65" fill={MINT} fontSize="6.4" fontFamily={MONO}>■ 9 job boards</text>
-      {SOURCES.map((_, i) => (
-        <rect key={i} className="rd-cell" x={176 + (i % 10) * 13} y={74 + Math.floor(i / 10) * 11} width="10" height="8" rx="1.5"
-          fill={i < 11 ? G : MINT} style={{ animationDelay: `${i * 0.18}s` }} />
-      ))}
+      {/* sources HUD */}
+      <polygon points={plate(184, 32, 126, 150)} fill="#000d04" fillOpacity="0.85" stroke={G} strokeOpacity="0.4" />
+      <text x="192" y="45" fill={MINT} fillOpacity="0.65" fontSize="5.6" letterSpacing="1.5" fontFamily={MONO}>LIVE SOURCES</text>
+      <text x="191" y="76" fill={G} fontSize="27" fontWeight="600" fontFamily={MONO} filter="url(#rd-bloom)">20</text>
+      <text x="230" y="61" fill={G} fontSize="6.2" fontFamily={MONO}>■ 11 ATS feeds</text>
+      <text x="230" y="72" fill={MINT} fontSize="6.2" fontFamily={MONO}>■ 9 job boards</text>
+      <line x1="192" y1="86" x2="302" y2="86" stroke={G} strokeOpacity="0.2" />
+      <text x="192" y="97" fill={MINT} fillOpacity="0.55" fontSize="5.2" letterSpacing="1.4" fontFamily={MONO}>SCAN LOG</text>
+      <circle className="rd-live" cx="298" cy="95" r="2" fill={G} />
       <g mask="url(#rd-ticker)">
         <g className="rd-ticker">
           {[...SOURCES, ...SOURCES].map((s, i) => (
-            <text key={i} x="176" y={108 + i * 10} fill={i % 20 < 11 ? G : MINT} fillOpacity="0.85" fontSize="6.6" fontFamily={MONO}>
-              {i % 20 < 11 ? 'ATS  ' : 'BRD  '}{s}
-            </text>
+            <g key={i}>
+              <text x="192" y={110 + i * 10} fill={i % 20 < 11 ? G : MINT} fillOpacity="0.9" fontSize="6.4" fontFamily={MONO}>› {s}</text>
+              <text x="302" y={110 + i * 10} fill={G} fontSize="6.4" textAnchor="end" fontFamily={MONO}>✓</text>
+            </g>
           ))}
         </g>
       </g>
-      <text x="176" y="158" fill={MINT} fillOpacity="0.75" fontSize="6" fontFamily={MONO}>82 companies · 54 scraped live</text>
+      <text x="192" y="174" fill={MINT} fillOpacity="0.75" fontSize="5.6" fontFamily={MONO}>82 companies · 54 live</text>
 
-      {/* nightly pipeline rail */}
-      <line x1="30" y1="204" x2="294" y2="204" stroke={G} strokeOpacity="0.3" strokeDasharray="2 3" />
+      {/* nightly pipeline: a comet runs the rail and lights each stage */}
+      <line x1="30" y1="214" x2="294" y2="214" stroke="url(#rd-rail)" strokeWidth="1.3" />
       {STAGES.map(([name, detail], k) => {
         const x = 30 + k * 66
+        const c = k === 4 ? GOLD : G
         return (
           <g key={name}>
-            <text x={x} y="190" fill={k === 4 ? GOLD : MINT} fontSize="6" fontWeight="600" letterSpacing="0.8" textAnchor="middle" fontFamily={MONO}>{name}</text>
-            <rect x={x - 5} y="199" width="10" height="10" transform={`rotate(45 ${x} 204)`} fill="#000d04" stroke={k === 4 ? GOLD : G} />
-            <rect className="rd-flash" x={x - 5} y="199" width="10" height="10" transform={`rotate(45 ${x} 204)`} fill={k === 4 ? GOLD : G}
-              filter="url(#rd-glow)" style={{ animationDelay: `${k * 0.8}s` }} />
-            <text x={x} y="222" fill={MINT} fillOpacity="0.6" fontSize="5.4" textAnchor="middle" fontFamily={MONO}>{detail}</text>
+            <text x={x} y="203" fill={k === 4 ? GOLD : MINT} fontSize="6" fontWeight="600" letterSpacing="0.8" textAnchor="middle" fontFamily={MONO}>{name}</text>
+            <rect x={x - 5} y="209" width="10" height="10" transform={`rotate(45 ${x} 214)`} fill="#000d04" stroke={c} />
+            <rect className="rd-flash" x={x - 5} y="209" width="10" height="10" transform={`rotate(45 ${x} 214)`} fill={c} filter="url(#rd-bloom)" style={{ animationDelay: `${k * 0.8}s` }} />
+            <text x={x} y="231" fill={MINT} fillOpacity="0.6" fontSize="5.4" textAnchor="middle" fontFamily={MONO}>{detail}</text>
           </g>
         )
       })}
-      <circle className="rd-packet" cx="30" cy="204" r="2.6" fill="#fff" filter="url(#rd-glow)" />
+      <g className="rd-packet">
+        <rect x="2" y="212.5" width="28" height="3" rx="1.5" fill="url(#rd-tail)" />
+        <circle cx="30" cy="214" r="2.8" fill="#fff" filter="url(#rd-glow)" />
+      </g>
     </g>
   )
 }
 
-/* ================= Vettly ================= */
+/* ================= Vettly — the prism ================= */
+// Context streams pour into a crystal prism; it refracts them toward four providers. Claude rate-limits
+// (429, its beam breaks), Gemini answers, and the answer lands in a scored orb.
 const VIOLET = '#a78bfa'
 const FUCHSIA = '#e879f9'
 const PROVIDERS = [
-  { name: 'Claude', tag: 'primary', color: '#e07a5f', y: 32 },
-  { name: 'Gemini', tag: 'fallback 1', color: '#5b8def', y: 58 },
-  { name: 'OpenAI', tag: 'fallback 2', color: '#10a37f', y: 84 },
-  { name: 'Groq', tag: 'fast lane', color: '#f55036', y: 110 },
+  { name: 'Claude', tag: 'primary', color: '#f0906e', y: 50 },
+  { name: 'Gemini', tag: 'fallback 1', color: '#6ea8ff', y: 90 },
+  { name: 'OpenAI', tag: 'fallback 2', color: '#2dd4a7', y: 130 },
+  { name: 'Groq', tag: 'fast lane', color: '#ff7a59', y: 170 },
 ]
-const CORE = { x: 160, y: 86 }
-const LOOP = { duration: 5.6, repeat: Infinity, ease: 'easeInOut' } as const
-const flash = (times: number[]) => ({ initial: { opacity: 0 }, animate: { opacity: [0, 0, 1, 1, 0, 0] }, transition: { ...LOOP, times } })
-const TRACKS = ['DSA', 'SYSTEM', 'DEEP-DIVE', 'BEHAVIOR', 'TECH', 'SITUATION', 'HR', 'GENERAL', 'TAKE-HOME']
+const STREAMS: [string, string, number][] = [['ASSIGNMENT', '#c4b5fd', 58], ['JD + STACK', '#d8b4fe', 92], ['RESUME', '#f0abfc', 126], ['GITHUB REPOS', '#f9a8d4', 160]]
+const PR = { l: 132, t: 82, b: 142, tip: 184, cy: 112 }
+const PRC = { x: (PR.l * 2 + PR.tip) / 3, y: PR.cy }
+const GEM = 250
+const ORB = { x: 206, y: 196 }
+const beamOut = (y: number) => `M${PR.tip} ${PR.cy}C${PR.tip + 26} ${PR.cy} ${GEM - 36} ${y} ${GEM - 10} ${y}`
 
 function Vettly() {
+  const prism = `${PR.l},${PR.t} ${PR.l},${PR.b} ${PR.tip},${PR.cy}`
   return (
     <g>
       <defs>
         <Glow id="vt-glow" blur={2.2} />
-        <linearGradient id="vt-card" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={VIOLET} /><stop offset="1" stopColor={FUCHSIA} /></linearGradient>
-        <radialGradient id="vt-core" cx="40%" cy="35%"><stop offset="0" stopColor="#fff" /><stop offset="0.45" stopColor={VIOLET} /><stop offset="1" stopColor="#86198f" /></radialGradient>
+        <Glow id="vt-bloom" blur={5} />
+        {STREAMS.map(([, c], i) => (
+          <linearGradient key={i} id={`vt-in-${i}`} gradientUnits="userSpaceOnUse" x1="70" y1="0" x2={PR.l} y2="0">
+            <stop offset="0" stopColor={c} stopOpacity="0.15" /><stop offset="1" stopColor={c} />
+          </linearGradient>
+        ))}
+        {PROVIDERS.map((p, i) => (
+          <linearGradient key={i} id={`vt-out-${i}`} gradientUnits="userSpaceOnUse" x1={PR.tip} y1="0" x2={GEM} y2="0">
+            <stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor={p.color} />
+          </linearGradient>
+        ))}
+        {PROVIDERS.map((p, i) => (
+          <radialGradient key={i} id={`vt-gem-${i}`} cx="0.35" cy="0.3" r="0.9">
+            <stop offset="0" stopColor="#ffffff" /><stop offset="0.45" stopColor={p.color} /><stop offset="1" stopColor={p.color} stopOpacity="0.55" />
+          </radialGradient>
+        ))}
+        <linearGradient id="vt-f1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffffff" stopOpacity="0.9" /><stop offset="1" stopColor={VIOLET} stopOpacity="0.55" /></linearGradient>
+        <linearGradient id="vt-f2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={VIOLET} stopOpacity="0.75" /><stop offset="1" stopColor={FUCHSIA} stopOpacity="0.85" /></linearGradient>
+        <linearGradient id="vt-f3" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stopColor={FUCHSIA} stopOpacity="0.45" /><stop offset="1" stopColor="#ffffff" stopOpacity="0.7" /></linearGradient>
+        <radialGradient id="vt-orb" cx="0.38" cy="0.32" r="0.9"><stop offset="0" stopColor="#ffffff" /><stop offset="0.45" stopColor={VIOLET} /><stop offset="1" stopColor="#86198f" /></radialGradient>
+        <linearGradient id="vt-ans" gradientUnits="userSpaceOnUse" x1={GEM} y1="100" x2={ORB.x} y2={ORB.y}><stop offset="0" stopColor={PROVIDERS[1].color} /><stop offset="1" stopColor={FUCHSIA} /></linearGradient>
+        <clipPath id="vt-prism"><polygon points={prism} /></clipPath>
       </defs>
       <Frame title="VETTLY · PREP STUDIO" right="CTX 80K" color={VIOLET} live={FUCHSIA} />
+      <text x="14" y="38" fill="#e9d5ff" fillOpacity="0.6" fontSize="5.4" letterSpacing="1.4" fontFamily={MONO}>CONTEXT · PRIORITY</text>
 
-      {/* priority context stack */}
-      <text x="14" y="36" fill="#e9d5ff" fillOpacity="0.7" fontSize="5.8" letterSpacing="1.2" fontFamily={MONO}>CONTEXT STACK · PRIORITY</text>
-      {['ASSIGNMENT', 'JD + STACK', 'RESUME', 'GITHUB REPOS'].map((l, i) => {
-        const y = 42 + i * 22
+      {/* context streams → prism */}
+      {STREAMS.map(([label, c, y], i) => {
+        const inY = PR.cy + (i - 1.5) * 10
+        const d = `M70 ${y}C104 ${y} 108 ${inY} ${PR.l} ${inY}`
         return (
-          <g key={l} className="vt-card" style={{ animationDelay: `${i * 0.22}s` }}>
-            <polygon points={`20,${y} 104,${y} 98,${y + 16} 14,${y + 16}`} fill="url(#vt-card)" fillOpacity={0.8 - i * 0.14} stroke={VIOLET} strokeOpacity="0.7" />
-            <text x="22" y={y + 11} fill="#fff" fontSize="6.4" fontWeight="600" fontFamily={MONO}>P{i + 1}  {l}</text>
+          <g key={label}>
+            <circle cx="18" cy={y} r="3" fill={c} filter="url(#vt-glow)" />
+            <text x="25" y={y + 2} fill="#f5f3ff" fontSize="5.8" fontWeight="600" fontFamily={MONO}>P{i + 1} {label}</text>
+            <path d={d} fill="none" stroke={`url(#vt-in-${i})`} strokeWidth="2.6" strokeLinecap="round" />
+            <path className="vt-flow" d={d} fill="none" stroke="#fff" strokeOpacity="0.85" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="3 14" style={{ animationDelay: `${-i * 0.3}s` }} />
           </g>
         )
       })}
-      <text x="14" y="140" fill={FUCHSIA} fontSize="6" fontFamily={MONO}>= 80,000 chars, key specs first</text>
+      <text x="14" y="184" fill={FUCHSIA} fillOpacity="0.8" fontSize="5.4" fontFamily={MONO}>80,000 chars, key specs first</text>
 
-      {/* router core */}
-      <path d={`M104 ${CORE.y} L${CORE.x - 15} ${CORE.y}`} stroke={VIOLET} strokeOpacity="0.5" strokeDasharray="3 3" />
-      {PROVIDERS.map((p) => (
-        <path key={p.name} d={`M${CORE.x + 15} ${CORE.y} C 196 ${CORE.y}, 196 ${p.y + 11}, 218 ${p.y + 11}`} fill="none" stroke={p.color} strokeOpacity="0.45" strokeDasharray="3 3" />
-      ))}
-      <g className="spin-rev" style={{ transformOrigin: `${CORE.x}px ${CORE.y}px` }}>
-        <circle cx={CORE.x} cy={CORE.y} r="33" fill="none" stroke={VIOLET} strokeOpacity="0.3" strokeDasharray="1 4" />
-      </g>
-      <g className="spin-orbit" style={{ transformOrigin: `${CORE.x}px ${CORE.y}px` }}>
-        <circle cx={CORE.x} cy={CORE.y} r="24" fill="none" stroke={FUCHSIA} strokeOpacity="0.35" />
-        {PROVIDERS.map((p, i) => {
-          const q = { x: CORE.x + 24 * Math.cos(deg(i * 90)), y: CORE.y + 24 * Math.sin(deg(i * 90)) }
-          return <circle key={p.name} cx={q.x} cy={q.y} r="2.6" fill={p.color} filter="url(#vt-glow)" />
-        })}
-      </g>
-      <g className="vt-hub"><circle cx={CORE.x} cy={CORE.y} r="13" fill="url(#vt-core)" filter="url(#vt-glow)" /></g>
-      <text x={CORE.x} y="126" fill="#f5f3ff" fillOpacity="0.8" fontSize="5.8" letterSpacing="1.2" textAnchor="middle" fontFamily={MONO}>FAILOVER ROUTER</text>
-      <text x={CORE.x} y="135" fill={VIOLET} fillOpacity="0.8" fontSize="5.2" textAnchor="middle" fontFamily={MONO}>backoff on 429 / 529</text>
-
-      {/* providers */}
-      {PROVIDERS.map((p) => (
+      {/* prism → providers */}
+      {PROVIDERS.map((p, i) => (
         <g key={p.name}>
-          <polygon points={plate(218, p.y, 92, 22, 5)} fill="#0a0a12" stroke={p.color} strokeOpacity="0.65" />
-          <circle cx="227" cy={p.y + 11} r="3" fill={p.color} filter="url(#vt-glow)" />
-          <text x="234" y={p.y + 10} fill="#f5f5f5" fontSize="7" fontFamily={MONO}>{p.name}</text>
-          <text x="234" y={p.y + 18} fill={p.color} fontSize="5.2" fontFamily={MONO}>{p.tag}</text>
-        </g>
-      ))}
-      <motion.g {...flash([0, 0.22, 0.25, 0.36, 0.4, 1])}>
-        <polygon points={plate(218, 32, 92, 22, 5)} fill="#ef4444" fillOpacity="0.12" stroke="#ef4444" strokeWidth="1.5" />
-        <text x="305" y="46" fill="#fca5a5" fontSize="7" fontWeight="600" textAnchor="end" fontFamily={MONO}>429</text>
-      </motion.g>
-      <motion.g {...flash([0, 0.55, 0.58, 0.72, 0.76, 1])}>
-        <polygon points={plate(218, 58, 92, 22, 5)} fill="#22c55e" fillOpacity="0.12" stroke="#22c55e" strokeWidth="1.5" />
-        <text x="305" y="72" fill="#86efac" fontSize="7" fontWeight="600" textAnchor="end" fontFamily={MONO}>200 ✓</text>
-      </motion.g>
-
-      {/* output: scored, humanized answer */}
-      <polygon points={plate(12, 150, 296, 80, 8)} fill="#0d0718" fillOpacity="0.9" stroke="url(#vt-card)" strokeOpacity="0.8" />
-      <circle cx="42" cy="190" r="19" fill="none" stroke={VIOLET} strokeOpacity="0.18" strokeWidth="4" />
-      <motion.circle cx="42" cy="190" r="19" fill="none" stroke="url(#vt-card)" strokeWidth="4" strokeLinecap="round" transform="rotate(-90 42 190)"
-        initial={{ pathLength: 0 }} animate={{ pathLength: [0, 0, 0.88, 0.88, 0] }} transition={{ ...LOOP, times: [0, 0.84, 0.94, 0.98, 1] }} />
-      <text x="42" y="192" fill="#fff" fontSize="10" fontWeight="700" textAnchor="middle" fontFamily={MONO}>8.8</text>
-      <text x="42" y="200" fill={VIOLET} fontSize="5" textAnchor="middle" fontFamily={MONO}>/ 10</text>
-      <text x="70" y="167" fill="#fff" fontSize="6.8" fontWeight="600" fontFamily={MONO}>Q#12 · SYSTEM DESIGN</text>
-      <text x="70" y="178" fill="#e9d5ff" fillOpacity="0.75" fontSize="5.8" fontFamily={MONO}>“Explain RADAR's match score.”</text>
-      <text x="70" y="190" fill="#86efac" fontSize="5.6" fontFamily={MONO}>humanized · 7 checks passed</text>
-      {[10, 13, 9, 12, 14, 11, 12].map((h, j) => (
-        <rect key={j} className="vt-bar" x={70 + j * 8} y={222 - h} width="5" height={h} rx="1.5" fill="url(#vt-card)" style={{ animationDelay: `${j * 0.06}s` }} />
-      ))}
-      <text x="132" y="221" fill={VIOLET} fillOpacity="0.8" fontSize="5" fontFamily={MONO}>naturalness · metrics · flow…</text>
-      {TRACKS.map((tr, i) => (
-        <g key={tr} className="vt-track" style={{ animationDelay: `${i * 0.5}s` }}>
-          <rect x={194 + (i % 3) * 37} y={158 + Math.floor(i / 3) * 14} width="34" height="10" rx="5" fill="none" stroke={FUCHSIA} strokeOpacity="0.8" />
-          <text x={211 + (i % 3) * 37} y={165 + Math.floor(i / 3) * 14} fill="#f5d0fe" fontSize="4.6" textAnchor="middle" fontFamily={MONO}>{tr}</text>
+          <path d={beamOut(p.y)} fill="none" stroke={`url(#vt-out-${i})`} strokeWidth="1.8" strokeOpacity="0.55" />
+          <path className="vt-flow" d={beamOut(p.y)} fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="1" strokeDasharray="2 12" style={{ animationDelay: `${-i * 0.25}s` }} />
         </g>
       ))}
 
-      {/* the request */}
-      <motion.circle r="4.2" cx={0} cy={0} fill="#fff" filter="url(#vt-glow)"
-        initial={{ x: 104, y: CORE.y, opacity: 0 }}
-        animate={{
-          x: [104, CORE.x, 218, 218, CORE.x, 218, 218, CORE.x, 42, 42],
-          y: [CORE.y, CORE.y, 43, 43, CORE.y, 69, 69, CORE.y, 168, 168],
-          opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        }}
-        transition={{ ...LOOP, times: [0, 0.12, 0.24, 0.34, 0.44, 0.56, 0.66, 0.76, 0.86, 1] }} />
+      {/* the crystal */}
+      <g className="vt-float">
+        <polygon points={prism} fill={FUCHSIA} opacity="0.35" filter="url(#vt-bloom)" />
+        <polygon points={`${PR.l},${PR.t} ${PR.l},${PR.b} ${PRC.x},${PRC.y}`} fill="url(#vt-f1)" />
+        <polygon points={`${PR.l},${PR.t} ${PR.tip},${PR.cy} ${PRC.x},${PRC.y}`} fill="url(#vt-f2)" />
+        <polygon points={`${PR.l},${PR.b} ${PR.tip},${PR.cy} ${PRC.x},${PRC.y}`} fill="url(#vt-f3)" />
+        <polygon points={prism} fill="none" stroke="#ffffff" strokeOpacity="0.8" strokeWidth="1" />
+        <g clipPath="url(#vt-prism)"><rect className="vt-shine" x={PR.l - 20} y={PR.t - 10} width="7" height="80" fill="#ffffff" opacity="0.75" transform={`skewX(-18)`} /></g>
+      </g>
+      {[[PR.l - 6, PR.t - 4, 0], [PR.tip + 4, PR.cy - 14, 0.5], [PR.l + 18, PR.b + 8, 1], [PR.tip - 8, PR.t - 8, 1.4]].map(([x, y, d], i) => (
+        <path key={i} className="vt-twinkle" d={`M${x} ${y - 4}L${x + 1} ${y - 1}L${x + 4} ${y}L${x + 1} ${y + 1}L${x} ${y + 4}L${x - 1} ${y + 1}L${x - 4} ${y}L${x - 1} ${y - 1}Z`}
+          fill="#ffffff" style={{ animationDelay: `${d}s` }} />
+      ))}
+      <text x={PRC.x + 4} y={PR.b + 20} fill="#f5f3ff" fillOpacity="0.8" fontSize="5.4" letterSpacing="1.4" textAnchor="middle" fontFamily={MONO}>FAILOVER ROUTER</text>
+
+      {/* providers as gems */}
+      {PROVIDERS.map((p, i) => (
+        <g key={p.name}>
+          <circle cx={GEM} cy={p.y} r="12" fill={p.color} opacity="0.18" filter="url(#vt-bloom)" />
+          <circle cx={GEM} cy={p.y} r="8.5" fill={`url(#vt-gem-${i})`} />
+          <circle cx={GEM - 2.6} cy={p.y - 2.8} r="2" fill="#ffffff" opacity="0.8" />
+          <text x={GEM + 14} y={p.y} fill="#f8fafc" fontSize="7.2" fontWeight="600" fontFamily={MONO}>{p.name}</text>
+          <text x={GEM + 14} y={p.y + 8} fill={p.color} fontSize="5.2" fontFamily={MONO}>{p.tag}</text>
+        </g>
+      ))}
+      {/* Claude rate-limits: its beam breaks red */}
+      <g className="vt-429">
+        <path d={beamOut(PROVIDERS[0].y)} fill="none" stroke="#ef4444" strokeWidth="2.4" strokeDasharray="3 3" filter="url(#vt-glow)" />
+        <circle cx={GEM} cy={PROVIDERS[0].y} r="11" fill="none" stroke="#ef4444" strokeWidth="1.6" />
+        <rect x={GEM - 40} y={PROVIDERS[0].y - 18} width="26" height="12" rx="6" fill="#2a0707" stroke="#ef4444" />
+        <text x={GEM - 27} y={PROVIDERS[0].y - 9.7} fill="#fca5a5" fontSize="6.4" fontWeight="700" textAnchor="middle" fontFamily={MONO}>429</text>
+      </g>
+      {/* Gemini answers: its beam blazes */}
+      <g className="vt-200">
+        <path d={beamOut(PROVIDERS[1].y)} fill="none" stroke={PROVIDERS[1].color} strokeWidth="3" filter="url(#vt-bloom)" />
+        <path d={beamOut(PROVIDERS[1].y)} fill="none" stroke="#ffffff" strokeWidth="1.2" />
+        <circle cx={GEM} cy={PROVIDERS[1].y} r="11" fill="none" stroke="#22c55e" strokeWidth="1.6" />
+        <rect x={GEM - 44} y={PROVIDERS[1].y - 18} width="30" height="12" rx="6" fill="#052e16" stroke="#22c55e" />
+        <text x={GEM - 29} y={PROVIDERS[1].y - 9.7} fill="#86efac" fontSize="6.2" fontWeight="700" textAnchor="middle" fontFamily={MONO}>200 ✓</text>
+      </g>
+
+      {/* the answer lands in the scored orb */}
+      <path className="vt-ans" pathLength={1} d={`M${GEM - 9} ${PROVIDERS[1].y + 4}C${GEM - 30} 120 ${GEM - 26} ${ORB.y - 10} ${ORB.x + 17} ${ORB.y}`} fill="none" stroke="url(#vt-ans)" strokeWidth="2" filter="url(#vt-glow)" />
+      <circle cx={ORB.x} cy={ORB.y} r="20" fill={VIOLET} opacity="0.2" filter="url(#vt-bloom)" />
+      <circle cx={ORB.x} cy={ORB.y} r="17" fill="none" stroke={VIOLET} strokeOpacity="0.2" strokeWidth="3" />
+      <circle className="vt-ring" pathLength={1} cx={ORB.x} cy={ORB.y} r="17" fill="none" stroke={FUCHSIA} strokeWidth="3" strokeLinecap="round" transform={`rotate(-90 ${ORB.x} ${ORB.y})`} />
+      <circle cx={ORB.x} cy={ORB.y} r="12" fill="url(#vt-orb)" />
+      <text x={ORB.x} y={ORB.y + 2.6} fill="#ffffff" fontSize="7.6" fontWeight="700" textAnchor="middle" fontFamily={MONO}>8.8</text>
+      <text x={ORB.x - 26} y={ORB.y - 6} fill="#f5f3ff" fontSize="5.8" fontWeight="600" textAnchor="end" fontFamily={MONO}>Q#12 SYSTEM DESIGN</text>
+      <text x={ORB.x - 26} y={ORB.y + 3} fill="#86efac" fontSize="5.4" textAnchor="end" fontFamily={MONO}>humanized · 7/7 checks</text>
+      <text x={ORB.x - 26} y={ORB.y + 11} fill={VIOLET} fontSize="5" textAnchor="end" fontFamily={MONO}>9 tracks · STAR · DSA</text>
+
+      {/* the request of light: in through the prism, bounced by Claude, answered by Gemini, into the orb */}
+      <circle className="vt-p1" r="3.4" cx={0} cy={0} fill="#fff" filter="url(#vt-glow)" />
+      <circle className="vt-p2" r="3.4" cx={0} cy={0} fill="#fff" filter="url(#vt-glow)" />
     </g>
   )
 }
 
-/* ================= EVES ================= */
+/* ================= EVES — mission brief ================= */
+// Mirrors the app itself: a mission brief that writes itself from the call, then the neon prompt pills.
 const CY = '#22d3ee'
 const GR = '#7ee787'
 const PU = '#c678dd'
-const EYE = { x: 70, y: 146 }
-const HEX = (r: number) =>
-  Array.from({ length: 6 }, (_, i) => {
-    const a = deg(-90 + i * 60)
-    return `${(EYE.x + r * Math.cos(a)).toFixed(1)},${(EYE.y + r * Math.sin(a)).toFixed(1)}`
-  }).join(' ')
-const ALMOND = `M${EYE.x - 31} ${EYE.y} Q${EYE.x} ${EYE.y - 29} ${EYE.x + 31} ${EYE.y} Q${EYE.x} ${EYE.y + 29} ${EYE.x - 31} ${EYE.y} Z`
-const WAVE = Array.from({ length: 79 }, (_, i) => 3 + 16 * Math.abs(Math.sin(i * 0.37) * Math.cos(i * 0.11)) + (i % 7 === 0 ? 4 : 0))
-const MARKERS: [number, string, string][] = [[92, 'DECISION', GR], [170, 'RULED OUT', '#f43f5e'], [248, 'ACTION ITEM', CY]]
-const LINES: [string, string, string][] = [
-  ['S1', "let's cache at the edge first", CY],
-  ['S2', 'haan, cache layer pehle ship karo', PU],
-  ['S1', 'Redis, 5-min TTL. Owner: me', CY],
+const PILL_ICONS: Record<string, string> = {
+  target: 'M4 0.8a3.2 3.2 0 1 1 0 6.4a3.2 3.2 0 1 1 0-6.4M4 3a1 1 0 1 1 0 2a1 1 0 1 1 0-2',
+  build: 'M1 2.2h6M1 5.8h6M2.6 1v2.4M5.4 4.6V7',
+  term: 'M1 1.8l2.4 2.2L1 6.2M4.4 6.4H7',
+  spark: 'M4 0.6v6.8M0.6 4h6.8M1.6 1.6l4.8 4.8M6.4 1.6l-4.8 4.8',
+  cursor: 'M1.2 1.2l5.6 2.3-2.4.8-.9 2.5z',
+  layout: 'M0.8 0.8h6.4v6.4H0.8zM0.8 3h6.4M3 3v4.2',
+  list: 'M0.8 1.6h.8M2.6 1.6h4.6M0.8 4h.8M2.6 4h4.6M0.8 6.4h.8M2.6 6.4h4.6',
+  shield: 'M4 0.6l3 1.2v2.3c0 1.8-1.3 3-3 3.4-1.7-.4-3-1.6-3-3.4V1.8z',
+}
+const PILLS: [string, string, string][] = [
+  ['MAIN GOAL', '#fbbf24', 'target'], ['HOW TO BUILD', '#4ade80', 'build'], ['CODEX PROMPT', '#22d3ee', 'term'], ['CLAUDE CODE', '#fb923c', 'spark'],
+  ['CURSOR PROMPT', '#60a5fa', 'cursor'], ['FRONTEND', '#c084fc', 'layout'], ['ACTION PLAN', '#f472b6', 'list'], ['RISKS & Qs', '#f87171', 'shield'],
 ]
-const OUTPUTS = ['MAIN GOAL', 'DECISIONS', 'CODEX PROMPT', 'CLAUDE CODE']
+const BRIEF_CHIPS: [string, string][] = [['2 decisions', CY], ['3 action items', GR], ['1 open question', '#fbbf24'], ['1 concern', '#fb7185'], ['planning · focused', PU]]
+const MINI_WAVE = Array.from({ length: 24 }, (_, i) => 3 + 8 * Math.abs(Math.sin(i * 0.9) * Math.cos(i * 0.31)))
+
+const CHIPS = (() => {
+  const out: { t: string; c: string; x: number; w: number }[] = []
+  let x = 22
+  for (const [t, c] of BRIEF_CHIPS) {
+    const w = t.length * 3.12 + 10
+    out.push({ t, c, x, w })
+    x += w + 4
+  }
+  return out
+})()
 
 function Eves() {
   return (
     <g>
       <defs>
-        <Glow id="ev-glow" />
-        <linearGradient id="ev-grad" gradientUnits="userSpaceOnUse" x1="14" y1="0" x2="306" y2="0">
-          <stop offset="0" stopColor={CY} /><stop offset="0.52" stopColor={GR} /><stop offset="1" stopColor={PU} />
-        </linearGradient>
-        <linearGradient id="ev-hexgrad" gradientUnits="userSpaceOnUse" x1="30" y1="104" x2="110" y2="188">
-          <stop offset="0" stopColor={CY} /><stop offset="0.52" stopColor={GR} /><stop offset="1" stopColor={PU} />
-        </linearGradient>
-        <clipPath id="ev-hex"><polygon points={HEX(42)} /></clipPath>
-        <clipPath id="ev-almond"><path d={ALMOND} /></clipPath>
+        <Glow id="ev-glow" blur={1.8} />
+        <Glow id="ev-bloom" blur={4} />
+        <linearGradient id="ev-edge" x1="0" x2="1"><stop offset="0" stopColor={CY} stopOpacity="0" /><stop offset="0.5" stopColor={CY} stopOpacity="0.9" /><stop offset="1" stopColor={CY} stopOpacity="0" /></linearGradient>
+        <linearGradient id="ev-sweep" x1="0" x2="1"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.5" stopColor="#fff" stopOpacity="0.55" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
+        <clipPath id="ev-pills">
+          {PILLS.map((_, i) => <rect key={i} x={14 + (i % 4) * 74} y={144 + Math.floor(i / 4) * 28} width="70" height="22" rx="11" />)}
+        </clipPath>
       </defs>
       <Frame title="EVES · MEETING INTEL" right="REC 01:47:22" color={CY} live="#f43f5e" />
 
-      {/* the meeting, as a waveform with a playhead and what was decided where */}
-      {WAVE.map((h, i) => <rect key={i} x={14 + i * 3.7} y={42 - h / 2} width="2" height={h} rx="1" fill="url(#ev-grad)" fillOpacity="0.9" />)}
-      <g className="ev-playhead">
-        <line x1="14" y1="28" x2="14" y2="56" stroke="#fff" strokeWidth="1.2" filter="url(#ev-glow)" />
-        <path d="M11 27 L17 27 L14 31 Z" fill="#fff" />
-      </g>
-      {MARKERS.map(([x, l, c]) => (
-        <g key={l}>
-          <rect x={x - 3} y="57" width="6" height="6" transform={`rotate(45 ${x} 60)`} fill={c} filter="url(#ev-glow)" />
-          <text x={x} y="72" fill={c} fontSize="5.4" letterSpacing="0.6" textAnchor="middle" fontFamily={MONO}>{l}</text>
+      {/* status bar: live capture, the brain in use, the path format for the coding agent */}
+      {MINI_WAVE.map((h, i) => (
+        <rect key={i} className="ev-eqc" x={14 + i * 3.6} y={38 - h / 2} width="2" height={h} rx="1" fill={i < 12 ? CY : GR}
+          style={{ animationDelay: `${-((i * 7) % 11) / 10}s`, animationDuration: `${0.55 + (i % 4) * 0.15}s` }} />
+      ))}
+      <rect x="112" y="31" width="122" height="14" rx="7" fill={GR} fillOpacity="0.07" stroke={GR} strokeOpacity="0.5" />
+      <circle className="rd-live" cx="120" cy="38" r="2" fill={GR} />
+      <text x="126" y="40" fill={GR} fontSize="5.8" fontFamily={MONO}>GROQ · openai/gpt-oss-120b</text>
+      <rect x="244" y="31" width="62" height="14" rx="5" fill="none" stroke="#fff" strokeOpacity="0.15" />
+      <rect x="246" y="33" width="29" height="10" rx="3" fill={CY} fillOpacity="0.2" />
+      <text x="260.5" y="40" fill={CY} fontSize="5.6" fontWeight="700" textAnchor="middle" fontFamily={MONO}>WSL</text>
+      <text x="290" y="40" fill="#fff" fillOpacity="0.45" fontSize="5.6" textAnchor="middle" fontFamily={MONO}>WIN</text>
+
+      {/* mission brief: the main goal types itself out of the meeting */}
+      <rect x="14" y="52" width="292" height="80" rx="8" fill="#0b1117" stroke={CY} strokeOpacity="0.32" />
+      <rect x="40" y="52" width="240" height="1" fill="url(#ev-edge)" />
+      <circle className="rd-live" cx="24" cy="64" r="2.2" fill={GR} filter="url(#ev-glow)" />
+      <text x="30" y="66" fill={GR} fontSize="5.6" letterSpacing="1.4" fontFamily={MONO}>MISSION BRIEF // MAIN GOAL</text>
+      <text className="ev-type" x="22" y="84" fill="#ffffff" fontSize="7.6" fontWeight="700" fontFamily={MONO}>Ship the cache layer first, then open senior access.</text>
+      <text className="ev-sub" x="22" y="97" fill="#ffffff" fillOpacity="0.55" fontSize="5.8" fontFamily={MONO}>Redis, 5-min TTL · owners and deadlines pulled from the call</text>
+      {CHIPS.map((c, i) => (
+        <g key={c.t} className="ev-chip" style={{ animationDelay: `${2.9 + i * 0.12}s` }}>
+          <rect x={c.x} y="108" width={c.w} height="13" rx="6.5" fill={c.c} fillOpacity="0.1" stroke={c.c} strokeOpacity="0.6" />
+          <text x={c.x + c.w / 2} y="116.8" fill={c.c} fontSize="5.2" textAnchor="middle" fontFamily={MONO}>{c.t}</text>
         </g>
       ))}
 
-      {/* the sigil: hex eye, equalizer iris, blinks */}
-      <polygon points={HEX(42)} fill="#05070a" />
-      <g clipPath="url(#ev-hex)">
-        <rect className="ev-scan" x="20" y="104" width="100" height="2" fill={GR} style={{ ['--scan-d' as string]: '84px' }} />
-      </g>
-      <polygon points={HEX(42)} fill="none" stroke="url(#ev-hexgrad)" strokeWidth="1.8" filter="url(#ev-glow)" />
-      <g className="spin-orbit" style={{ transformOrigin: `${EYE.x}px ${EYE.y}px` }}>
-        <circle cx={EYE.x} cy={EYE.y - 49} r="2.2" fill={GR} filter="url(#ev-glow)" />
-      </g>
-      <g className="ev-lid" style={{ transformOrigin: `${EYE.x}px ${EYE.y}px` }}>
-        <g clipPath="url(#ev-almond)">
-          {Array.from({ length: 30 }, (_, i) => (
-            <g key={i} transform={`rotate(${i * 12} ${EYE.x} ${EYE.y})`}>
-              <rect className="ev-eq" x={EYE.x - 0.9} y={EYE.y - 8 - 14} width="1.8" height="14" rx="0.9" fill="url(#ev-hexgrad)"
-                style={{ animationDelay: `${-((i * 7) % 11) / 10}s`, animationDuration: `${0.6 + (i % 5) * 0.14}s` }} />
+      {/* the prompt pills, flickering on like neon */}
+      {PILLS.map(([label, c, icon], i) => {
+        const x = 14 + (i % 4) * 74
+        const y = 144 + Math.floor(i / 4) * 28
+        return (
+          <g key={label} className="ev-neon" style={{ animationDelay: `${3.4 + i * 0.16}s` }}>
+            <rect x={x} y={y} width="70" height="22" rx="11" fill={c} opacity="0.22" filter="url(#ev-bloom)" />
+            <rect x={x} y={y} width="70" height="22" rx="11" fill="#07090c" stroke={c} strokeOpacity="0.8" />
+            <g transform={`translate(${x + 8} ${y + 7})`} fill="none" stroke={c} strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round">
+              <path d={PILL_ICONS[icon]} />
             </g>
-          ))}
-        </g>
-        <path d={ALMOND} fill="none" stroke="url(#ev-hexgrad)" strokeWidth="1.5" />
-        <circle cx={EYE.x} cy={EYE.y} r="6.5" fill="#05070a" stroke={GR} strokeOpacity="0.8" />
-        <circle className="ev-pupil" cx={EYE.x} cy={EYE.y} r="2.6" fill={GR} />
+            <text x={x + 20} y={y + 13.6} fill={c} fontSize="5.3" fontWeight="700" letterSpacing="0.5" fontFamily={MONO}>{label}</text>
+          </g>
+        )
+      })}
+      {/* one gets pressed */}
+      <rect className="ev-press" x={14 + 3 * 74} y="144" width="70" height="22" rx="11" fill="#fb923c" fillOpacity="0.35" stroke="#fed7aa" strokeWidth="1.2" filter="url(#ev-glow)" />
+      <g clipPath="url(#ev-pills)"><rect className="ev-sweep" x="-60" y="140" width="40" height="64" fill="url(#ev-sweep)" transform="skewX(-20)" /></g>
+      <g className="ev-toast">
+        <rect x="96" y="204" width="128" height="17" rx="8.5" fill="#06140c" stroke={GR} strokeOpacity="0.7" />
+        <text x="160" y="215" fill={GR} fontSize="5.8" textAnchor="middle" fontFamily={MONO}>✓ prompt copied → Claude Code</text>
       </g>
-
-      {/* live diarized transcript */}
-      <polygon points={plate(124, 82, 186, 84)} fill="#0b0f14" fillOpacity="0.9" stroke={CY} strokeOpacity="0.35" />
-      <text x="132" y="94" fill={CY} fillOpacity="0.75" fontSize="5.6" letterSpacing="1.2" fontFamily={MONO}>LIVE TRANSCRIPT · DIARIZED · HI ↔ EN</text>
-      {LINES.map(([s, text, c], k) => (
-        <motion.g key={k} {...seq(0.02 + k * 0.15)}>
-          <rect x="132" y={101 + k * 17} width="15" height="10" rx="3" fill={c} fillOpacity="0.18" stroke={c} strokeOpacity="0.7" />
-          <text x="139.5" y={108 + k * 17} fill={c} fontSize="5.8" fontWeight="600" textAnchor="middle" fontFamily={MONO}>{s}</text>
-          <text x="152" y={108.5 + k * 17} fill="#e6edf3" fontSize="6.4" fontFamily={MONO}>{text}</text>
-        </motion.g>
-      ))}
-      <motion.text x="132" y="160" fill={GR} fontSize="6" fontFamily={MONO} {...seq(0.82)}>✓ prompt copied → Claude Code</motion.text>
-
-      {/* what the brain produces */}
-      <text x="124" y="184" fill="#e6edf3" fillOpacity="0.6" fontSize="5.6" letterSpacing="1.2" fontFamily={MONO}>BRAIN → GROQ · GEMINI · OPENAI</text>
-      {OUTPUTS.map((o, i) => (
-        <motion.g key={o} {...seq(0.45 + i * 0.09, 7, 0.28)}>
-          <polygon points={plate(124 + (i % 2) * 94, 192 + Math.floor(i / 2) * 19, 88, 14, 4)} fill="#05070a" stroke="url(#ev-grad)" />
-          <text x={168 + (i % 2) * 94} y={201.5 + Math.floor(i / 2) * 19} fill="#e6edf3" fontSize="6" textAnchor="middle" fontFamily={MONO}>✓ {o}</text>
-        </motion.g>
-      ))}
-      <text x="14" y="206" fill={CY} fillOpacity="0.8" fontSize="5.6" fontFamily={MONO}>nova-3 · multi</text>
-      <text x="14" y="216" fill={GR} fillOpacity="0.8" fontSize="5.6" fontFamily={MONO}>2h+ meetings</text>
-      <text x="14" y="226" fill={PU} fillOpacity="0.85" fontSize="5.6" fontFamily={MONO}>100% local</text>
+      <text x="14" y="229" fill={CY} fillOpacity="0.8" fontSize="5.2" fontFamily={MONO}>nova-3 · hi ↔ en</text>
+      <text x="306" y="229" fill={PU} fillOpacity="0.85" fontSize="5.2" textAnchor="end" fontFamily={MONO}>100% local</text>
     </g>
   )
 }
@@ -387,33 +441,30 @@ function Gold() {
       <Frame title="SIMPLIFY MONEY · GOLD DESK" right="XAU / INR" color={AU} live={ROSE} />
       {[40, 70, 100, 130].map((y) => <line key={y} x1="22" y1={y} x2="300" y2={y} stroke={AU} strokeOpacity="0.08" />)}
       <path d={`${PRICE} L300 136 L22 136 Z`} fill="url(#au-area)" />
-      <motion.path d={PRICE} fill="none" stroke={AU} strokeWidth="2" filter="url(#au-glow)"
-        initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 1] }} transition={{ duration: 3.5, repeat: Infinity, times: [0, 0.7, 1] }} />
+      <path className="au-draw" pathLength={1} d={PRICE} fill="none" stroke={AU} strokeWidth="2" filter="url(#au-glow)" />
       <text x="22" y="36" fill={AU} fontSize="7" fontFamily={MONO}>24K GOLD · ₹ per gram</text>
-      <motion.text x="300" y="36" fill={ROSE} fontSize="7" fontWeight="600" textAnchor="end" fontFamily={MONO}
-        animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.6, repeat: Infinity }}>▲ LIVE</motion.text>
+      <text className="au-live" x="300" y="36" fill={ROSE} fontSize="7" fontWeight="600" textAnchor="end" fontFamily={MONO}>▲ LIVE</text>
 
       {/* the conversation */}
       <polygon points={plate(12, 146, 178, 84)} fill="#120d02" fillOpacity="0.9" stroke={AU} strokeOpacity="0.35" />
-      <motion.g {...seq(0.02)}>
+      <g className="au-s0">
         <rect x="70" y="154" width="112" height="16" rx="8" fill={AU} fillOpacity="0.16" stroke={AU} strokeOpacity="0.6" />
         <text x="126" y="164.5" fill="#fef3c7" fontSize="6" textAnchor="middle" fontFamily={MONO}>I want to invest ₹5000 in gold</text>
-      </motion.g>
-      <motion.g {...seq(0.22)}>
+      </g>
+      <g className="au-s1">
         <rect x="20" y="176" width="130" height="16" rx="8" fill="#fff" fillOpacity="0.06" stroke="#fff" strokeOpacity="0.25" />
         <text x="85" y="186.5" fill="#f5f5f4" fontSize="6" textAnchor="middle" fontFamily={MONO}>Today's 24K rate is live. Buy now?</text>
-      </motion.g>
-      <motion.g {...seq(0.42)}>
+      </g>
+      <g className="au-s2">
         <rect x="20" y="200" width="92" height="14" rx="4" fill={ROSE} fillOpacity="0.15" stroke={ROSE} />
         <text x="66" y="209.5" fill="#fecdd3" fontSize="6" textAnchor="middle" fontFamily={MONO}>wants_to_buy: true</text>
-      </motion.g>
+      </g>
 
       {/* the price engine */}
       <polygon points={plate(198, 146, 110, 84)} fill="#120d02" fillOpacity="0.9" stroke={AU} strokeOpacity="0.35" />
       <text x="206" y="158" fill={AU} fillOpacity="0.75" fontSize="5.6" letterSpacing="1.2" fontFamily={MONO}>PRICE ENGINE</text>
       {['spot  USD / oz', '× FX  USD → INR', '+ duty + GST', '= ₹ per gram'].map((l, i) => (
-        <motion.text key={l} x="206" y={172 + i * 14} fill={i === 3 ? AU : '#fef3c7'} fontSize="6.4" fontWeight={i === 3 ? 700 : 400} fontFamily={MONO}
-          {...seq(0.5 + i * 0.1, 7, 0.3)}>{l}</motion.text>
+        <text key={l} className={`au-p${i}`} x="206" y={172 + i * 14} fill={i === 3 ? AU : '#fef3c7'} fontSize="6.4" fontWeight={i === 3 ? 700 : 400} fontFamily={MONO}>{l}</text>
       ))}
     </g>
   )
@@ -427,7 +478,6 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
         backgroundSize: '20px 20px',
       }} />
       {/* RADAR's beam: a smooth conic gradient, positioned exactly under the SVG scope */}
-      {kind === 'radar' && <div className="rd-cone" style={{ left: `${((RS.x - RS.r) / 320) * 100}%`, top: `${((RS.y - RS.r) / 240) * 100}%`, width: `${(RS.r * 2 / 320) * 100}%`, height: `${(RS.r * 2 / 240) * 100}%` }} />}
       <div className="absolute inset-0 scanlines" />
       <svg viewBox="0 0 320 240" className="absolute inset-0 w-full h-full">
         {kind === 'radar' && <Radar />}
@@ -450,7 +500,7 @@ const MARKS: Record<Visual, { from: string; via: string; to: string; glow: strin
   gold: { from: '#fef08a', via: '#f59e0b', to: '#b45309', glow: '#f59e0b' },
 }
 
-function Glyph({ kind, tint }: { kind: Visual; tint: string }) {
+function Glyph({ kind }: { kind: Visual }) {
   return (
     <svg viewBox="0 0 24 24" className="w-[64%] h-[64%]" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.25))' }}>
       {kind === 'radar' && (
@@ -466,11 +516,14 @@ function Glyph({ kind, tint }: { kind: Visual; tint: string }) {
         </>
       )}
       {kind === 'wave' && (
-        <g className="gl-blink">
-          <path d="M2.8 12 Q12 3.8 21.2 12 Q12 20.2 2.8 12 Z" strokeWidth="1.7" />
-          <circle cx="12" cy="12" r="3.6" fill="#fff" stroke="none" />
-          <circle className="gl-look" cx="12" cy="12" r="1.6" fill={tint} stroke="none" />
-        </g>
+        <>
+          {/* the meeting (live waveform) becomes a prompt */}
+          {[[3.2, 7], [6.8, 13], [10.4, 9]].map(([x, h], i) => (
+            <rect key={i} className="gl-eq" x={x - 1.3} y={12 - h / 2} width="2.6" height={h} rx="1.3" fill="#fff" stroke="none" style={{ animationDelay: `${-i * 0.27}s` }} />
+          ))}
+          <path d="M14 7 L19 12 L14 17" strokeWidth="2.6" />
+          <path className="rd-live" d="M18.8 18.6 H22.2" strokeWidth="2.4" />
+        </>
       )}
       {kind === 'router' && (
         <>
@@ -513,7 +566,7 @@ export function ProjectMark({ kind }: { kind: Visual }) {
         }} />
         {/* floating glyph */}
         <span className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(16px)' }}>
-          <Glyph kind={kind} tint={m.to} />
+          <Glyph kind={kind} />
         </span>
         {/* glass: specular highlight + rim light */}
         <span className="absolute inset-0 rounded-full pointer-events-none" style={{
