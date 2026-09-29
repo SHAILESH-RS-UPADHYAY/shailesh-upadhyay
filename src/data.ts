@@ -210,7 +210,7 @@ export const projects: {
       '# resume + repos + JD + STAR stories → one priority-ordered context',
       '→ Parses resumes (.pdf / .docx) and scrapes public repos with httpx',
       '→ Priority RAG context so key specs never get lost mid-window',
-      '→ Failover router: Claude → Gemini → OpenAI → Groq',
+      '→ Failover router: Groq → Gemini → Claude → OpenAI',
       '  exponential backoff on 429 / 529, auto context-slicing',
       '→ 9 tracks: DSA, system design, project deep-dive, behavioural…',
       '→ Humanizer + 7-dimension scoring before any answer is shown',

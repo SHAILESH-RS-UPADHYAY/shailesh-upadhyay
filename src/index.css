@@ -217,9 +217,35 @@ section[id] { scroll-margin-top: 80px; }
 .vt-ring { stroke-dasharray: 1; stroke-dashoffset: 1; animation: vtring 5.6s ease-in-out infinite; }
 @keyframes vtring { 0%, 76% { stroke-dashoffset: 1; } 88%, 97% { stroke-dashoffset: 0.12; } 100% { stroke-dashoffset: 1; } }
 .vt-p1 { opacity: 0; animation: vtp1 5.6s ease-in-out infinite; }
-@keyframes vtp1 { 0% { transform: translate(70px, 92px); opacity: 0; } 10% { transform: translate(132px, 107px); opacity: 1; } 14% { transform: translate(184px, 112px); opacity: 1; } 22% { transform: translate(240px, 50px); opacity: 1; } 28%, 100% { transform: translate(240px, 50px); opacity: 0; } }
+@keyframes vtp1 { 0% { transform: translate(132px, 88px); opacity: 0; } 6% { transform: translate(146px, 88px); opacity: 1; } 10% { transform: translate(170px, 92px); opacity: 1; } 14% { transform: translate(194px, 82px); opacity: 1; } 22% { transform: translate(222px, 50px); opacity: 1; } 28%, 100% { transform: translate(222px, 50px); opacity: 0; } }
 .vt-p2 { opacity: 0; animation: vtp2 5.6s ease-in-out infinite; }
-@keyframes vtp2 { 0%, 40% { transform: translate(184px, 112px); opacity: 0; } 50% { transform: translate(240px, 90px); opacity: 1; } 60% { transform: translate(240px, 90px); opacity: 1; } 68% { transform: translate(225px, 150px); opacity: 1; } 78%, 100% { transform: translate(223px, 196px); opacity: 0; } }
+@keyframes vtp2 { 0%, 40% { transform: translate(194px, 89px); opacity: 0; } 50% { transform: translate(222px, 92px); opacity: 1; } 60% { transform: translate(222px, 92px); opacity: 1; } 68% { transform: translate(210px, 150px); opacity: 1; } 78%, 100% { transform: translate(191px, 200px); opacity: 0; } }
+.vt-shake { animation: vshake 5.6s linear infinite; }
+@keyframes vshake { 0%, 23%, 30%, 100% { transform: none; } 24% { transform: translateX(-1.4px); } 25.5% { transform: translateX(1.4px); } 27% { transform: translateX(-1px); } 28.5% { transform: translateX(0.7px); } }
+.vt-flash { opacity: 0; animation: vflash 5.6s ease-out infinite; }
+@keyframes vflash { 0%, 8%, 17%, 42%, 53%, 100% { opacity: 0; } 11%, 46% { opacity: 0.45; } }
+.vt-pop { transform-box: fill-box; transform-origin: center; opacity: 0.5; animation: vpop 5.6s ease-out infinite; }
+@keyframes vpop { 0%, 82% { opacity: 0.5; transform: scale(0.9); } 87% { opacity: 1; transform: scale(1.14); } 91%, 96% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.9); } }
+.vt-wave { animation: vwave 2.2s linear infinite; }
+@keyframes vwave { to { transform: translateX(12px); } }
+.vt-bubble { opacity: 0; animation: vbubble 2s ease-in infinite; }
+@keyframes vbubble { 0% { opacity: 0; transform: translateY(0); } 15%, 75% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-10px); } }
+.vt-facet { opacity: 0; animation: vfacet 2.8s ease-in-out infinite; }
+@keyframes vfacet { 0%, 30%, 100% { opacity: 0; } 12% { opacity: 0.55; } }
+.vt-core { transform-box: fill-box; transform-origin: center; animation: vcore 2.8s ease-in-out infinite; }
+@keyframes vcore { 0%, 100% { opacity: 0.45; transform: scale(0.85); } 50% { opacity: 0.85; transform: scale(1.15); } }
+.vt-slosh { transform-box: view-box; animation: vslosh 3.2s ease-in-out infinite alternate; }
+@keyframes vslosh { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+.vt-flame { transform-box: fill-box; transform-origin: 50% 0; animation: vflame 0.16s ease-in-out infinite alternate; }
+@keyframes vflame { from { transform: scaleY(0.7); } to { transform: scaleY(1.15); } }
+.vt-bob { animation: vbob 3.6s ease-in-out infinite; }
+@keyframes vbob { 50% { transform: translateY(-1.6px); } }
+.vt-fill { transform: translateY(26px); animation: vfill 5.6s ease-in-out infinite; }
+@keyframes vfill { 0%, 74% { transform: translateY(26px); } 88%, 95% { transform: translateY(0); } 100% { transform: translateY(26px); } }
+.vt-code { clip-path: inset(0 100% 0 0); animation: vcode 5.6s steps(28) infinite; }
+@keyframes vcode { 0%, 2% { clip-path: inset(0 100% 0 0); } 16%, 94% { clip-path: inset(0 0 0 0); } 100% { clip-path: inset(0 100% 0 0); } }
+.vt-spectrum { opacity: 0.35; animation: vspectrum 2.8s ease-in-out infinite; }
+@keyframes vspectrum { 50% { opacity: 0.6; } }
 .au-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: audraw 3.5s linear infinite; }
 @keyframes audraw { 0% { stroke-dashoffset: 1; } 70%, 100% { stroke-dashoffset: 0; } }
 .au-live { animation: aulive 1.6s ease-in-out infinite; }
@@ -241,16 +267,28 @@ section[id] { scroll-margin-top: 80px; }
 
 .rd-sonar { transform-box: fill-box; transform-origin: center; opacity: 0; animation: rsonar 3.2s ease-out infinite; }
 @keyframes rsonar { 0% { transform: scale(0.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 0; } }
-.rd-lock { transform-box: view-box; opacity: 0; animation: rlock 4s linear infinite; }
-@keyframes rlock { 0% { opacity: 0; transform: scale(2.2); } 6% { opacity: 1; transform: scale(1); } 55% { opacity: 1; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(1); } }
-.rd-card { opacity: 0; animation: rcard 4s ease-out infinite; }
-@keyframes rcard { 0%, 3% { opacity: 0; transform: translateX(-6px); } 10%, 55% { opacity: 1; transform: none; } 70%, 100% { opacity: 0; transform: none; } }
+/* the lock cycle is 12s: three beam turns, one lock per turn */
+.rd-lock { transform-box: view-box; opacity: 0; animation: rlock 12s linear infinite; }
+@keyframes rlock { 0% { opacity: 0; transform: scale(2.2); } 2% { opacity: 1; transform: scale(1); } 18% { opacity: 1; transform: scale(1); } 23%, 100% { opacity: 0; transform: scale(1); } }
+.rd-card { opacity: 0; animation: rcard 12s ease-out infinite; }
+@keyframes rcard { 0%, 1% { opacity: 0; transform: translateY(2px); } 3.5%, 18% { opacity: 1; transform: none; } 23%, 100% { opacity: 0; transform: none; } }
+.rd-type { clip-path: inset(0 100% 0 0); animation: rtype 12s steps(16) infinite; }
+@keyframes rtype { 0%, 1% { clip-path: inset(0 100% 0 0); } 5.5%, 100% { clip-path: inset(0 0 0 0); } }
+.rd-reticle { transform-box: fill-box; transform-origin: center; animation: spin 3s linear infinite; }
+.rd-tick { opacity: 0.35; animation: rtick 4s linear infinite; }
+@keyframes rtick { 0% { opacity: 1; } 45%, 100% { opacity: 0.35; } }
+.rd-haze { animation: rhaze 6s ease-in-out infinite; }
+@keyframes rhaze { 50% { opacity: 0.55; } }
+.rd-dust { opacity: 0; animation: rdust 9s linear infinite; }
+@keyframes rdust { 0% { opacity: 0; transform: translate(0, 0); } 20%, 70% { opacity: 0.8; } 100% { opacity: 0; transform: translate(5px, -28px); } }
+.rd-sheen { animation: rsheen 7s ease-in-out infinite; }
+@keyframes rsheen { 0% { transform: translateX(0) skewX(-22deg); } 40%, 100% { transform: translateX(260px) skewX(-22deg); } }
 .vt-flow { animation: vflow 1.4s linear infinite; }
 @keyframes vflow { to { stroke-dashoffset: -34; } }
 .vt-float { animation: vfloat 4s ease-in-out infinite; }
 @keyframes vfloat { 50% { transform: translateY(-3px); } }
 .vt-shine { animation: vshine 2.8s ease-in-out infinite; }
-@keyframes vshine { 0% { transform: translateX(0) skewX(-18deg); } 60%, 100% { transform: translateX(78px) skewX(-18deg); } }
+@keyframes vshine { 0% { transform: translateX(0) skewX(-18deg); } 60%, 100% { transform: translateX(84px) skewX(-18deg); } }
 .vt-twinkle { transform-box: fill-box; transform-origin: center; animation: vtwinkle 1.8s ease-in-out infinite; }
 @keyframes vtwinkle { 0%, 100% { opacity: 0.1; transform: scale(0.4); } 50% { opacity: 1; transform: scale(1.1); } }
 .gl-eq { transform-box: fill-box; transform-origin: center; animation: gleq 0.9s ease-in-out infinite alternate; }
@@ -274,8 +312,8 @@ section[id] { scroll-margin-top: 80px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .rd-blip { opacity: 0.15; animation: rblip 4s linear infinite; }
 @keyframes rblip { 0% { opacity: 1; } 70%, 100% { opacity: 0.15; } }
-.rd-ping { transform-box: fill-box; transform-origin: center; opacity: 0; animation: rping 4s ease-out infinite; }
-@keyframes rping { 0% { transform: scale(1); opacity: 0.9; } 45%, 100% { transform: scale(5); opacity: 0; } }
+.rd-ping { transform-box: fill-box; transform-origin: center; opacity: 0; animation: rping 12s ease-out infinite; }
+@keyframes rping { 0% { transform: scale(1); opacity: 0.9; } 15%, 100% { transform: scale(5); opacity: 0; } }
 .rd-ticker { animation: rticker 22s linear infinite; }
 @keyframes rticker { to { transform: translateY(-200px); } }
 .rd-flash { opacity: 0; animation: rflash 4s ease-out infinite; }

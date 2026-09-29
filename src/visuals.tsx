@@ -52,14 +52,31 @@ function Glow({ id, blur = 1.6 }: { id: string; blur?: number }) {
 }
 
 /* ================= RADAR ================= */
+// A precision instrument: brushed-steel 24h bezel (the nightly run marked in gold at 01:30), a lume chapter ring the
+// beam lights as it passes, phosphor returns, a gold hub under a glass dome. Lock readout and sources pane are glass.
 const G = '#00FF41'
 const MINT = '#B6FFC6'
 const GOLD = '#FACC15'
-const RS = { x: 96, y: 112, r: 62 }
+const RS = { x: 92, y: 110, r: 64 } // scope; the dial face is r 66, the bezel runs from 66 to 78
 const onScope = (a: number, r: number) => ({ x: RS.x + r * Math.cos(deg(a)), y: RS.y + r * Math.sin(deg(a)) })
 const sweepDelay = (a: number) => `${(a / 360) * 4 - 4}s` // the beam crosses angle a at this point of its 4s turn
-const JOBS: [number, number, string][] = [[28, 44, 'BE 72'], [118, 48, 'ML 64'], [200, 30, ''], [238, 52, 'SRE 58'], [336, 24, ''], [160, 16, '']]
-const TARGET: [number, number] = [302, 44]
+const rnd = (i: number) => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x) } // stable noise
+const arc = (r: number, a0: number, a1: number, sweep = 1) => {
+  const p = onScope(a0, r)
+  const q = onScope(a1, r)
+  return `M${p.x.toFixed(2)} ${p.y.toFixed(2)}A${r} ${r} 0 0 ${sweep} ${q.x.toFixed(2)} ${q.y.toFixed(2)}`
+}
+const JOBS: [number, number, string][] = [[340, 50, 'BE 72'], [250, 52, 'SRE 58'], [100, 20, ''], [325, 40, ''], [178, 24, '']]
+const RETURNS: [number, number, number, number][] = [[185, 20, 58, 2.2], [300, 18, 58, 2], [350, 14, 36, 1.6], [120, 16, 24, 1.6], [15, 10, 56, 1.8]]
+// Three 80+ matches. Each turn of the beam locks the next one (a 12s, three-turn cycle), so the readout travels round
+// the scope instead of repeating in one spot. card = where its readout sits, relative to the target.
+const LOCKS = [
+  { a: 35, r: 36, card: [-60, 9], match: 91, role: 'Backend Eng', via: 'Greenhouse' },
+  { a: 160, r: 42, card: [6, 10], match: 87, role: 'ML Engineer', via: 'Lever' },
+  { a: 215, r: 46, card: [10, -8], match: 84, role: 'Platform SRE', via: 'Ashby' },
+]
+const lockDelay = (a: number, k: number) => `${a / 90 - 12 + k * 4}s` // the beam reaches angle a on turn k
+const CARD = { w: 54, h: 25 }
 const SOURCES = [
   'Greenhouse', 'Lever', 'Ashby', 'Workable', 'SmartRecruiters', 'Recruitee', 'Personio', 'Breezy HR', 'Teamtailor', 'Workday',
   'Amazon Jobs', 'Hacker News', 'Remotive', 'Remote OK', 'Arbeitnow', 'Himalayas', 'Jobicy', 'The Muse', 'Adzuna', 'Jooble',
@@ -72,106 +89,217 @@ const CONE = Array.from({ length: 38 }, (_, i) => {
   const t = (i + 1) / 38
   return { d: `M${RS.x} ${RS.y}L${p0.x.toFixed(2)} ${p0.y.toFixed(2)}A${RS.r} ${RS.r} 0 0 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}Z`, o: +(0.02 + 0.34 * t ** 2.4).toFixed(3) }
 })
-const STAGES: [string, string][] = [['DISCOVER', 'robots.txt'], ['INGEST', '20 feeds'], ['VERIFY', 'link alive'], ['MATCH', '0–100'], ['VAULT', '≥ 80 kept']]
+// phosphor dust caught in the beam, densest and brightest at the leading edge
+const DUST = Array.from({ length: 34 }, (_, i) => {
+  const a = -70 * rnd(i) ** 2
+  const p = onScope(a, 8 + 55 * rnd(i + 50))
+  return { x: +p.x.toFixed(2), y: +p.y.toFixed(2), r: +(0.35 + 0.45 * rnd(i + 90)).toFixed(2), o: +(0.95 * (1 + a / 76)).toFixed(2) }
+})
+// 24h bezel: a tick every half hour, skipping the numerals (00, 06, 18) and the engraving at the bottom
+const BEZEL = Array.from({ length: 48 }, (_, i) => ({ a: i * 7.5 - 90, hour: i % 2 === 0, run: i === 3 }))
+  .filter(({ a }) => ![-90, 0, 180].includes(a) && !(a > 50 && a < 130))
+const FLOAT = Array.from({ length: 12 }, (_, i) => ({ x: 12 + 296 * rnd(i + 200), y: 40 + 150 * rnd(i + 300), r: 0.4 + 0.5 * rnd(i + 400), d: 7 + 6 * rnd(i + 500) }))
+const STAGES: [string, string][] = [['DISCOVER', 'robots.txt'], ['INGEST', '20 feeds'], ['VERIFY', 'link alive'], ['MATCH', '0-100'], ['VAULT', '≥ 80 kept']]
+const PANE = plate(182, 30, 124, 148)
+const CHAPTER = Array.from({ length: 72 }, (_, i) => i * 5) // dial ticks every 5°, majors every 30°
+
+function Lock({ a, r, card: [dx, dy], match, role, via, k }: (typeof LOCKS)[number] & { k: number }) {
+  const t = onScope(a, r)
+  const delay = lockDelay(a, k)
+  const x = t.x + dx
+  const y = t.y + dy
+  // leader: from just outside the target to the nearest point of its readout
+  const nx = Math.min(Math.max(t.x, x), x + CARD.w)
+  const ny = Math.min(Math.max(t.y, y), y + CARD.h)
+  const u = 6 / Math.hypot(nx - t.x, ny - t.y)
+  const bracket = (sx: number, sy: number) => `M${t.x + sx * 11} ${t.y + sy * 5}V${t.y + sy * 11}H${t.x + sx * 5}`
+  return (
+    <g>
+      <circle className="rd-ping" cx={t.x} cy={t.y} r="3" fill="none" stroke={GOLD} strokeWidth="0.9" style={{ animationDelay: delay }} />
+      <g className="rd-blip" style={{ animationDelay: sweepDelay(a) }}>
+        <circle cx={t.x} cy={t.y} r="3.2" fill={GOLD} filter="url(#rd-bloom)" />
+      </g>
+      <g className="rd-lock" style={{ animationDelay: delay, transformOrigin: `${t.x}px ${t.y}px` }} stroke={GOLD} fill="none">
+        {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sy]) => <path key={`${sx}${sy}`} d={bracket(sx, sy)} strokeWidth="1.3" />)}
+        <circle className="rd-reticle" cx={t.x} cy={t.y} r="7.5" strokeWidth="0.8" strokeDasharray="4 2.2" />
+      </g>
+      <g className="rd-card" style={{ animationDelay: delay }}>
+        <path d={`M${t.x + (nx - t.x) * u} ${t.y + (ny - t.y) * u}L${nx} ${ny}`} stroke={GOLD} strokeOpacity="0.8" strokeWidth="0.7" />
+        <rect x={x} y={y} width={CARD.w} height={CARD.h} rx="3.5" fill="#0d0c02" fillOpacity="0.78" stroke={GOLD} strokeOpacity="0.7" strokeWidth="0.6" />
+        <rect x={x + 4} y={y} width="36" height="0.6" fill="url(#rd-edge)" />
+        <g className="rd-type" style={{ animationDelay: delay }}>
+          <text x={x + 5} y={y + 8.5} fill={GOLD} fontSize="6.4" fontWeight="700" fontFamily={MONO} filter="url(#rd-glow)">MATCH {match}</text>
+          <text x={x + 5} y={y + 15.5} fill={MINT} fontSize="4.8" fontFamily={MONO}>{role}</text>
+          <text x={x + 5} y={y + 21.5} fill={GOLD} fillOpacity="0.85" fontSize="4.4" fontFamily={MONO}>{via} → VAULT</text>
+        </g>
+      </g>
+    </g>
+  )
+}
 
 function Radar() {
-  const t = onScope(...TARGET)
-  const bracket = (sx: number, sy: number) => `M${t.x + sx * 11} ${t.y + sy * 5}V${t.y + sy * 11}H${t.x + sx * 5}`
   return (
     <g>
       <defs>
         <Glow id="rd-glow" />
         <Glow id="rd-bloom" blur={3.2} />
-        <radialGradient id="rd-glass">
-          <stop offset="0" stopColor={G} stopOpacity="0.2" />
-          <stop offset="0.7" stopColor={G} stopOpacity="0.05" />
-          <stop offset="1" stopColor={G} stopOpacity="0.12" />
+        <filter id="rd-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" /></filter>
+        {/* static glows are gradients, not blur filters: the spinning beam repaints this area every frame */}
+        <radialGradient id="rd-shadow"><stop offset="0.86" stopColor="#000" stopOpacity="0.85" /><stop offset="1" stopColor="#000" stopOpacity="0" /></radialGradient>
+        <radialGradient id="rd-haze"><stop offset="0" stopColor={G} stopOpacity="0.16" /><stop offset="1" stopColor={G} stopOpacity="0" /></radialGradient>
+        <radialGradient id="rd-face" cx="0.45" cy="0.4">
+          <stop offset="0" stopColor="#07301a" /><stop offset="0.65" stopColor="#03160b" /><stop offset="1" stopColor="#010703" />
         </radialGradient>
+        {/* brushed steel: dark and light bands, a second pass for the specular streak */}
+        <linearGradient id="rd-steel" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#1b211e" /><stop offset="0.16" stopColor="#7c8883" /><stop offset="0.34" stopColor="#161b19" />
+          <stop offset="0.52" stopColor="#3b4541" /><stop offset="0.7" stopColor="#c4ccc8" /><stop offset="0.84" stopColor="#1c2320" /><stop offset="1" stopColor="#4d5853" />
+        </linearGradient>
+        <linearGradient id="rd-streak" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0.3" stopColor="#fff" stopOpacity="0" /><stop offset="0.48" stopColor="#fff" stopOpacity="0.35" /><stop offset="0.66" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+        <radialGradient id="rd-gold" cx="0.36" cy="0.3" r="0.8">
+          <stop offset="0" stopColor="#fff8d6" /><stop offset="0.4" stopColor="#f5c542" /><stop offset="1" stopColor="#7a5300" />
+        </radialGradient>
+        <radialGradient id="rd-dome" cx="0.3" cy="0.2" r="0.6">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.13" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="rd-pane" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={G} stopOpacity="0.12" /><stop offset="0.45" stopColor="#001a08" stopOpacity="0.82" /><stop offset="1" stopColor="#000d04" stopOpacity="0.92" />
+        </linearGradient>
+        <linearGradient id="rd-edge" x1="0" x2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.5" stopColor="#eafff0" stopOpacity="0.75" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
         <linearGradient id="rd-fade" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.25" stopColor="#fff" />
           <stop offset="0.75" stopColor="#fff" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
-        <mask id="rd-ticker" maskUnits="userSpaceOnUse" x="188" y="102" width="120" height="58">
-          <rect x="188" y="102" width="120" height="58" fill="url(#rd-fade)" />
+        <mask id="rd-ticker" maskUnits="userSpaceOnUse" x="186" y="100" width="120" height="58">
+          <rect x="186" y="100" width="120" height="58" fill="url(#rd-fade)" />
         </mask>
-        <filter id="rd-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" /></filter>
+        <clipPath id="rd-pane-clip"><polygon points={PANE} /></clipPath>
+        <path id="rd-engrave" d={arc(74.6, 128, 52, 0)} />
         <linearGradient id="rd-tail" x1="0" x2="1"><stop offset="0" stopColor={G} stopOpacity="0" /><stop offset="1" stopColor={MINT} /></linearGradient>
         <linearGradient id="rd-rail" x1="0" x2="1"><stop offset="0" stopColor={G} stopOpacity="0.15" /><stop offset="0.6" stopColor={G} stopOpacity="0.6" /><stop offset="1" stopColor={GOLD} stopOpacity="0.8" /></linearGradient>
       </defs>
+
+      {/* ambient: green haze breathing behind the scope, phosphor dust drifting up */}
+      <circle className="rd-haze" cx={RS.x} cy={RS.y} r="104" fill="url(#rd-haze)" />
+      {FLOAT.map((f, i) => (
+        <circle key={i} className="rd-dust" cx={f.x} cy={f.y} r={f.r} fill={MINT} style={{ animationDuration: `${f.d}s`, animationDelay: `${-f.d * rnd(i + 600)}s` }} />
+      ))}
       <Frame title="RADAR · JOB INTELLIGENCE" right="01:30 UTC" color={G} live={G} />
 
-      {/* the beam, then the scope drawn over it */}
-      {['url(#rd-soft)', undefined].map((f) => (
-        <g key={f ?? 'beam'} className="rd-spin" filter={f} opacity={f ? 0.9 : 1} style={{ transformOrigin: `${RS.x}px ${RS.y}px` }}>
-          {CONE.map((s, i) => <path key={i} d={s.d} fill={G} fillOpacity={s.o} />)}
-          <path d={`M${RS.x} ${RS.y}L${RS.x + RS.r} ${RS.y}`} stroke={MINT} strokeWidth="1.5" strokeLinecap="round" />
+      {/* bezel: brushed steel, 24h scale, the 01:30 run in gold, engraved */}
+      <circle cx={RS.x} cy={RS.y + 2} r="84" fill="url(#rd-shadow)" />
+      <circle cx={RS.x} cy={RS.y} r="72" fill="none" stroke="url(#rd-steel)" strokeWidth="12" />
+      <circle cx={RS.x} cy={RS.y} r="72" fill="none" stroke="url(#rd-streak)" strokeWidth="12" />
+      <circle cx={RS.x} cy={RS.y} r="77.8" fill="none" stroke="#fff" strokeOpacity="0.28" strokeWidth="0.5" />
+      <circle cx={RS.x} cy={RS.y} r="66.2" fill="none" stroke="#000" strokeOpacity="0.8" strokeWidth="0.8" />
+      {BEZEL.map(({ a, hour, run }) => {
+        const p = onScope(a, run ? 67.5 : hour ? 68.8 : 70.4)
+        const q = onScope(a, run ? 77 : hour ? 75.4 : 73.8)
+        return <line key={a} x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={run ? GOLD : MINT} strokeOpacity={run ? 1 : hour ? 0.8 : 0.45} strokeWidth={run ? 1.6 : hour ? 1 : 0.6} filter={run ? 'url(#rd-glow)' : undefined} />
+      })}
+      {([[-90, '00'], [0, '06'], [180, '18']] as [number, string][]).map(([a, l]) => {
+        const p = onScope(a, 72)
+        return <text key={l} x={p.x} y={p.y + 2} fill={MINT} fillOpacity="0.9" fontSize="5.8" fontWeight="600" textAnchor="middle" fontFamily={MONO}>{l}</text>
+      })}
+      <text fill="#000" fillOpacity="0.7" fontSize="4.6" fontWeight="700" letterSpacing="1.3" fontFamily={MONO} transform="translate(0 0.45)">
+        <textPath href="#rd-engrave" startOffset="50%" textAnchor="middle">PRECISION SCAN</textPath>
+      </text>
+      <text fill="#dfe6e2" fillOpacity="0.7" fontSize="4.6" fontWeight="700" letterSpacing="1.3" fontFamily={MONO}>
+        <textPath href="#rd-engrave" startOffset="50%" textAnchor="middle">PRECISION SCAN</textPath>
+      </text>
+
+      {/* dial face under glass */}
+      <circle cx={RS.x} cy={RS.y} r="66" fill="url(#rd-face)" />
+      {CHAPTER.map((a) => {
+        const major = a % 30 === 0
+        const p = onScope(a, major ? 57 : 60)
+        const q = onScope(a, 63)
+        // every third tick lights up as the beam passes; animating all 72 costs frames for little gain
+        const lit = a % 15 === 0
+        return <line key={a} className={lit ? 'rd-tick' : undefined} opacity={lit ? undefined : 0.35} x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={major ? MINT : G} strokeOpacity={major ? 1 : 0.7} strokeWidth={major ? 1.2 : 0.55} style={lit ? { animationDelay: sweepDelay(a) } : undefined} />
+      })}
+      <circle cx={RS.x} cy={RS.y} r="42" fill="none" stroke={G} strokeOpacity="0.12" strokeWidth="3" />
+      <circle cx={RS.x} cy={RS.y} r="42" fill="none" stroke={G} strokeOpacity="0.6" strokeWidth="0.8" />
+      <circle cx={RS.x} cy={RS.y} r="21" fill="none" stroke={G} strokeOpacity="0.28" strokeDasharray="1.5 3" />
+      <path d={`M${RS.x - RS.r} ${RS.y}H${RS.x + RS.r}M${RS.x} ${RS.y - RS.r}V${RS.y + RS.r}`} stroke={G} strokeOpacity="0.14" />
+
+      {/* the beam: a laser edge that flares where it meets the bezel, dust glittering in its wake */}
+      <g className="rd-spin" style={{ transformOrigin: `${RS.x}px ${RS.y}px` }}>
+        <g filter="url(#rd-soft)" opacity="0.9">{CONE.map((s, i) => <path key={i} d={s.d} fill={G} fillOpacity={s.o} />)}</g>
+        {CONE.map((s, i) => <path key={i} d={s.d} fill={G} fillOpacity={s.o} />)}
+        {DUST.map((d, i) => <circle key={i} cx={d.x} cy={d.y} r={d.r} fill={MINT} fillOpacity={d.o} />)}
+        <g filter="url(#rd-bloom)">
+          <path d={arc(67.4, -12, 3)} fill="none" stroke={G} strokeOpacity="0.55" strokeWidth="2.4" />
+          <path d={`M${RS.x} ${RS.y}L${RS.x + RS.r} ${RS.y}`} stroke={G} strokeWidth="5" />
+          <circle cx={RS.x + RS.r} cy={RS.y} r="2.2" fill="#eafff0" />
+        </g>
+        <path d={`M${RS.x} ${RS.y}L${RS.x + RS.r} ${RS.y}`} stroke="#d8ffe0" strokeWidth="1.3" strokeLinecap="round" />
+      </g>
+      {[0, 1].map((k) => <circle key={k} className="rd-sonar" cx={RS.x} cy={RS.y} r={RS.r} fill="none" stroke={G} strokeWidth="1.2" style={{ animationDelay: `${-k * 1.6}s` }} />)}
+
+      {/* returns: arc-shaped smears and scored jobs, lit by the beam, then fading like phosphor (halo = a wide faint copy) */}
+      {RETURNS.map(([a, span, r, w]) => (
+        <g key={a} className="rd-blip" fill="none" stroke={G} strokeLinecap="round" style={{ animationDelay: sweepDelay(a) }}>
+          <path d={arc(r, a, a + span)} strokeOpacity="0.22" strokeWidth={w + 3} />
+          <path d={arc(r, a, a + span)} strokeWidth={w} />
         </g>
       ))}
-      {Array.from({ length: 72 }, (_, i) => {
-        const major = i % 6 === 0
-        const a = onScope(i * 5, major ? 64 : 66)
-        const b = onScope(i * 5, 70)
-        return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={G} strokeOpacity={major ? 0.95 : 0.35} strokeWidth={major ? 1.2 : 0.6} />
+      {JOBS.map(([a, r, label]) => {
+        const p = onScope(a, r)
+        const right = Math.cos(deg(a)) > 0
+        return (
+          <g key={`${a}-${r}`} className="rd-blip" style={{ animationDelay: sweepDelay(a) }}>
+            <circle cx={p.x} cy={p.y} r="4.2" fill={G} fillOpacity="0.22" />
+            <circle cx={p.x} cy={p.y} r="2.4" fill={G} />
+            {label && <text x={p.x + (right ? -4.5 : 4.5)} y={p.y - 3.5} fill={MINT} fontSize="5.2" textAnchor={right ? 'end' : 'start'} fontFamily={MONO}>{label}</text>}
+          </g>
+        )
       })}
-      {([[270, '000'], [0, '090'], [180, '270']] as [number, string][]).map(([a, l]) => {
-        const p = onScope(a, 76)
-        return <text key={l} x={p.x} y={p.y + 2} fill={MINT} fillOpacity="0.55" fontSize="5.2" textAnchor="middle" fontFamily={MONO}>{l}</text>
-      })}
-      <circle cx={RS.x} cy={RS.y} r={RS.r} fill="url(#rd-glass)" stroke={G} strokeOpacity="0.7" filter="url(#rd-glow)" />
-      {[21, 42].map((r) => <circle key={r} cx={RS.x} cy={RS.y} r={r} fill="none" stroke={G} strokeOpacity="0.28" strokeDasharray="1.5 3" />)}
-      <path d={`M${RS.x - RS.r} ${RS.y}H${RS.x + RS.r}M${RS.x} ${RS.y - RS.r}V${RS.y + RS.r}`} stroke={G} strokeOpacity="0.16" />
-      {/* sonar pings rolling out from the centre */}
-      {[0, 1].map((k) => <circle key={k} className="rd-sonar" cx={RS.x} cy={RS.y} r={RS.r} fill="none" stroke={G} strokeWidth="1.2" style={{ animationDelay: `${-k * 1.6}s` }} />)}
-      <g filter="url(#rd-glow)">
-        {JOBS.map(([a, r, label]) => {
-          const p = onScope(a, r)
-          return (
-            <g key={`${a}-${r}`} className="rd-blip" style={{ animationDelay: sweepDelay(a) }}>
-              <circle cx={p.x} cy={p.y} r="2.5" fill={G} />
-              {label && <text x={p.x + 4.5} y={p.y - 3.5} fill={MINT} fontSize="5.4" fontFamily={MONO}>{label}</text>}
-            </g>
-          )
-        })}
-      </g>
-      {/* the 80+ match: a gold reticle snaps onto it and a card flies out */}
-      <circle className="rd-ping" cx={t.x} cy={t.y} r="3" fill="none" stroke={GOLD} strokeWidth="0.9" style={{ animationDelay: sweepDelay(TARGET[0]) }} />
-      <g className="rd-blip" style={{ animationDelay: sweepDelay(TARGET[0]) }}>
-        <circle cx={t.x} cy={t.y} r="3.2" fill={GOLD} filter="url(#rd-bloom)" />
-      </g>
-      <g className="rd-lock" style={{ animationDelay: sweepDelay(TARGET[0]), transformOrigin: `${t.x}px ${t.y}px` }} stroke={GOLD} strokeWidth="1.3" fill="none">
-        <path d={bracket(-1, -1)} /><path d={bracket(1, -1)} /><path d={bracket(-1, 1)} /><path d={bracket(1, 1)} />
-      </g>
-      <g className="rd-card" style={{ animationDelay: sweepDelay(TARGET[0]) }}>
-        <path d={`M${t.x + 6} ${t.y - 8}L${t.x + 14} ${t.y - 16}H${t.x + 20}`} fill="none" stroke={GOLD} strokeOpacity="0.8" />
-        <rect x={t.x + 6} y={t.y - 42} width="58" height="24" rx="5" fill="#0a0d02" stroke={GOLD} strokeOpacity="0.8" />
-        <text x={t.x + 12} y={t.y - 31.5} fill={GOLD} fontSize="7" fontWeight="700" fontFamily={MONO}>MATCH 91</text>
-        <text x={t.x + 12} y={t.y - 23} fill={MINT} fontSize="5.2" fontFamily={MONO}>backend → VAULT</text>
-      </g>
-      <circle cx={RS.x} cy={RS.y} r="2" fill={MINT} filter="url(#rd-glow)" />
 
-      {/* sources HUD */}
-      <polygon points={plate(184, 32, 126, 150)} fill="#000d04" fillOpacity="0.85" stroke={G} strokeOpacity="0.4" />
-      <text x="192" y="45" fill={MINT} fillOpacity="0.65" fontSize="5.6" letterSpacing="1.5" fontFamily={MONO}>LIVE SOURCES</text>
-      <text x="191" y="76" fill={G} fontSize="27" fontWeight="600" fontFamily={MONO} filter="url(#rd-bloom)">20</text>
-      <text x="230" y="61" fill={G} fontSize="6.2" fontFamily={MONO}>■ 11 ATS feeds</text>
-      <text x="230" y="72" fill={MINT} fontSize="6.2" fontFamily={MONO}>■ 9 job boards</text>
-      <line x1="192" y1="86" x2="302" y2="86" stroke={G} strokeOpacity="0.2" />
-      <text x="192" y="97" fill={MINT} fillOpacity="0.55" fontSize="5.2" letterSpacing="1.4" fontFamily={MONO}>SCAN LOG</text>
-      <circle className="rd-live" cx="298" cy="95" r="2" fill={G} />
+      {/* the 80+ matches: a gold reticle spins in, brackets snap, the readout types itself */}
+      {LOCKS.map((l, k) => <Lock key={l.a} {...l} k={k} />)}
+
+      {/* glass dome + gold hub */}
+      <circle cx={RS.x} cy={RS.y} r="66" fill="url(#rd-dome)" />
+      <path d={arc(63.6, 196, 246)} fill="none" stroke="#fff" strokeOpacity="0.22" strokeWidth="0.8" strokeLinecap="round" />
+      <circle cx={RS.x} cy={RS.y + 0.8} r="6.4" fill="#000" fillOpacity="0.55" />
+      <circle cx={RS.x} cy={RS.y} r="5.2" fill="url(#rd-gold)" stroke="#4a3500" strokeWidth="0.5" />
+      <ellipse cx={RS.x - 1.6} cy={RS.y - 2} rx="1.8" ry="1" fill="#fff" fillOpacity="0.75" />
+
+      {/* sources: stacked glass panes, a light sweep crossing the top one */}
+      {[2, 1].map((k) => <polygon key={k} points={PANE} transform={`translate(${k * 2} ${k * 3})`} fill="#000d04" fillOpacity="0.5" stroke={G} strokeOpacity={0.24 - k * 0.07} />)}
+      <polygon points={PANE} fill="url(#rd-pane)" stroke={G} strokeOpacity="0.45" />
+      <rect x="186" y="29.9" width="110" height="0.8" fill="url(#rd-edge)" />
+      <g clipPath="url(#rd-pane-clip)"><rect className="rd-sheen" x="80" y="20" width="16" height="170" fill="#eafff0" fillOpacity="0.07" transform="skewX(-22)" /></g>
+      <path d="M186 40V34H192M302 168V174H296" fill="none" stroke={MINT} strokeOpacity="0.6" strokeWidth="0.8" />
+      <text x="190" y="43" fill={MINT} fillOpacity="0.65" fontSize="5.6" letterSpacing="1.5" fontFamily={MONO}>LIVE SOURCES</text>
+      <text x="189" y="74" fill="none" stroke={G} strokeOpacity="0.18" strokeWidth="3.4" strokeLinejoin="round" fontSize="27" fontWeight="600" fontFamily={MONO}>20</text>
+      <text x="189" y="74" fill={G} fontSize="27" fontWeight="600" fontFamily={MONO}>20</text>
+      <text x="228" y="59" fill={G} fontSize="6.2" fontFamily={MONO}>■ 11 ATS feeds</text>
+      <text x="228" y="70" fill={MINT} fontSize="6.2" fontFamily={MONO}>■ 9 job boards</text>
+      <line x1="190" y1="84" x2="298" y2="84" stroke={G} strokeOpacity="0.2" />
+      <text x="190" y="95" fill={MINT} fillOpacity="0.55" fontSize="5.2" letterSpacing="1.4" fontFamily={MONO}>SCAN LOG</text>
+      <circle className="rd-live" cx="294" cy="93" r="2" fill={G} />
       <g mask="url(#rd-ticker)">
         <g className="rd-ticker">
           {[...SOURCES, ...SOURCES].map((s, i) => (
             <g key={i}>
-              <text x="192" y={110 + i * 10} fill={i % 20 < 11 ? G : MINT} fillOpacity="0.9" fontSize="6.4" fontFamily={MONO}>› {s}</text>
-              <text x="302" y={110 + i * 10} fill={G} fontSize="6.4" textAnchor="end" fontFamily={MONO}>✓</text>
+              <text x="190" y={108 + i * 10} fill={i % 20 < 11 ? G : MINT} fillOpacity="0.9" fontSize="6.4" fontFamily={MONO}>› {s}</text>
+              <text x="298" y={108 + i * 10} fill={G} fontSize="6.4" textAnchor="end" fontFamily={MONO}>✓</text>
             </g>
           ))}
         </g>
       </g>
-      <text x="192" y="174" fill={MINT} fillOpacity="0.75" fontSize="5.6" fontFamily={MONO}>82 companies · 54 live</text>
+      <text x="190" y="171" fill={MINT} fillOpacity="0.75" fontSize="5.6" fontFamily={MONO}>82 companies · 54 live</text>
 
-      {/* nightly pipeline: a comet runs the rail and lights each stage */}
-      <line x1="30" y1="214" x2="294" y2="214" stroke="url(#rd-rail)" strokeWidth="1.3" />
+      {/* nightly pipeline: a comet runs the glass rail and lights each stage */}
+      <rect x="24" y="211.2" width="276" height="5.6" rx="2.8" fill={G} fillOpacity="0.05" stroke={G} strokeOpacity="0.22" strokeWidth="0.5" />
+      {/* gradients on a flat line don't paint (zero-height bounding box), so hairlines are thin rects */}
+      <rect x="30" y="213.35" width="264" height="1.3" fill="url(#rd-rail)" />
       {STAGES.map(([name, detail], k) => {
         const x = 30 + k * 66
         const c = k === 4 ? GOLD : G
@@ -192,134 +320,353 @@ function Radar() {
   )
 }
 
-/* ================= Vettly — the prism ================= */
-// Context streams pour into a crystal prism; it refracts them toward four providers. Claude rate-limits
-// (429, its beam breaks), Gemini answers, and the answer lands in a scored orb.
+/* ================= Vettly: the liquid-glass lab ================= */
+// Context sits in four glass flasks (priority P1 to P4). Glowing liquid runs through glass tubes into a crystal
+// failover router, which tries the providers in order: Groq rate-limits (429, its line runs red), Gemini answers
+// (200), and the answer fills a glass score orb. Glass is layered gradients, not filters: a faint body, a bright
+// fresnel rim, a specular streak, and coloured caustics where light lands on the table.
 const VIOLET = '#a78bfa'
 const FUCHSIA = '#e879f9'
-const PROVIDERS = [
-  { name: 'Claude', tag: 'primary', color: '#f0906e', y: 50 },
-  { name: 'Gemini', tag: 'fallback 1', color: '#6ea8ff', y: 90 },
-  { name: 'OpenAI', tag: 'fallback 2', color: '#2dd4a7', y: 130 },
-  { name: 'Groq', tag: 'fast lane', color: '#ff7a59', y: 170 },
+const FLOOR = 178 // the table's back edge
+const FLASKS: [string, string, number][] = [['ASSIGNMENT', '#60a5fa', 22], ['JD + STACK', '#a78bfa', 50], ['RESUME', '#4ade80', 78], ['REPOS', '#fb923c', 106]]
+const FL = { cy: 160, r: 11.5, neck: 138, lvl: 155 } // body centre, radius, neck top, liquid level
+const ripple = (x0: number, y: number, bottom: number) => `M${x0} ${y}${' q3 -1.1 6 0 t6 0'.repeat(9)}V${bottom}H${x0}Z` // 12-unit period
+const CR = { x: 170, y: 92, r: 28 } // the crystal
+const pt = (a: number, r: number, c: { x: number; y: number } = CR) => [+(c.x + r * Math.cos(deg(a))).toFixed(2), +(c.y + r * Math.sin(deg(a))).toFixed(2)]
+// icosahedron seen down a 3-fold axis: a centre triangle, three faces on its edges, six around the rim
+const TRI = [-90, 30, 150].map((a) => pt(a, 13))
+const H = [0, 1, 2, 3, 4, 5].map((k) => pt(-90 + 60 * k, CR.r))
+const FACE_PTS = [
+  [TRI[0], H[0], H[1]], [TRI[0], TRI[1], H[1]], [TRI[1], H[1], H[2]], [TRI[1], H[2], H[3]], [TRI[1], TRI[2], H[3]],
+  [TRI[2], H[3], H[4]], [TRI[2], H[4], H[5]], [TRI[2], TRI[0], H[5]], [TRI[0], H[5], H[0]], [TRI[0], TRI[1], TRI[2]],
 ]
-const STREAMS: [string, string, number][] = [['ASSIGNMENT', '#c4b5fd', 58], ['JD + STACK', '#d8b4fe', 92], ['RESUME', '#f0abfc', 126], ['GITHUB REPOS', '#f9a8d4', 160]]
-const PR = { l: 132, t: 82, b: 142, tip: 184, cy: 112 }
-const PRC = { x: (PR.l * 2 + PR.tip) / 3, y: PR.cy }
-const GEM = 250
-const ORB = { x: 206, y: 196 }
-const beamOut = (y: number) => `M${PR.tip} ${PR.cy}C${PR.tip + 26} ${PR.cy} ${GEM - 36} ${y} ${GEM - 10} ${y}`
+const FACES = FACE_PTS.map((f) => f.map((p) => p.join(',')).join(' '))
+const FACE_FILL = ['vt-fa', 'vt-fc', 'vt-fb', 'vt-fd', 'vt-fe', 'vt-fb', 'vt-fa', 'vt-fd', 'vt-fc', 'vt-fa']
+const FACE_FLASH = ['#ffffff', '#a5f3fc', '#f5d0fe']
+const RIM = H.map((p) => p.join(',')).join(' ')
+// circuit traces etched into six outer facets: in from a corner, a turn toward the far edge, a pad at each end
+const lerp = (p: number[], q: number[], t: number) => [+(p[0] + (q[0] - p[0]) * t).toFixed(2), +(p[1] + (q[1] - p[1]) * t).toFixed(2)]
+const TRACES = [0, 2, 3, 5, 6, 8].map((i) => {
+  const [A, B, C] = FACE_PTS[i]
+  const c = [(A[0] + B[0] + C[0]) / 3, (A[1] + B[1] + C[1]) / 3]
+  const p1 = lerp(B, c, 0.3)
+  const p2 = lerp(B, c, 0.85)
+  const p3 = lerp(p2, lerp(A, C, 0.5), 0.6)
+  return { d: `M${p1}L${p2}L${p3}`, pads: [p1, p3] }
+})
+const inY = (i: number) => [80, 88, 96, 104][i] // where each context tube enters the crystal
+const tubeIn = (x: number, i: number) => `M${x + 2.6} 142C${x + 12} ${142 - [74, 62, 50, 38][i]} 126 ${inY(i)} ${CR.x - 24} ${inY(i)}`
+const PX = 234 // provider column
+const PROVIDERS = [
+  { name: 'Groq', tag: 'primary', color: '#ff7a45', y: 50 },
+  { name: 'Gemini', tag: 'fallback 1', color: '#6ea8ff', y: 92 },
+  { name: 'Claude', tag: 'fallback 2', color: '#e8916b', y: 134 },
+  { name: 'OpenAI', tag: 'fallback 3', color: '#34d399', y: 176 },
+]
+const tubeOut = (i: number) => {
+  const y0 = 82 + i * 7
+  const y1 = PROVIDERS[i].y
+  return `M${CR.x + 24} ${y0}C${CR.x + 36} ${y0} ${PX - 24} ${y1} ${PX - 12} ${y1}`
+}
+const SO = { x: 180, y: 212, r: 14 } // the score orb
+const ANSWER = `M${PX - 12} ${PROVIDERS[1].y + 6}C206 128 214 176 ${SO.x + 11} ${SO.y - 12}`
+const sparkle = (x: number, y: number, s = 4) => `M${x} ${y - s}L${x + s / 4} ${y - s / 4}L${x + s} ${y}L${x + s / 4} ${y + s / 4}L${x} ${y + s}L${x - s / 4} ${y + s / 4}L${x - s} ${y}L${x - s / 4} ${y - s / 4}Z`
+// the router's code, token by token: [text, colour]
+const KW = '#c4b5fd'
+const FN = '#7dd3fc'
+const ID = '#ede9fe'
+const CODE: [number, [string, string][]][] = [
+  [0, [['ctx', ID], [' = ', '#a1a1aa'], ['rank', FN], ['(jd, resume, repos)', ID]]],
+  [0, [['for', KW], [' llm ', ID], ['in', KW], [' (groq, gemini, claude, openai):', ID]]],
+  [4, [['try', KW], [': ', '#a1a1aa'], ['return', KW], [' llm', FN], ['(ctx[:', ID], ['80_000', '#fcd34d'], ['])', ID]]],
+  [4, [['except', KW], [' RateLimit: ', ID], ['backoff', FN], ['()', ID]]],
+]
+// OpenAI's white die: a dodecahedron, front pentagon and the five faces around it, lit from the top left
+const DIE = (() => {
+  const o = { x: 0, y: 0 }
+  const P = [0, 1, 2, 3, 4].map((k) => pt(-90 + 72 * k, 4.6, o))
+  const R = [0, 1, 2, 3, 4].map((k) => pt(-90 + 72 * k, 8, o))
+  const Q = [0, 1, 2, 3, 4].map((k) => pt(-54 + 72 * k, 9.6, o))
+  const side = [0, 1, 2, 3, 4].map((k) => [P[k], R[k], Q[k], R[(k + 1) % 5], P[(k + 1) % 5]].join(' '))
+  return { front: P.join(' '), side, shade: ['#e2e8f0', '#b8c2d0', '#8a96a8', '#c7d0dc', '#ffffff'] }
+})()
+const VASE = 'M-3.6 -10C-2.2 -9 -2.2 -7 -2.4 -6C-7 -4 -8.6 -1 -8.2 2C-7.8 6 -5.6 8.4 -4 9L-4.6 10.6H4.6L4 9C5.6 8.4 7.8 6 8.2 2C8.6 -1 7 -4 2.4 -6C2.2 -7 2.2 -9 3.6 -10Z'
+
+function ProviderObject({ i }: { i: number }) {
+  if (i === 0) // Groq, the fast lane: a rocket, flame flickering
+    return (
+      <g transform="rotate(32)">
+        <path className="vt-flame" d="M-2.2 6.4Q0 15 2.2 6.4Z" fill="url(#vt-flame)" />
+        <path d="M-4.2 1L-7.6 7.2L-3.9 5.6ZM4.2 1L7.6 7.2L3.9 5.6Z" fill="#ea580c" />
+        <path d="M0 -11C4.2 -7.4 4.7 -1.4 4.2 5.4H-4.2C-4.7 -1.4 -4.2 -7.4 0 -11Z" fill="url(#vt-steel)" />
+        <path d="M0 -11C2.3 -9.1 3.2 -7.6 3.5 -6.4H-3.5C-3.2 -7.6 -2.3 -9.1 0 -11Z" fill="#f97316" />
+        <rect x="-2.7" y="5.4" width="5.4" height="1.4" rx="0.4" fill="#475569" />
+        <circle cx="0" cy="-1.6" r="2" fill="#0f172a" stroke="#e2e8f0" strokeWidth="0.6" />
+        <circle cx="0" cy="-1.6" r="1.2" fill="#fb923c" fillOpacity="0.45" />
+        <circle cx="-0.6" cy="-2.2" r="0.55" fill="#fff" />
+        <path d="M-2.7 -6.2C-3.3 -2.4 -3.3 1 -2.9 4.6" fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="0.6" strokeLinecap="round" />
+      </g>
+    )
+  if (i === 1) // Gemini: a starry vase with a gold crescent
+    return (
+      <g>
+        <path d={VASE} fill="url(#vt-navy)" />
+        <circle cx="1" cy="1.6" r="3.6" fill="#fcd34d" mask="url(#vt-moon)" />
+        {[[-4.6, -1.8, 1.3], [-3, 5.2, 1], [4.4, -2.6, 0.9], [5.2, 4.4, 1.1], [-0.6, -4.4, 0.8]].map(([x, y, s]) => (
+          <path key={`${x}${y}`} d={sparkle(x, y, s)} fill="#fde68a" />
+        ))}
+        <ellipse cx="0" cy="-10" rx="3.6" ry="0.9" fill="#1e3a8a" stroke="#93c5fd" strokeOpacity="0.6" strokeWidth="0.5" />
+        <path d="M-6.4 -1.6C-7 1.4 -6.2 4.6 -4.4 6.6" fill="none" stroke="#fff" strokeOpacity="0.5" strokeWidth="0.8" strokeLinecap="round" />
+      </g>
+    )
+  if (i === 2) // Claude: a sandstone sphinx, looking back toward the router
+    return (
+      <g>
+        <rect x="-11" y="5.6" width="22" height="3.4" rx="0.6" fill="url(#vt-sand2)" />
+        <path d="M10.4 5.6C10.9 2.4 9.8 -0.3 7.2 -0.8C3.6 -1.4 0.4 -1.2 -2.2 -0.6L-3.6 2.6L-10.6 3.4C-11.4 4 -11.2 5.6 -10.2 5.6Z" fill="url(#vt-sand)" />
+        <path d="M-6.4 -8.4C-4.2 -10 -1.8 -8.8 -1.6 -6.4L-0.4 -0.4H-5.2L-5.6 -3.4Z" fill="url(#vt-sand)" />
+        <path d="M-5.2 -7.6L-1.9 -6.8M-5.3 -5.6L-1.6 -4.8M-5.3 -3.6L-1.2 -2.8M-5.1 -1.6L-0.8 -1.2" stroke="#8a5a24" strokeOpacity="0.6" strokeWidth="0.45" />
+        <path d="M-6.4 -8.2L-8.2 -7.2L-8.4 -5.6L-9.3 -4.7L-8.4 -4.2L-8.3 -3L-6.4 -2.3L-5.5 -3.4Z" fill="#f6dca4" />
+        <circle cx="-7.3" cy="-5.9" r="0.45" fill="#5c3a12" />
+        <path d="M9.6 1.6C8.6 -0.2 5 -0.6 1 -0.6" fill="none" stroke="#fff" strokeOpacity="0.45" strokeWidth="0.6" strokeLinecap="round" />
+      </g>
+    )
+  return ( // OpenAI: a white die
+    <g>
+      {DIE.side.map((f, k) => <polygon key={k} points={f} fill={DIE.shade[k]} stroke="#64748b" strokeOpacity="0.45" strokeWidth="0.3" strokeLinejoin="round" />)}
+      <polygon points={DIE.front} fill="#f8fafc" stroke="#64748b" strokeOpacity="0.45" strokeWidth="0.3" strokeLinejoin="round" />
+      <circle cx="0" cy="0" r="1.9" fill="none" stroke="#94a3b8" strokeWidth="0.45" />
+      <path d="M-5.4 -5.6L-2.2 -8.2" stroke="#fff" strokeWidth="0.8" strokeLinecap="round" />
+    </g>
+  )
+}
+
+// A glass tube with liquid in it: wall, dark bore, the liquid itself, soft swells of light riding it, a specular line.
+function GlassTube({ d, color, w, delay }: { d: string; color: string; w: number; delay: number }) {
+  const flow = { animationDelay: `${delay}s` }
+  return (
+    <g fill="none" strokeLinecap="round">
+      <path d={d} stroke="#fff" strokeOpacity="0.16" strokeWidth={w} />
+      <path d={d} stroke="#0d0620" strokeOpacity="0.5" strokeWidth={w - 1.4} />
+      <path d={d} stroke={color} strokeOpacity="0.75" strokeWidth={w - 2.4} />
+      <path className="vt-flow" d={d} stroke={color} strokeWidth={w - 1.2} strokeDasharray="7 27" filter="url(#vt-bloom)" style={flow} />
+      <path className="vt-flow" d={d} stroke="#fff" strokeOpacity="0.85" strokeWidth={w - 3.8} strokeDasharray="5 29" style={flow} />
+      <path d={d} stroke="#fff" strokeOpacity="0.55" strokeWidth="0.5" transform="translate(-0.4 -1.1)" />
+    </g>
+  )
+}
 
 function Vettly() {
-  const prism = `${PR.l},${PR.t} ${PR.l},${PR.b} ${PR.tip},${PR.cy}`
   return (
     <g>
       <defs>
-        <Glow id="vt-glow" blur={2.2} />
-        <Glow id="vt-bloom" blur={5} />
-        {STREAMS.map(([, c], i) => (
-          <linearGradient key={i} id={`vt-in-${i}`} gradientUnits="userSpaceOnUse" x1="70" y1="0" x2={PR.l} y2="0">
-            <stop offset="0" stopColor={c} stopOpacity="0.15" /><stop offset="1" stopColor={c} />
-          </linearGradient>
+        <Glow id="vt-glow" blur={1.6} />
+        <Glow id="vt-bloom" blur={4.5} />
+        <linearGradient id="vt-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#26124d" /><stop offset="0.55" stopColor="#1b0d38" /><stop offset="1" stopColor="#0f0822" /></linearGradient>
+        {([['vt-b1', '#8b5cf6', 0.5], ['vt-b2', '#3b82f6', 0.3], ['vt-b3', '#d946ef', 0.26], ['vt-b4', '#fb923c', 0.12]] as [string, string, number][]).map(([id, c, o]) => (
+          <radialGradient key={id} id={id}><stop offset="0" stopColor={c} stopOpacity={o} /><stop offset="1" stopColor={c} stopOpacity="0" /></radialGradient>
         ))}
+        <linearGradient id="vt-table" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.07" /><stop offset="0.12" stopColor="#fff" stopOpacity="0.025" /><stop offset="1" stopColor="#000" stopOpacity="0.45" /></linearGradient>
+        <linearGradient id="vt-horizon" x1="0" x2="1"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.5" stopColor="#fff" stopOpacity="0.32" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
+        {/* glass: body, fresnel rim, frosted panel, specular */}
+        <linearGradient id="vt-gb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fff" stopOpacity="0.2" /><stop offset="0.22" stopColor="#fff" stopOpacity="0.04" /><stop offset="0.75" stopColor="#fff" stopOpacity="0.02" /><stop offset="1" stopColor="#fff" stopOpacity="0.14" /></linearGradient>
+        <linearGradient id="vt-gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.95" /><stop offset="0.45" stopColor="#fff" stopOpacity="0.22" /><stop offset="1" stopColor="#fff" stopOpacity="0.55" /></linearGradient>
+        <linearGradient id="vt-frost" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.16" /><stop offset="1" stopColor="#fff" stopOpacity="0.04" /></linearGradient>
+        <linearGradient id="vt-brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff0c2" /><stop offset="0.3" stopColor="#e0b04a" /><stop offset="0.7" stopColor="#8f6415" /><stop offset="1" stopColor="#4a320a" /></linearGradient>
+        <linearGradient id="vt-parch" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fbf3df" /><stop offset="1" stopColor="#e3cd9c" /></linearGradient>
+        {FLASKS.map(([, c, x], i) => (
+          <g key={i}>
+            <linearGradient id={`vt-lq-${i}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.7" /><stop offset="0.14" stopColor={c} /><stop offset="1" stopColor={c} stopOpacity="0.55" /></linearGradient>
+            <clipPath id={`vt-fl-${i}`}><circle cx={x} cy={FL.cy} r={FL.r - 0.8} /></clipPath>
+          </g>
+        ))}
+        {/* crystal facets, each tinted by a different liquid */}
+        <linearGradient id="vt-fa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.6" /><stop offset="1" stopColor="#fff" stopOpacity="0.08" /></linearGradient>
+        <linearGradient id="vt-fb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#c4b5fd" stopOpacity="0.6" /><stop offset="1" stopColor="#fff" stopOpacity="0.1" /></linearGradient>
+        <linearGradient id="vt-fc" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#93c5fd" stopOpacity="0.5" /><stop offset="1" stopColor={VIOLET} stopOpacity="0.15" /></linearGradient>
+        <linearGradient id="vt-fd" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stopColor="#f9a8d4" stopOpacity="0.5" /><stop offset="1" stopColor="#fff" stopOpacity="0.08" /></linearGradient>
+        <linearGradient id="vt-fe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#5eead4" stopOpacity="0.4" /><stop offset="1" stopColor={VIOLET} stopOpacity="0.12" /></linearGradient>
+        <radialGradient id="vt-heart"><stop offset="0" stopColor="#fff" stopOpacity="0.9" /><stop offset="0.35" stopColor={FUCHSIA} stopOpacity="0.7" /><stop offset="1" stopColor={VIOLET} stopOpacity="0" /></radialGradient>
+        <linearGradient id="vt-prism" x1="0" x2="1">
+          {['#f87171', '#fbbf24', '#4ade80', '#22d3ee', '#818cf8', '#e879f9'].map((c, k) => <stop key={c} offset={k / 5} stopColor={c} />)}
+        </linearGradient>
+        <clipPath id="vt-crystal"><polygon points={RIM} /></clipPath>
+        {/* provider materials */}
+        <linearGradient id="vt-steel" x1="0" x2="1"><stop offset="0" stopColor="#64748b" /><stop offset="0.3" stopColor="#f8fafc" /><stop offset="0.55" stopColor="#cbd5e1" /><stop offset="1" stopColor="#334155" /></linearGradient>
+        <linearGradient id="vt-flame" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff7c2" /><stop offset="0.4" stopColor="#fb923c" /><stop offset="1" stopColor="#f97316" stopOpacity="0" /></linearGradient>
+        <radialGradient id="vt-navy" cx="0.35" cy="0.35" r="0.8"><stop offset="0" stopColor="#4c6fe0" /><stop offset="0.45" stopColor="#1e3a8a" /><stop offset="1" stopColor="#0b1033" /></radialGradient>
+        <mask id="vt-moon"><circle cx="1" cy="1.6" r="3.6" fill="#fff" /><circle cx="2.7" cy="0.5" r="3" fill="#000" /></mask>
+        <linearGradient id="vt-sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fde9b8" /><stop offset="0.5" stopColor="#e0b36a" /><stop offset="1" stopColor="#a8773a" /></linearGradient>
+        <linearGradient id="vt-sand2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#d9a860" /><stop offset="1" stopColor="#6e4a1c" /></linearGradient>
         {PROVIDERS.map((p, i) => (
-          <linearGradient key={i} id={`vt-out-${i}`} gradientUnits="userSpaceOnUse" x1={PR.tip} y1="0" x2={GEM} y2="0">
-            <stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor={p.color} />
-          </linearGradient>
+          <radialGradient key={i} id={`vt-pool-${i}`}><stop offset="0" stopColor={p.color} stopOpacity="0.55" /><stop offset="1" stopColor={p.color} stopOpacity="0" /></radialGradient>
         ))}
-        {PROVIDERS.map((p, i) => (
-          <radialGradient key={i} id={`vt-gem-${i}`} cx="0.35" cy="0.3" r="0.9">
-            <stop offset="0" stopColor="#ffffff" /><stop offset="0.45" stopColor={p.color} /><stop offset="1" stopColor={p.color} stopOpacity="0.55" />
-          </radialGradient>
-        ))}
-        <linearGradient id="vt-f1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffffff" stopOpacity="0.9" /><stop offset="1" stopColor={VIOLET} stopOpacity="0.55" /></linearGradient>
-        <linearGradient id="vt-f2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={VIOLET} stopOpacity="0.75" /><stop offset="1" stopColor={FUCHSIA} stopOpacity="0.85" /></linearGradient>
-        <linearGradient id="vt-f3" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stopColor={FUCHSIA} stopOpacity="0.45" /><stop offset="1" stopColor="#ffffff" stopOpacity="0.7" /></linearGradient>
-        <radialGradient id="vt-orb" cx="0.38" cy="0.32" r="0.9"><stop offset="0" stopColor="#ffffff" /><stop offset="0.45" stopColor={VIOLET} /><stop offset="1" stopColor="#86198f" /></radialGradient>
-        <linearGradient id="vt-ans" gradientUnits="userSpaceOnUse" x1={GEM} y1="100" x2={ORB.x} y2={ORB.y}><stop offset="0" stopColor={PROVIDERS[1].color} /><stop offset="1" stopColor={FUCHSIA} /></linearGradient>
-        <clipPath id="vt-prism"><polygon points={prism} /></clipPath>
+        <radialGradient id="vt-vdisc" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stopColor="#ddd6fe" /><stop offset="0.5" stopColor="#8b5cf6" /><stop offset="1" stopColor="#6d28d9" /></radialGradient>
+        {/* the score orb */}
+        <radialGradient id="vt-orbglass" cx="0.5" cy="0.45" r="0.55"><stop offset="0" stopColor="#1e0b3d" stopOpacity="0.55" /><stop offset="0.8" stopColor="#4c1d95" stopOpacity="0.35" /><stop offset="1" stopColor="#f5d0fe" stopOpacity="0.4" /></radialGradient>
+        <linearGradient id="vt-orbliq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f5d0fe" /><stop offset="0.12" stopColor={FUCHSIA} /><stop offset="1" stopColor="#6d28d9" /></linearGradient>
+        <clipPath id="vt-orb"><circle cx={SO.x} cy={SO.y} r={SO.r - 0.8} /></clipPath>
+        <linearGradient id="vt-ringg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stopColor="#7c3aed" /><stop offset="0.55" stopColor={FUCHSIA} /><stop offset="1" stopColor="#f9a8d4" /></linearGradient>
+        <linearGradient id="vt-ans" gradientUnits="userSpaceOnUse" x1={PX} y1={PROVIDERS[1].y} x2={SO.x} y2={SO.y}><stop offset="0" stopColor={PROVIDERS[1].color} /><stop offset="1" stopColor={FUCHSIA} /></linearGradient>
       </defs>
-      <Frame title="VETTLY · PREP STUDIO" right="CTX 80K" color={VIOLET} live={FUCHSIA} />
-      <text x="14" y="38" fill="#e9d5ff" fillOpacity="0.6" fontSize="5.4" letterSpacing="1.4" fontFamily={MONO}>CONTEXT · PRIORITY</text>
 
-      {/* context streams → prism */}
-      {STREAMS.map(([label, c, y], i) => {
-        const inY = PR.cy + (i - 1.5) * 10
-        const d = `M70 ${y}C104 ${y} 108 ${inY} ${PR.l} ${inY}`
+      {/* the room: violet light, a glossy table */}
+      <rect width="320" height="240" fill="url(#vt-bg)" />
+      <circle cx={CR.x} cy={CR.y} r="105" fill="url(#vt-b1)" />
+      <circle cx="40" cy="110" r="80" fill="url(#vt-b2)" />
+      <circle cx="290" cy="30" r="80" fill="url(#vt-b3)" />
+      <circle cx="110" cy="205" r="60" fill="url(#vt-b4)" />
+      <rect y={FLOOR} width="320" height={240 - FLOOR} fill="url(#vt-table)" />
+      <rect y={FLOOR - 0.3} width="320" height="0.6" fill="url(#vt-horizon)" />
+
+      {/* brand + context budget */}
+      <rect x="10" y="9" width="86" height="15" rx="7.5" fill="url(#vt-frost)" stroke="url(#vt-gr)" strokeWidth="0.6" />
+      <circle cx="18" cy="16.5" r="5" fill="url(#vt-vdisc)" />
+      <path d="M15.8 14.5L18 18.7L20.2 14.5" fill="none" stroke="#fff" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+      <text x="26" y="19" fill="#fff" fontSize="6.6" fontWeight="700" fontFamily={MONO}>Vettly</text>
+      <text x="52" y="18.6" fill="#ddd6fe" fillOpacity="0.7" fontSize="3.8" letterSpacing="0.8" fontFamily={MONO}>PREP STUDIO</text>
+      <rect x="272" y="9" width="38" height="15" rx="7.5" fill="url(#vt-frost)" stroke="url(#vt-gr)" strokeWidth="0.6" />
+      <text x="291" y="18.6" fill="#f5d0fe" fontSize="5.2" fontWeight="700" textAnchor="middle" fontFamily={MONO}>CTX 80K</text>
+
+      {/* the router's code on a frosted pane, rewriting itself */}
+      <rect x="11" y="32" width="118" height="42" rx="6" fill="#000" fillOpacity="0.3" filter="url(#vt-glow)" />
+      <rect x="10" y="30" width="118" height="42" rx="6" fill="url(#vt-frost)" stroke="url(#vt-gr)" strokeWidth="0.6" />
+      <text x="16" y="38" fill={KW} fillOpacity="0.85" fontSize="4.2" fontFamily={MONO}>vettly/main.py</text>
+      <line x1="16" y1="41" x2="122" y2="41" stroke="#fff" strokeOpacity="0.12" strokeWidth="0.5" />
+      {CODE.map(([indent, tokens], k) => (
+        <text key={k} className="vt-code" x={16 + indent * 2.52} y={48 + k * 6.5} fontSize="4.2" fontFamily={MONO} style={{ animationDelay: `${k * 0.55}s` }}>
+          {tokens.map(([t, c], j) => <tspan key={j} fill={c}>{t}</tspan>)}
+        </text>
+      ))}
+
+      {/* context tubes: flask necks → router */}
+      {FLASKS.map(([label, c, x], i) => <GlassTube key={label} d={tubeIn(x, i)} color={c} w={5.6} delay={-i * 0.3} />)}
+
+      {/* the flasks: brass stand, glass, liquid that sloshes, bubbles and glitter, a parchment label */}
+      {FLASKS.map(([label, c, x], i) => {
+        const join = FL.cy - Math.sqrt(FL.r ** 2 - 2.6 ** 2)
+        const glass = `M${x - 2.6} ${FL.neck}V${join.toFixed(2)}A${FL.r} ${FL.r} 0 1 0 ${x + 2.6} ${join.toFixed(2)}V${FL.neck}Z`
         return (
           <g key={label}>
-            <circle cx="18" cy={y} r="3" fill={c} filter="url(#vt-glow)" />
-            <text x="25" y={y + 2} fill="#f5f3ff" fontSize="5.8" fontWeight="600" fontFamily={MONO}>P{i + 1} {label}</text>
-            <path d={d} fill="none" stroke={`url(#vt-in-${i})`} strokeWidth="2.6" strokeLinecap="round" />
-            <path className="vt-flow" d={d} fill="none" stroke="#fff" strokeOpacity="0.85" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="3 14" style={{ animationDelay: `${-i * 0.3}s` }} />
+            <ellipse cx={x} cy={FLOOR + 5} rx="12" ry="2" fill={c} opacity="0.6" filter="url(#vt-glow)" />
+            <circle cx={x} cy={FL.cy} r="16" fill={c} opacity="0.16" filter="url(#vt-bloom)" />
+            <path d={`M${x - 9.5} ${FL.cy + 12.5}V${FL.cy + 18}A9.5 2 0 0 0 ${x + 9.5} ${FL.cy + 18}V${FL.cy + 12.5}Z`} fill="url(#vt-brass)" />
+            <path d={`M${x - 7} ${FL.cy + 13.6}V${FL.cy + 18.6}`} stroke="#fff" strokeOpacity="0.45" strokeWidth="0.7" />
+            <ellipse cx={x} cy={FL.cy + 12.5} rx="9.5" ry="2" fill="#f5d68a" stroke="#fff7dc" strokeOpacity="0.8" strokeWidth="0.3" />
+            <ellipse cx={x} cy={FL.cy + 12.5} rx="6" ry="1.1" fill="#8f6415" fillOpacity="0.45" />
+            <path d={glass} fill="url(#vt-gb)" />
+            <g clipPath={`url(#vt-fl-${i})`}>
+              <g className="vt-slosh" style={{ transformOrigin: `${x}px ${FL.lvl}px`, animationDelay: `${-i * 0.8}s` }}>
+                <path className="vt-wave" d={ripple(x - 24, FL.lvl, FL.cy + 14)} fill={`url(#vt-lq-${i})`} style={{ animationDelay: `${-i * 0.5}s` }} />
+              </g>
+              {[[-4, 1.8, 0], [1, 2.3, 0.7], [5, 2, 1.3]].map(([dx, dur, dl]) => (
+                <circle key={dx} className="vt-bubble" cx={x + dx} cy={FL.cy + 8} r={dx === 1 ? 1.1 : 0.7} fill="#fff" style={{ animationDuration: `${dur}s`, animationDelay: `${-dl - i * 0.3}s` }} />
+              ))}
+              {[[-5, 4, 0.2], [4, 7, 0.9], [-1, 9, 1.5]].map(([dx, dy, dl]) => (
+                <path key={dx} className="vt-twinkle" d={sparkle(x + dx, FL.cy + dy, 1.3)} fill="#fff" style={{ animationDelay: `${dl + i * 0.2}s` }} />
+              ))}
+            </g>
+            <path d={glass} fill="none" stroke="url(#vt-gr)" strokeWidth="0.7" />
+            <path d={`M${x - 8.4} ${FL.cy - 2.4}A9.2 9.2 0 0 1 ${x - 3.2} ${FL.cy - 8.7}`} fill="none" stroke="#fff" strokeOpacity="0.8" strokeWidth="1.1" strokeLinecap="round" />
+            <circle cx={x + 5.6} cy={FL.cy - 5.4} r="0.8" fill="#fff" fillOpacity="0.9" />
+            <line x1={x - 1.4} y1={FL.neck + 1} x2={x - 1.4} y2={join - 1} stroke="#fff" strokeOpacity="0.45" strokeWidth="0.5" />
+            <rect x={x - 3.6} y={FL.neck - 2} width="7.2" height="2.2" rx="1.1" fill="url(#vt-gb)" stroke="url(#vt-gr)" strokeWidth="0.5" />
+            <circle cx={x} cy={FL.neck - 5} r="3" fill="url(#vt-gb)" stroke="url(#vt-gr)" strokeWidth="0.5" />
+            <circle cx={x - 1} cy={FL.neck - 6} r="0.8" fill="#fff" fillOpacity="0.85" />
+            <rect x={x - 6.5} y={FL.cy + 1} width="13" height="7" rx="1.4" fill="url(#vt-parch)" stroke="#a07a3c" strokeWidth="0.35" />
+            <text x={x} y={FL.cy + 6.2} fill="#4a2c0a" fontSize="4.6" fontWeight="700" textAnchor="middle" fontFamily={MONO}>P{i + 1}</text>
+            <text x={x} y={FLOOR + 11} fill="#ede9fe" fillOpacity="0.75" fontSize="4.2" textAnchor="middle" fontFamily={MONO}>{label}</text>
           </g>
         )
       })}
-      <text x="14" y="184" fill={FUCHSIA} fillOpacity="0.8" fontSize="5.4" fontFamily={MONO}>80,000 chars, key specs first</text>
 
-      {/* prism → providers */}
-      {PROVIDERS.map((p, i) => (
-        <g key={p.name}>
-          <path d={beamOut(p.y)} fill="none" stroke={`url(#vt-out-${i})`} strokeWidth="1.8" strokeOpacity="0.55" />
-          <path className="vt-flow" d={beamOut(p.y)} fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="1" strokeDasharray="2 12" style={{ animationDelay: `${-i * 0.25}s` }} />
-        </g>
-      ))}
+      {/* router → providers */}
+      {PROVIDERS.map((p, i) => <GlassTube key={p.name} d={tubeOut(i)} color={p.color} w={4.4} delay={-i * 0.25} />)}
 
-      {/* the crystal */}
+      {/* the crystal: clear, iridescent, circuit-etched; light runs round its facets and splits into a spectrum below */}
+      <ellipse className="vt-spectrum" cx={CR.x} cy={FLOOR + 8} rx="26" ry="2.4" fill="url(#vt-prism)" filter="url(#vt-bloom)" />
+      <circle className="vt-core" cx={CR.x} cy={CR.y} r="24" fill="url(#vt-heart)" />
       <g className="vt-float">
-        <polygon points={prism} fill={FUCHSIA} opacity="0.35" filter="url(#vt-bloom)" />
-        <polygon points={`${PR.l},${PR.t} ${PR.l},${PR.b} ${PRC.x},${PRC.y}`} fill="url(#vt-f1)" />
-        <polygon points={`${PR.l},${PR.t} ${PR.tip},${PR.cy} ${PRC.x},${PRC.y}`} fill="url(#vt-f2)" />
-        <polygon points={`${PR.l},${PR.b} ${PR.tip},${PR.cy} ${PRC.x},${PRC.y}`} fill="url(#vt-f3)" />
-        <polygon points={prism} fill="none" stroke="#ffffff" strokeOpacity="0.8" strokeWidth="1" />
-        <g clipPath="url(#vt-prism)"><rect className="vt-shine" x={PR.l - 20} y={PR.t - 10} width="7" height="80" fill="#ffffff" opacity="0.75" transform={`skewX(-18)`} /></g>
+        {FACES.map((f, i) => <polygon key={i} points={f} fill={`url(#${FACE_FILL[i]})`} />)}
+        {FACES.map((f, i) => (
+          <polygon key={i} className="vt-facet" points={f} fill={FACE_FLASH[i % 3]} style={{ animationDelay: `${i * 0.28}s` }} />
+        ))}
+        <g stroke="#fff" strokeOpacity="0.4" strokeWidth="0.3" fill="none">
+          {TRACES.map((t, i) => <path key={i} d={t.d} />)}
+        </g>
+        {TRACES.flatMap((t, i) => t.pads.map((p, j) => <circle key={`${i}${j}`} cx={p[0]} cy={p[1]} r="0.55" fill="#fff" fillOpacity="0.6" />))}
+        {FACES.map((f, i) => <polygon key={i} points={f} fill="none" stroke="#fff" strokeOpacity="0.4" strokeWidth="0.45" strokeLinejoin="round" />)}
+        <polygon points={RIM} fill="none" stroke="#67e8f9" strokeOpacity="0.55" strokeWidth="0.7" strokeLinejoin="round" transform="translate(-0.8 0)" />
+        <polygon points={RIM} fill="none" stroke="#f472b6" strokeOpacity="0.55" strokeWidth="0.7" strokeLinejoin="round" transform="translate(0.8 0)" />
+        <polygon points={RIM} fill="none" stroke="#fff" strokeOpacity="0.9" strokeWidth="0.8" strokeLinejoin="round" />
+        <polygon className="vt-flash" points={RIM} fill="#fff" />
+        <g clipPath="url(#vt-crystal)"><rect className="vt-shine" x={CR.x - 76} y={CR.y - 40} width="7" height="80" fill="#fff" opacity="0.6" transform="skewX(-18)" /></g>
+        {(['FAILOVER', 'ROUTER'] as const).map((w, k) => (
+          <g key={w} fontSize="4.4" fontWeight="700" letterSpacing="0.7" textAnchor="middle" fontFamily={MONO}>
+            <text x={CR.x + 0.3} y={CR.y + 0.6 + k * 5.6} fill="#2e1065" fillOpacity="0.7">{w}</text>
+            <text x={CR.x} y={CR.y + k * 5.6} fill="#fff">{w}</text>
+          </g>
+        ))}
       </g>
-      {[[PR.l - 6, PR.t - 4, 0], [PR.tip + 4, PR.cy - 14, 0.5], [PR.l + 18, PR.b + 8, 1], [PR.tip - 8, PR.t - 8, 1.4]].map(([x, y, d], i) => (
-        <path key={i} className="vt-twinkle" d={`M${x} ${y - 4}L${x + 1} ${y - 1}L${x + 4} ${y}L${x + 1} ${y + 1}L${x} ${y + 4}L${x - 1} ${y + 1}L${x - 4} ${y}L${x - 1} ${y - 1}Z`}
-          fill="#ffffff" style={{ animationDelay: `${d}s` }} />
+      {[[CR.x - 34, CR.y - 26, 0, 4], [CR.x + 30, CR.y - 30, 0.5, 3.4], [CR.x - 26, CR.y + 30, 1, 3], [CR.x + 36, CR.y + 20, 1.4, 3.4], [SO.x + 22, SO.y - 8, 0.8, 2.6]].map(([x, y, d, s], i) => (
+        <path key={i} className="vt-twinkle" d={sparkle(x, y, s)} fill="#fff" style={{ animationDelay: `${d}s` }} />
       ))}
-      <text x={PRC.x + 4} y={PR.b + 20} fill="#f5f3ff" fillOpacity="0.8" fontSize="5.4" letterSpacing="1.4" textAnchor="middle" fontFamily={MONO}>FAILOVER ROUTER</text>
 
-      {/* providers as gems */}
+      {/* providers, in failover order, each on its own glass pedestal */}
       {PROVIDERS.map((p, i) => (
         <g key={p.name}>
-          <circle cx={GEM} cy={p.y} r="12" fill={p.color} opacity="0.18" filter="url(#vt-bloom)" />
-          <circle cx={GEM} cy={p.y} r="8.5" fill={`url(#vt-gem-${i})`} />
-          <circle cx={GEM - 2.6} cy={p.y - 2.8} r="2" fill="#ffffff" opacity="0.8" />
-          <text x={GEM + 14} y={p.y} fill="#f8fafc" fontSize="7.2" fontWeight="600" fontFamily={MONO}>{p.name}</text>
-          <text x={GEM + 14} y={p.y + 8} fill={p.color} fontSize="5.2" fontFamily={MONO}>{p.tag}</text>
+          <ellipse cx={PX} cy={p.y + 14} rx="16" ry="4" fill={`url(#vt-pool-${i})`} />
+          <ellipse cx={PX} cy={p.y + 13} rx="11" ry="2.6" fill="url(#vt-gb)" stroke="url(#vt-gr)" strokeWidth="0.5" />
+          <g className="vt-bob" style={{ animationDelay: `${-i * 0.9}s` }}>
+            <g transform={`translate(${PX} ${p.y})`}>
+              <g className={i === 0 ? 'vt-shake' : undefined}><ProviderObject i={i} /></g>
+            </g>
+          </g>
+          <text x={PX + 16} y={p.y} fill="#f8fafc" fontSize="6.4" fontWeight="700" fontFamily={MONO}>{p.name}</text>
+          <text x={PX + 16} y={p.y + 7} fill={p.color} fontSize="4.6" fontFamily={MONO}>{p.tag}</text>
         </g>
       ))}
-      {/* Claude rate-limits: its beam breaks red */}
+      {/* Groq rate-limits: its line runs red, the rocket shudders */}
       <g className="vt-429">
-        <path d={beamOut(PROVIDERS[0].y)} fill="none" stroke="#ef4444" strokeWidth="2.4" strokeDasharray="3 3" filter="url(#vt-glow)" />
-        <circle cx={GEM} cy={PROVIDERS[0].y} r="11" fill="none" stroke="#ef4444" strokeWidth="1.6" />
-        <rect x={GEM - 40} y={PROVIDERS[0].y - 18} width="26" height="12" rx="6" fill="#2a0707" stroke="#ef4444" />
-        <text x={GEM - 27} y={PROVIDERS[0].y - 9.7} fill="#fca5a5" fontSize="6.4" fontWeight="700" textAnchor="middle" fontFamily={MONO}>429</text>
+        <path d={tubeOut(0)} fill="none" stroke="#ef4444" strokeWidth="2.2" strokeDasharray="3 3" filter="url(#vt-glow)" />
+        <circle cx={PX} cy={PROVIDERS[0].y} r="13" fill="none" stroke="#ef4444" strokeWidth="1.2" />
+        <rect x={PX + 38} y={PROVIDERS[0].y - 8} width="24" height="10" rx="5" fill="#2a0707" fillOpacity="0.9" stroke="#ef4444" />
+        <text x={PX + 50} y={PROVIDERS[0].y - 1.2} fill="#fca5a5" fontSize="5.8" fontWeight="700" textAnchor="middle" fontFamily={MONO}>429</text>
       </g>
-      {/* Gemini answers: its beam blazes */}
+      {/* Gemini answers: its line blazes */}
       <g className="vt-200">
-        <path d={beamOut(PROVIDERS[1].y)} fill="none" stroke={PROVIDERS[1].color} strokeWidth="3" filter="url(#vt-bloom)" />
-        <path d={beamOut(PROVIDERS[1].y)} fill="none" stroke="#ffffff" strokeWidth="1.2" />
-        <circle cx={GEM} cy={PROVIDERS[1].y} r="11" fill="none" stroke="#22c55e" strokeWidth="1.6" />
-        <rect x={GEM - 44} y={PROVIDERS[1].y - 18} width="30" height="12" rx="6" fill="#052e16" stroke="#22c55e" />
-        <text x={GEM - 29} y={PROVIDERS[1].y - 9.7} fill="#86efac" fontSize="6.2" fontWeight="700" textAnchor="middle" fontFamily={MONO}>200 ✓</text>
+        <path d={tubeOut(1)} fill="none" stroke={PROVIDERS[1].color} strokeWidth="3" filter="url(#vt-bloom)" />
+        <path d={tubeOut(1)} fill="none" stroke="#fff" strokeWidth="1" />
+        <circle cx={PX} cy={PROVIDERS[1].y} r="13" fill="none" stroke="#22c55e" strokeWidth="1.2" />
+        <rect x={PX + 44} y={PROVIDERS[1].y - 8} width="28" height="10" rx="5" fill="#052e16" fillOpacity="0.9" stroke="#22c55e" />
+        <text x={PX + 58} y={PROVIDERS[1].y - 1.2} fill="#86efac" fontSize="5.6" fontWeight="700" textAnchor="middle" fontFamily={MONO}>200 ✓</text>
       </g>
 
-      {/* the answer lands in the scored orb */}
-      <path className="vt-ans" pathLength={1} d={`M${GEM - 9} ${PROVIDERS[1].y + 4}C${GEM - 30} 120 ${GEM - 26} ${ORB.y - 10} ${ORB.x + 17} ${ORB.y}`} fill="none" stroke="url(#vt-ans)" strokeWidth="2" filter="url(#vt-glow)" />
-      <circle cx={ORB.x} cy={ORB.y} r="20" fill={VIOLET} opacity="0.2" filter="url(#vt-bloom)" />
-      <circle cx={ORB.x} cy={ORB.y} r="17" fill="none" stroke={VIOLET} strokeOpacity="0.2" strokeWidth="3" />
-      <circle className="vt-ring" pathLength={1} cx={ORB.x} cy={ORB.y} r="17" fill="none" stroke={FUCHSIA} strokeWidth="3" strokeLinecap="round" transform={`rotate(-90 ${ORB.x} ${ORB.y})`} />
-      <circle cx={ORB.x} cy={ORB.y} r="12" fill="url(#vt-orb)" />
-      <text x={ORB.x} y={ORB.y + 2.6} fill="#ffffff" fontSize="7.6" fontWeight="700" textAnchor="middle" fontFamily={MONO}>8.8</text>
-      <text x={ORB.x - 26} y={ORB.y - 6} fill="#f5f3ff" fontSize="5.8" fontWeight="600" textAnchor="end" fontFamily={MONO}>Q#12 SYSTEM DESIGN</text>
-      <text x={ORB.x - 26} y={ORB.y + 3} fill="#86efac" fontSize="5.4" textAnchor="end" fontFamily={MONO}>humanized · 7/7 checks</text>
-      <text x={ORB.x - 26} y={ORB.y + 11} fill={VIOLET} fontSize="5" textAnchor="end" fontFamily={MONO}>9 tracks · STAR · DSA</text>
+      {/* the answer pours into a glass orb: it fills to the score, the ring closes, the score pops */}
+      <path className="vt-ans" pathLength={1} d={ANSWER} fill="none" stroke="url(#vt-ans)" strokeWidth="2" filter="url(#vt-glow)" />
+      <ellipse cx={SO.x} cy={SO.y + 16} rx="16" ry="2.6" fill={FUCHSIA} opacity="0.45" filter="url(#vt-glow)" />
+      <circle cx={SO.x} cy={SO.y} r={SO.r} fill="url(#vt-orbglass)" />
+      <g clipPath="url(#vt-orb)">
+        <g className="vt-fill">
+          <path className="vt-wave" d={ripple(SO.x - SO.r - 12, SO.y - SO.r + 3.4, SO.y + SO.r + 2)} fill="url(#vt-orbliq)" />
+        </g>
+      </g>
+      <circle cx={SO.x} cy={SO.y} r={SO.r} fill="none" stroke="url(#vt-gr)" strokeWidth="0.8" />
+      <circle cx={SO.x} cy={SO.y} r={SO.r + 2.6} fill="none" stroke={VIOLET} strokeOpacity="0.2" strokeWidth="1.4" />
+      <circle className="vt-ring" pathLength={1} cx={SO.x} cy={SO.y} r={SO.r + 2.6} fill="none" stroke="url(#vt-ringg)" strokeWidth="1.4" strokeLinecap="round" transform={`rotate(-90 ${SO.x} ${SO.y})`} />
+      <g className="vt-pop">
+        <text x={SO.x + 0.4} y={SO.y + 3} fill="#2e1065" fillOpacity="0.6" fontSize="9" fontWeight="700" textAnchor="middle" fontFamily={MONO}>8.8</text>
+        <text x={SO.x} y={SO.y + 2.6} fill="#fff" fontSize="9" fontWeight="700" textAnchor="middle" fontFamily={MONO}>8.8</text>
+        <text x={SO.x} y={SO.y + 8.4} fill="#fff" fillOpacity="0.85" fontSize="3.4" letterSpacing="0.8" textAnchor="middle" fontFamily={MONO}>SCORE</text>
+      </g>
+      <ellipse cx={SO.x - 5} cy={SO.y - 8.6} rx="5.6" ry="2.2" fill="#fff" fillOpacity="0.35" transform={`rotate(-28 ${SO.x - 5} ${SO.y - 8.6})`} />
+      <text x={SO.x - 22} y={SO.y - 6} fill="#f5f3ff" fontSize="5.4" fontWeight="700" textAnchor="end" fontFamily={MONO}>Q#12 SYSTEM DESIGN</text>
+      <text x={SO.x - 22} y={SO.y + 2} fill="#86efac" fontSize="4.8" textAnchor="end" fontFamily={MONO}>humanized, 7/7 checks</text>
+      <text x={SO.x - 22} y={SO.y + 9} fill="#c4b5fd" fontSize="4.6" textAnchor="end" fontFamily={MONO}>9 tracks: STAR, DSA</text>
 
-      {/* the request of light: in through the prism, bounced by Claude, answered by Gemini, into the orb */}
-      <circle className="vt-p1" r="3.4" cx={0} cy={0} fill="#fff" filter="url(#vt-glow)" />
-      <circle className="vt-p2" r="3.4" cx={0} cy={0} fill="#fff" filter="url(#vt-glow)" />
+      {/* the request of light: in through the router, bounced by Groq, answered by Gemini, into the orb */}
+      <circle className="vt-p1" r="3" cx={0} cy={0} fill="#fff" filter="url(#vt-glow)" />
+      <circle className="vt-p2" r="3" cx={0} cy={0} fill="#fff" filter="url(#vt-glow)" />
     </g>
   )
 }
@@ -494,25 +841,37 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
    highlight, rim light) over a coloured shadow. It floats idly and tilts in 3D toward the cursor,
    each layer at its own depth. Saturated disc + white glyph reads the same on light and dark pages. */
 const MARKS: Record<Visual, { from: string; via: string; to: string; glow: string }> = {
-  radar: { from: '#6ee7b7', via: '#10b981', to: '#0f5f56', glow: '#10b981' },
+  radar: { from: '#6ee7b7', via: '#059669', to: '#064e3b', glow: '#10b981' },
   wave: { from: '#67e8f9', via: '#6366f1', to: '#9333ea', glow: '#6366f1' },
   router: { from: '#c4b5fd', via: '#8b5cf6', to: '#db2777', glow: '#a855f7' },
   gold: { from: '#fef08a', via: '#f59e0b', to: '#b45309', glow: '#f59e0b' },
 }
+
+// RADAR's mark: the 12 dial ticks as two paths, the 3-hour majors and the rest
+const DIAL_TICKS = [true, false].map((major) => Array.from({ length: 12 }, (_, k) => k)
+  .filter((k) => (k % 3 === 0) === major)
+  .map((k) => {
+    const c = Math.cos(deg(k * 30))
+    const s = Math.sin(deg(k * 30))
+    const r0 = major ? 6.2 : 7.2
+    return `M${(12 + r0 * c).toFixed(2)} ${(12 + r0 * s).toFixed(2)}L${(12 + 8.6 * c).toFixed(2)} ${(12 + 8.6 * s).toFixed(2)}`
+  }).join(''))
 
 function Glyph({ kind }: { kind: Visual }) {
   return (
     <svg viewBox="0 0 24 24" className="w-[64%] h-[64%]" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.25))' }}>
       {kind === 'radar' && (
         <>
-          <circle cx="12" cy="12" r="8.5" strokeOpacity="0.55" strokeWidth="1.4" />
-          <circle cx="12" cy="12" r="4.6" strokeOpacity="0.8" strokeWidth="1.4" />
+          {/* the instrument dial: hour ticks, a sweep, a gold hub */}
+          <circle cx="12" cy="12" r="9.4" strokeOpacity="0.45" strokeWidth="0.9" />
+          <path d={DIAL_TICKS[0]} strokeWidth="1.5" />
+          <path d={DIAL_TICKS[1]} strokeOpacity="0.65" strokeWidth="0.9" />
           <g className="gl-spin">
             <path d="M12 12 L12 3.5 A8.5 8.5 0 0 1 19.4 7.8 Z" fill="#fff" fillOpacity="0.35" stroke="none" />
             <path d="M12 12 L19.4 7.8" strokeWidth="1.8" />
           </g>
           <circle className="gl-ping" cx="16.2" cy="15.4" r="1.4" fill="#fff" stroke="none" />
-          <circle cx="12" cy="12" r="1.3" fill="#fff" stroke="none" />
+          <circle cx="12" cy="12" r="2.5" fill="#facc15" stroke="#fff" strokeWidth="0.6" />
         </>
       )}
       {kind === 'wave' && (
