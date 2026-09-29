@@ -23,6 +23,9 @@ export const profile = {
   current: 'WebVory',
   location: 'India',
   email: 'shaileshrsupadhyay@gmail.com',
+  phone: '+91 97922 63924',
+  phoneHref: 'tel:+919792263924',
+  whatsapp: 'https://wa.me/919792263924',
   github: 'https://github.com/SHAILESH-RS-UPADHYAY',
   linkedin: 'https://linkedin.com/in/shailesh-upadhyay-6a112624a',
 }

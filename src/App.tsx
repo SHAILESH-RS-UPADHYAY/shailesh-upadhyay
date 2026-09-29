@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 're
 import { AnimatePresence, MotionConfig, motion, useScroll } from 'framer-motion'
 import Lenis from 'lenis'
 import Intro from './Intro'
-import { education, experience, greetings, marquee, moreBuilds, profile, projects, skills, stats, whoami } from './data'
+import { education, experience, greetings, marquee, moreBuilds, profile, projects, skills, stats, whoami, type Accent } from './data'
 import { acVar, asset, EASE } from './lib'
 import { Chips, CountUp, ExtLink, MailPicker, MatrixRain, ResumeCard, SectionHeader, Terminal } from './ui'
 import { ProjectMark, ProjectVisual } from './visuals'
@@ -17,11 +17,21 @@ const NAV = [
 const SPY = ['home', ...NAV.map((n) => n.id), 'contact']
 
 /* ====== ICONS ====== */
-function Icon({ name, className = 'w-5 h-5' }: { name: 'github' | 'linkedin' | 'mail' | 'file'; className?: string }) {
-  if (name === 'mail' || name === 'file')
+type IconName = 'github' | 'linkedin' | 'mail' | 'file' | 'phone' | 'chat' | 'copy' | 'clock'
+const STROKE_ICONS: Partial<Record<IconName, ReactNode>> = {
+  mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
+  file: <><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" /><path d="M14 3v5h5M9 13h6M9 17h6" /></>,
+  phone: <path d="M5 3.5h3.6l1.8 4.6-2.3 1.4a11.5 11.5 0 0 0 6.4 6.4l1.4-2.3 4.6 1.8V19a1.9 1.9 0 0 1-2 1.9A16.5 16.5 0 0 1 3.1 5.5 1.9 1.9 0 0 1 5 3.5z" />,
+  chat: <><path d="M20.5 11.6a8.4 8.4 0 0 1-12.3 7.4L3.5 20.5l1.5-4.6a8.4 8.4 0 1 1 15.5-4.3z" /><path d="M8.5 10.5h7M8.5 13.5h4.5" /></>,
+  copy: <><rect x="8.5" y="8.5" width="12" height="12" rx="2.5" /><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5" /></>,
+  clock: <><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>,
+}
+
+function Icon({ name, className = 'w-5 h-5' }: { name: IconName; className?: string }) {
+  if (STROKE_ICONS[name])
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        {name === 'mail' ? <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></> : <><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" /><path d="M14 3v5h5M9 13h6M9 17h6" /></>}
+        {STROKE_ICONS[name]}
       </svg>
     )
   return (
@@ -119,8 +129,8 @@ function Navbar() {
         </ul>
         <div className="flex items-center gap-2 md:gap-3">
           <ThemeToggle id="bar" className="hidden sm:flex" />
-          <a href="#contact"
-            className="hidden sm:inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-oxanium text-[0.9375rem] font-medium text-fg border border-acc/30 bg-gradient-to-br from-acc/20 to-cyan-400/10 hover:from-acc/30 hover:shadow-[0_0_30px_-8px_var(--acc)] active:scale-[0.97] transition-all">
+          <a href="#contact" aria-current={active === 'contact' ? 'true' : undefined}
+            className={`hidden sm:inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-oxanium text-[0.9375rem] font-medium text-fg border bg-gradient-to-br from-acc/20 to-cyan-400/10 hover:from-acc/30 hover:shadow-[0_0_30px_-8px_var(--acc)] active:scale-[0.97] transition-all ${active === 'contact' ? 'border-acc/70 shadow-[0_0_30px_-6px_var(--acc)]' : 'border-acc/30'}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-acc animate-pulse" /> Let's talk
           </a>
           <button type="button" className="xl:hidden w-11 h-11 rounded-xl border border-fg/15 flex flex-col items-center justify-center gap-1.5 cursor-pointer"
@@ -262,10 +272,21 @@ function Hero() {
         </div>
 
         {/* Portrait — slides in, then keeps bouncing */}
+        {/* Portrait — drops in from above the screen on a spring (lands with one soft bounce and a slight
+            wobble), a glow spreads on the "floor" at impact, then the idle bounce takes over. */}
         <motion.div className="relative mx-auto w-full max-w-[20.625rem] md:max-w-[23.75rem] lg:max-w-[25.625rem]"
-          initial={{ opacity: 0, x: 120 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1.1, ease: EASE, delay: 0.3 }}>
+          initial={{ y: '-120vh', rotate: -6 }}
+          animate={{ y: ['-120vh', '0vh', '-6vh', '0vh', '-1.6vh', '0vh'], rotate: [-6, 0, 1.6, 0, -0.5, 0] }}
+          transition={{
+            // gravity in (ease-in), then two decaying bounces — starts once the reveal has cleared this side of the screen
+            duration: 1.35, delay: 0.55, times: [0, 0.45, 0.61, 0.76, 0.88, 1],
+            ease: ['easeIn', 'easeOut', 'easeIn', 'easeOut', 'easeIn'],
+          }}>
+          <motion.div aria-hidden className="absolute left-1/2 -bottom-8 w-[85%] h-12 -translate-x-1/2 rounded-[50%] bg-acc/50 blur-2xl pointer-events-none"
+            initial={{ scaleX: 0.2, opacity: 0 }} animate={{ scaleX: [0.2, 1.6, 1], opacity: [0, 0.95, 0.3] }}
+            transition={{ duration: 1.1, delay: 0.55 + 1.35 * 0.45, times: [0, 0.28, 1], ease: 'easeOut' }} />
           <motion.div animate={{ y: [0, -22, 0, -7, 0] }}
-            transition={{ duration: 2.4, times: [0, 0.38, 0.66, 0.83, 1], ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.5, delay: 1.4 }}>
+            transition={{ duration: 2.4, times: [0, 0.38, 0.66, 0.83, 1], ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.5, delay: 2.2 }}>
             <div className="relative group">
               <div className="absolute -inset-1 rounded-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-md"
                 style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.3), rgba(34,211,238,0.2), rgba(167,139,250,0.2), rgba(251,113,133,0.15))' }} />
@@ -482,69 +503,121 @@ function Education() {
 }
 
 /* ====== CONTACT ====== */
-function Contact() {
+// Live local time in India, for visitors in other time zones.
+function IndiaTime() {
+  const fmt = () => new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date())
+  const [now, setNow] = useState(fmt)
+  useEffect(() => {
+    const t = setInterval(() => setNow(fmt()), 20000)
+    return () => clearInterval(t)
+  }, [])
+  return <>{now}</>
+}
+
+function CopyButton({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false)
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(profile.email)
+      await navigator.clipboard.writeText(value)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch { /* clipboard blocked: the mailto link still works */ }
+      setTimeout(() => setCopied(false), 1800)
+    } catch { /* clipboard blocked: the other actions still work */ }
   }
+  return (
+    <button type="button" onClick={copy} aria-label={label} aria-live="polite"
+      className="inline-flex items-center gap-2 font-geist-mono text-xs tracking-widest px-4 py-3 rounded-xl border border-fg/15 text-fg/80 hover:bg-fg/10 hover:text-fg active:scale-[0.97] transition cursor-pointer">
+      <Icon name="copy" className="w-4 h-4" /> {copied ? 'COPIED ✓' : 'COPY'}
+    </button>
+  )
+}
+
+const actionBtn = 'inline-flex items-center gap-2 font-geist-mono text-xs tracking-widest px-4 py-3 rounded-xl border border-(--ac)/40 bg-(--ac)/10 text-fg hover:bg-(--ac)/20 hover:shadow-[0_0_28px_-8px_var(--ac)] active:scale-[0.97] transition-all cursor-pointer'
+
+function ContactCard({ accent, icon, label, value, children }: { accent: Accent; icon: IconName; label: string; value: string; children: ReactNode }) {
+  return (
+    <motion.div style={acVar(accent)} onMouseMove={spotlight}
+      className="card spotlight relative flex flex-col gap-4 rounded-3xl border border-fg/[0.08] hover:border-(--ac)/40 p-5 md:p-6 text-left transition-colors"
+      initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: EASE }}>
+      <div className="flex items-center gap-4">
+        <span className="w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center text-(--ac) border border-(--ac)/30 bg-(--ac)/10 shadow-[0_0_30px_-10px_var(--ac)]">
+          <Icon name={icon} className="w-5 h-5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block font-geist-mono text-[0.6875rem] tracking-[0.2em] uppercase text-(--ac)">{label}</span>
+          <span className="hidden sm:block font-oxanium text-lg xl:text-xl text-fg/95 break-all mt-0.5">{value}</span>
+        </span>
+      </div>
+      <span className="sm:hidden font-oxanium text-base min-[400px]:text-lg text-fg/95 break-all -mt-1">{value}</span>
+      <div className="flex flex-wrap gap-2.5">{children}</div>
+    </motion.div>
+  )
+}
+
+function Contact() {
   const cards = [
     { label: 'GitHub', sub: '@SHAILESH-RS-UPADHYAY', href: profile.github, icon: 'github' as const },
     { label: 'LinkedIn', sub: 'Shailesh Upadhyay', href: profile.linkedin, icon: 'linkedin' as const },
     { label: 'Resume', sub: 'PDF · 1 page', href: asset('resume.pdf'), icon: 'file' as const },
   ]
   return (
-    <section id="contact" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05] overflow-hidden">
+    <section id="contact" className="relative min-h-[calc(100dvh-4.5rem)] md:min-h-[calc(100dvh-5rem)] flex items-center py-16 md:py-20 px-5 md:px-10 border-t border-fg/[0.05] overflow-hidden">
       <div aria-hidden className="aurora">
-        <span className="left-[18%] top-[10%] w-[30vw] h-[30vw] bg-emerald-200" />
+        <span className="left-[8%] top-[15%] w-[30vw] h-[30vw] bg-emerald-200" />
         <span className="left-[58%] top-[30%] w-[26vw] h-[26vw] bg-violet-200" style={{ animationDelay: '-7s' }} />
       </div>
-      <div aria-hidden className="absolute left-1/2 top-40 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <div aria-hidden className="absolute left-1/2 lg:left-[27%] top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
         {[0, 1, 2].map((k) => (
           <motion.div key={k} className="absolute left-1/2 top-1/2 w-[32.5rem] h-[32.5rem] -ml-[16.25rem] -mt-[16.25rem] rounded-full border border-acc/20"
             animate={{ scale: [0.3, 1.4], opacity: [0.6, 0] }} transition={{ duration: 4.5, repeat: Infinity, delay: k * 1.5, ease: 'easeOut' }} />
         ))}
       </div>
-      <motion.div className="relative max-w-5xl mx-auto text-center"
-        initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8, ease: EASE }}>
-        <p className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em]">06 / CONTACT</p>
-        <h2 className="font-museo text-[2.6rem] md:text-[4.2rem] lg:text-[5rem] leading-[1.02] tracking-tight mt-6 text-fg/90 text-balance">
-          Let's build something that <span className="text-gradient">ships.</span>
-        </h2>
-        <p className="font-oxanium text-lg text-fg/70 mt-6 max-w-xl mx-auto text-pretty">
-          Working on AI backends, LLM pipelines or a product that needs both? Send me a note.
-        </p>
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <MailPicker email={profile.email} label={`Email ${profile.email}`} side="down"
-            className="inline-flex items-center gap-3 font-oxanium text-base md:text-xl text-fg px-6 py-4 rounded-2xl border border-acc/30 bg-acc/10 hover:bg-acc/20 hover:shadow-[0_0_40px_-10px_var(--acc)] transition-all break-all">
-            <Icon name="mail" /> {profile.email}
-          </MailPicker>
-          <button type="button" onClick={copy} aria-live="polite"
-            className="font-geist-mono text-xs tracking-widest px-5 py-[1.125rem] rounded-2xl border border-fg/15 text-fg/80 hover:bg-fg/10 active:scale-[0.97] transition cursor-pointer">
-            {copied ? 'COPIED ✓' : 'COPY EMAIL'}
-          </button>
+      <div className="relative w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-10 lg:gap-14 items-center">
+        <motion.div className="text-center lg:text-left"
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE }}>
+          <p className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em]">06 / CONTACT</p>
+          <h2 className="font-museo text-[2.5rem] md:text-[3.4rem] xl:text-[3.9rem] leading-[1.04] tracking-tight mt-5 text-fg/90 text-balance">
+            Let's build something that <span className="text-gradient">ships.</span>
+          </h2>
+          <p className="font-oxanium text-lg text-fg/70 mt-5 max-w-md mx-auto lg:mx-0 text-pretty">
+            Working on AI backends, LLM pipelines or a product that needs both? Write, call or message me.
+          </p>
+          <p className="mt-6 flex flex-col items-center lg:items-start gap-2 font-geist-mono text-xs tracking-wider text-fg/60">
+            <span className="inline-flex items-center gap-2"><span className="relative flex w-2 h-2"><span className="absolute inset-0 rounded-full bg-acc animate-ping" /><span className="relative w-2 h-2 rounded-full bg-acc" /></span>Open to conversations</span>
+            <span className="inline-flex items-center gap-2"><Icon name="clock" className="w-3.5 h-3.5" /> <IndiaTime /> in India (IST, UTC+5:30)</span>
+          </p>
+        </motion.div>
+
+        <div className="flex flex-col gap-4">
+          <ContactCard accent="emerald" icon="mail" label="Email" value={profile.email}>
+            <MailPicker email={profile.email} label={`Write to ${profile.email}`} side="down" className={actionBtn}>
+              <Icon name="mail" className="w-4 h-4" /> WRITE
+            </MailPicker>
+            <CopyButton value={profile.email} label="Copy email address" />
+          </ContactCard>
+          <ContactCard accent="cyan" icon="phone" label="Phone · WhatsApp" value={profile.phone}>
+            <a href={profile.phoneHref} className={actionBtn}><Icon name="phone" className="w-4 h-4" /> CALL</a>
+            <a href={profile.whatsapp} target="_blank" rel="noopener noreferrer" className={actionBtn}><Icon name="chat" className="w-4 h-4" /> WHATSAPP</a>
+            <CopyButton value={profile.phone} label="Copy phone number" />
+          </ContactCard>
+          <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+            {cards.map((c) => (
+              <li key={c.label}>
+                <a href={c.href} target="_blank" rel="noopener noreferrer" onMouseMove={spotlight} style={acVar('emerald')}
+                  className="card spotlight group relative flex items-center gap-3 rounded-2xl border border-fg/[0.08] p-4 hover:border-acc/40 transition-colors">
+                  <span className="w-10 h-10 shrink-0 rounded-xl border border-fg/10 flex items-center justify-center text-fg/75 group-hover:text-acc transition-colors">
+                    <Icon name={c.icon} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-oxanium font-semibold text-fg/90">{c.label}</span>
+                    <span className="block font-geist-mono text-[0.6875rem] text-fg/50 truncate">{c.sub}</span>
+                  </span>
+                  <span aria-hidden className="ml-auto text-fg/40 group-hover:text-acc group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-          {cards.map((c) => (
-            <li key={c.label}>
-              <a href={c.href} target="_blank" rel="noopener noreferrer" onMouseMove={spotlight} style={acVar('emerald')}
-                className="card spotlight group relative flex items-center gap-4 rounded-2xl border border-fg/[0.08] p-5 hover:border-acc/40 transition-colors">
-                <span className="w-11 h-11 shrink-0 rounded-xl border border-fg/10 flex items-center justify-center text-fg/75 group-hover:text-acc transition-colors">
-                  <Icon name={c.icon} />
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-oxanium font-semibold text-fg/90">{c.label}</span>
-                  <span className="block font-geist-mono text-[0.6875rem] text-fg/50 truncate">{c.sub}</span>
-                </span>
-                <span aria-hidden className="ml-auto text-fg/40 group-hover:text-acc group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all">↗</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </motion.div>
+      </div>
     </section>
   )
 }
@@ -566,7 +639,7 @@ export default function App() {
   const [revealed, setRevealed] = useState(false)
   useEffect(() => {
     if (!ready) return
-    const lenis = new Lenis({ autoRaf: true, anchors: { offset: -80 } })
+    const lenis = new Lenis({ autoRaf: true, anchors: true }) // offset comes from section[id] scroll-margin-top
     return () => lenis.destroy()
   }, [ready])
   return (
