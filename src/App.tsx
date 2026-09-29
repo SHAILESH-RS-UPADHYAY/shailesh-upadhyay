@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { flushSync } from 'react-dom'
 import { AnimatePresence, MotionConfig, motion, useScroll } from 'framer-motion'
 import Lenis from 'lenis'
 import Intro from './Intro'
@@ -71,23 +72,68 @@ function Rise({ d = 0, children, className }: { d?: number; children: ReactNode;
 }
 
 /* ====== THEME — <html data-theme> is set before paint by index.html, from localStorage or the OS ====== */
-function ThemeToggle({ id, className = 'flex' }: { id: string; className?: string }) {
+// Day/night switch: a sky with clouds and a sun by day; slide it and the sun becomes a cratered moon over a
+// starry night. The new theme spreads from the switch as a circle (View Transitions API; instant elsewhere).
+function ThemeToggle() {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme ?? 'dark')
+  const dark = theme === 'dark'
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
-  const choose = (t: string) => {
-    try { localStorage.setItem('theme', t) } catch { /* private mode: theme just won't persist */ }
-    setTheme(t)
+
+  const flip = (e: MouseEvent<HTMLButtonElement>) => {
+    const next = dark ? 'light' : 'dark'
+    try { localStorage.setItem('theme', next) } catch { /* private mode: theme just won't persist */ }
+    const apply = () => {
+      document.documentElement.dataset.theme = next
+      flushSync(() => setTheme(next))
+    }
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (typeof document.startViewTransition !== 'function' || reduce) return apply()
+    const r = e.currentTarget.getBoundingClientRect()
+    const x = r.left + r.width / 2, y = r.top + r.height / 2
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))
+    document.startViewTransition(apply).ready.then(() => {
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 700, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', pseudoElement: '::view-transition-new(root)' },
+      )
+    })
   }
+
   return (
-    <div role="group" aria-label="Color theme" className={`${className} w-max items-center p-1 rounded-xl border border-fg/15 font-geist-mono text-[0.6875rem] tracking-widest`}>
-      {['dark', 'light'].map((t) => (
-        <button key={t} type="button" aria-pressed={theme === t} onClick={() => choose(t)}
-          className={`relative px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-lg cursor-pointer transition-colors ${theme === t ? 'text-fg' : 'text-fg/50 hover:text-fg/80'}`}>
-          {theme === t && <motion.span layoutId={`themePill-${id}`} className="absolute inset-0 rounded-lg bg-fg/10" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
-          <span className="relative">{t.toUpperCase()}</span>
-        </button>
-      ))}
-    </div>
+    <button type="button" role="switch" aria-checked={dark} aria-label="Dark mode" onClick={flip} title={dark ? 'Switch to day' : 'Switch to night'}
+      className="group relative w-16 h-8 shrink-0 rounded-full overflow-hidden cursor-pointer border border-fg/15 shadow-[inset_0_2px_6px_rgba(0,0,0,0.25)] active:scale-95 transition-transform">
+      {/* day sky */}
+      <motion.span aria-hidden className="absolute inset-0 bg-gradient-to-br from-sky-300 via-sky-400 to-amber-200" animate={{ opacity: dark ? 0 : 1 }} transition={{ duration: 0.5 }} />
+      <motion.span aria-hidden className="absolute inset-0" animate={{ x: dark ? 18 : 0, opacity: dark ? 0 : 1 }} transition={{ duration: 0.5 }}>
+        <span className="absolute left-2 bottom-1.5 w-4 h-2 rounded-full bg-white/90" />
+        <span className="absolute left-4 bottom-2.5 w-3 h-2.5 rounded-full bg-white/90" />
+        <span className="absolute left-7 bottom-1 w-3 h-1.5 rounded-full bg-white/70" />
+      </motion.span>
+      {/* night sky */}
+      <motion.span aria-hidden className="absolute inset-0 bg-gradient-to-br from-[#0b1026] via-[#1e1b4b] to-[#312e81]" animate={{ opacity: dark ? 1 : 0 }} transition={{ duration: 0.5 }} />
+      <motion.span aria-hidden className="absolute inset-0" animate={{ opacity: dark ? 1 : 0, y: dark ? 0 : 8 }} transition={{ duration: 0.5 }}>
+        {[['left-2.5 top-2', 0], ['left-5 top-4.5', 0.6], ['left-8 top-1.5', 1.1], ['left-3.5 top-5.5', 1.6]].map(([pos, d]) => (
+          <span key={pos} className={`absolute ${pos} w-[3px] h-[3px] rounded-full bg-white animate-pulse`} style={{ animationDelay: `${d}s` }} />
+        ))}
+      </motion.span>
+      {/* the knob: sun by day, moon by night */}
+      <motion.span aria-hidden className="absolute top-[3px] left-[3px] w-6 h-6 rounded-full"
+        animate={{ x: dark ? 32 : 0, rotate: dark ? 360 : 0 }} transition={{ type: 'spring', stiffness: 320, damping: 22 }}>
+        <motion.span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,#fef9c3,#facc15_55%,#f59e0b)] shadow-[0_0_14px_3px_rgba(250,204,21,0.65)]"
+          animate={{ opacity: dark ? 0 : 1, scale: dark ? 0.6 : 1 }} transition={{ duration: 0.35 }} />
+        <motion.span className="absolute -inset-1.5 theme-rays" animate={{ opacity: dark ? 0 : 1 }} transition={{ duration: 0.3 }}>
+          {Array.from({ length: 8 }, (_, i) => (
+            <span key={i} className="absolute left-1/2 top-1/2 w-[2px] h-[5px] -ml-px rounded-full bg-amber-200/90" style={{ transform: `rotate(${i * 45}deg) translateY(-15px)` }} />
+          ))}
+        </motion.span>
+        <motion.span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,#ffffff,#e2e8f0_60%,#94a3b8)] shadow-[0_0_14px_2px_rgba(199,210,254,0.55)]"
+          animate={{ opacity: dark ? 1 : 0, scale: dark ? 1 : 0.6 }} transition={{ duration: 0.35 }}>
+          <span className="absolute left-[5px] top-[6px] w-[6px] h-[6px] rounded-full bg-slate-400/60" />
+          <span className="absolute right-[5px] bottom-[5px] w-[4px] h-[4px] rounded-full bg-slate-400/55" />
+          <span className="absolute right-[7px] top-[4px] w-[3px] h-[3px] rounded-full bg-slate-400/50" />
+        </motion.span>
+      </motion.span>
+    </button>
   )
 }
 
@@ -128,7 +174,7 @@ function Navbar() {
           ))}
         </ul>
         <div className="flex items-center gap-2 md:gap-3">
-          <ThemeToggle id="bar" className="hidden sm:flex" />
+          <ThemeToggle />
           <a href="#contact" aria-current={active === 'contact' ? 'true' : undefined}
             className={`hidden sm:inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-oxanium text-[0.9375rem] font-medium text-fg border bg-gradient-to-br from-acc/20 to-cyan-400/10 hover:from-acc/30 hover:shadow-[0_0_30px_-8px_var(--acc)] active:scale-[0.97] transition-all ${active === 'contact' ? 'border-acc/70 shadow-[0_0_30px_-6px_var(--acc)]' : 'border-acc/30'}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-acc animate-pulse" /> Let's talk
@@ -150,7 +196,6 @@ function Navbar() {
                   className={`block py-3 font-oxanium text-lg ${active === l.id ? 'text-acc' : 'text-fg/80'}`}>{l.label}</a>
               </li>
             ))}
-            <li className="sm:hidden py-3"><ThemeToggle id="menu" /></li>
           </motion.ul>
         )}
       </AnimatePresence>
@@ -536,7 +581,7 @@ const actionBtn = 'inline-flex items-center gap-2 font-geist-mono text-xs tracki
 function ContactCard({ accent, icon, label, value, children }: { accent: Accent; icon: IconName; label: string; value: string; children: ReactNode }) {
   return (
     <motion.div style={acVar(accent)} onMouseMove={spotlight}
-      className="card spotlight relative flex flex-col gap-4 rounded-3xl border border-fg/[0.08] hover:border-(--ac)/40 p-5 md:p-6 text-left transition-colors"
+      className="card spotlight relative flex flex-col gap-4 rounded-3xl border border-fg/[0.08] hover:border-(--ac)/40 has-[[aria-expanded=true]]:z-30 p-5 md:p-6 text-left transition-colors"
       initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: EASE }}>
       <div className="flex items-center gap-4">
         <span className="w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center text-(--ac) border border-(--ac)/30 bg-(--ac)/10 shadow-[0_0_30px_-10px_var(--ac)]">

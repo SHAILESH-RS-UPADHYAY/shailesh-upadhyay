@@ -178,6 +178,11 @@ section[id] { scroll-margin-top: 80px; }
   50% { height: 100%; }
 }
 
+/* ---- theme switch: sun rays turn, faster on hover; the circular reveal replaces the default cross-fade ---- */
+.theme-rays { animation: spin 12s linear infinite; }
+.group:hover .theme-rays { animation-duration: 3s; }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
 /* ---- intro (Intro.tsx): neurons connecting, thought-waves, packets, depth layers ---- */
 .syn-edge { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0.4; animation: syn-draw 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 @keyframes syn-draw { to { stroke-dashoffset: 0; } }
