@@ -2,15 +2,7 @@
 
 export type Accent = 'emerald' | 'cyan' | 'violet' | 'rose' | 'amber'
 
-export const accentHex: Record<Accent, string> = {
-  emerald: '#34d399',
-  cyan: '#22d3ee',
-  violet: '#a78bfa',
-  rose: '#fb7185',
-  amber: '#fbbf24',
-}
-
-export type Link = { label: string; href: string }
+type Link = { label: string; href: string }
 
 export const profile = {
   first: 'SHAILESH',

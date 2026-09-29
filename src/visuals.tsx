@@ -4,9 +4,9 @@ import type { Visual } from './data'
 
 /*
   Project dashboards. Each is a small HUD built from the real product's brand and workflow:
-  RADAR   phosphor #00FF41 scope (as in its own logo), 20-source scan grid, nightly pipeline rail
-  Vettly  priority context stack → failover router → scored, humanized answer
-  EVES    meeting waveform → hex "eye" whose pupil is an equalizer → diarized transcript → prompts
+  RADAR   phosphor #00FF41 scope (as in its own logo), gold target lock, scan log, nightly pipeline rail
+  Vettly  context streams → crystal prism → 4-provider failover router → scored, humanized answer
+  EVES    live capture → mission brief that writes itself → neon prompt pills (as in the app)
   Styling borrows from the cyberpunk-ui skill: chamfered plates, barcode accents, neon glow.
   All motion is CSS (index.css, "project visuals"): the SVGs are self-contained, so the README cards are rendered
   straight from them. It stops under reduced motion.

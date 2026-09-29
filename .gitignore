@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# local helper scripts (README asset generators, responsive audit)
+tools/
