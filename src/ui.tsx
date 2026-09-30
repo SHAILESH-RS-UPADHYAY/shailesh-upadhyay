@@ -254,24 +254,32 @@ export function ResumeCard() {
       {createPortal(<AnimatePresence>
         {open && (
           <motion.div role="dialog" aria-modal="true" aria-label="Resume" data-lenis-prevent
-            className="fixed inset-0 z-[60] flex flex-col items-center bg-bg/85 backdrop-blur-md overflow-y-auto p-4 md:p-8"
+            className="fixed inset-0 z-[60] bg-bg/85 backdrop-blur-md overflow-y-auto"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(false)}>
-            <div className="sticky top-0 z-10 w-full max-w-4xl flex flex-wrap items-center justify-end gap-3 mb-4" onClick={(e) => e.stopPropagation()}>
-              <a href={asset('resume.pdf')} download="Shailesh_Upadhyay_Resume.pdf"
-                className="font-oxanium text-sm font-medium px-5 py-2.5 rounded-xl bg-acc text-bg hover:opacity-90 active:scale-[0.97] transition">
-                Download PDF
-              </a>
-              <a href={asset('resume.pdf')} target="_blank" rel="noopener noreferrer"
-                className="font-oxanium text-sm px-5 py-2.5 rounded-xl border border-fg/15 text-fg/85 hover:bg-fg/10 transition">
-                Open in new tab
-              </a>
-              <button ref={closeRef} type="button" onClick={() => setOpen(false)} aria-label="Close resume"
-                className="w-11 h-11 rounded-xl border border-fg/15 text-fg/85 hover:bg-fg/10 transition cursor-pointer">✕</button>
+            
+            {/* Fixed Header floating above */}
+            <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none p-4 md:p-8">
+              <div className="w-full max-w-4xl flex flex-wrap items-center justify-end gap-3 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                <a href={asset('resume.pdf')} download="Shailesh_Upadhyay_Resume.pdf"
+                  className="font-oxanium text-sm font-medium px-5 py-2.5 rounded-xl bg-acc text-bg hover:opacity-90 active:scale-[0.97] transition shadow-lg">
+                  Download PDF
+                </a>
+                <a href={asset('resume.pdf')} target="_blank" rel="noopener noreferrer"
+                  className="font-oxanium text-sm px-5 py-2.5 rounded-xl border border-fg/15 bg-bg/90 backdrop-blur-md text-fg/85 hover:bg-fg/10 transition shadow-lg">
+                  Open in new tab
+                </a>
+                <button ref={closeRef} type="button" onClick={() => setOpen(false)} aria-label="Close resume"
+                  className="w-11 h-11 rounded-xl border border-fg/15 bg-bg/90 backdrop-blur-md text-fg/85 hover:bg-fg/10 transition cursor-pointer flex items-center justify-center shadow-lg">✕</button>
+              </div>
             </div>
-            <motion.img layoutId="resume" src={asset('resume.webp')} alt="Resume of Shailesh Upadhyay, AI Backend Engineer"
-              width={1489} height={2105} onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-4xl h-auto rounded-lg shadow-[0_0_80px_rgba(52,211,153,0.15)]"
-              transition={{ duration: 0.5, ease: EASE }} />
+
+            {/* Scrollable Content */}
+            <div className="w-full min-h-full flex flex-col items-center p-4 md:p-8 pt-24 md:pt-28">
+              <motion.img layoutId="resume" src={asset('resume.webp')} alt="Resume of Shailesh Upadhyay, AI Backend Engineer"
+                width={1489} height={2105} onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-4xl h-auto rounded-lg shadow-[0_0_80px_rgba(52,211,153,0.15)]"
+                transition={{ duration: 0.5, ease: EASE }} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>, document.body)}
