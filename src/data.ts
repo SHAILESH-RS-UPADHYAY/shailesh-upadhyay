@@ -94,7 +94,7 @@ export const experience: {
     role: 'Full-Stack & AI Developer',
     org: 'Client engagements',
     note: 'Web platforms, dashboards and AI prototypes',
-    period: 'Jan 2026 – Present',
+    period: 'Jan 2026 – May 2026',
     accent: 'cyan',
     file: 'clients.log',
     lines: [
