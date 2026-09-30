@@ -91,7 +91,7 @@ export const experience: {
     links: [],
   },
   {
-    role: 'Freelance Full-Stack & AI Developer',
+    role: 'Full-Stack & AI Developer',
     org: 'Client engagements',
     note: 'Web platforms, dashboards and AI prototypes',
     period: 'Jan 2026 – Present',
@@ -129,7 +129,7 @@ export const experience: {
     links: [],
   },
   {
-    role: 'NLP Engineer (Freelance)',
+    role: 'NLP Engineer',
     org: 'IOTA',
     note: 'Address-extraction NER pipeline and model delivery',
     period: 'Feb 2024 – Apr 2024',
@@ -143,7 +143,7 @@ export const experience: {
       '  P 89.2%  R 85.1%  F1 87.1% on held-out test data',
     ],
     stack: ['Python', 'SpaCy', 'NER', 'Weak supervision'],
-    links: [{ label: 'GitHub', href: 'https://github.com/SHAILESH-RS-UPADHYAY/iota-address-parser' }],
+    links: [],
   },
 ]
 
@@ -191,7 +191,6 @@ export const projects: {
     stack: ['Next.js', 'TypeScript', 'Supabase', 'Pinecone', 'Vercel Cron', 'Clerk', 'Anthropic', 'Gemini'],
     links: [
       { label: 'Live site', href: 'https://radar-neon-theta.vercel.app/' },
-      { label: 'GitHub', href: 'https://github.com/SHAILESH-RS-UPADHYAY/radar' },
     ],
   },
   {
@@ -217,7 +216,7 @@ export const projects: {
       '→ Live practice copilot with Deepgram voice over WebSockets',
     ],
     stack: ['Python', 'FastAPI', 'WebSockets', 'Claude', 'Gemini', 'Groq', 'Deepgram'],
-    links: [{ label: 'GitHub', href: 'https://github.com/SHAILESH-RS-UPADHYAY/vettly' }],
+    links: [],
   },
   {
     name: 'EVES',
@@ -286,7 +285,7 @@ export const moreBuilds: { name: string; kind: string; text: string; stack: stri
     text: 'Ingests 1.3 million e-commerce records into PostgreSQL and serves every analytics endpoint in under 2 seconds, load-tested with Locust.',
     stack: ['FastAPI', 'PostgreSQL', 'SQLAlchemy', 'Docker Compose'],
     accent: 'emerald',
-    links: [{ label: 'GitHub', href: 'https://github.com/SHAILESH-RS-UPADHYAY/webvory-scalable-analytics-engine' }],
+    links: [],
   },
   {
     name: 'AutoFlow',
@@ -294,7 +293,7 @@ export const moreBuilds: { name: string; kind: string; text: string; stack: stri
     text: 'Writes the weekly executive report on its own: Pandas KPIs from Postgres, company goals from ChromaDB, and an LLM that turns both into a summary.',
     stack: ['Python', 'Pandas', 'ChromaDB', 'OpenAI'],
     accent: 'cyan',
-    links: [{ label: 'GitHub', href: 'https://github.com/SHAILESH-RS-UPADHYAY/autoflow' }],
+    links: [],
   },
   {
     name: 'Finance Dashboard API',
@@ -302,7 +301,7 @@ export const moreBuilds: { name: string; kind: string; text: string; stack: stri
     text: 'JWT auth with Admin, Analyst and Viewer roles, soft deletes, filtered pagination and dashboard summary endpoints.',
     stack: ['Flask', 'SQLAlchemy', 'JWT'],
     accent: 'amber',
-    links: [{ label: 'GitHub', href: 'https://github.com/SHAILESH-RS-UPADHYAY/finance-dashboard-backend' }],
+    links: [],
   },
 ]
 
