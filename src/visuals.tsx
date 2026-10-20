@@ -613,10 +613,11 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
 
 /* ---------- Project marks next to each project name ----------
    One idea per mark, taken from how the product works, drawn on a 24-unit grid in the project's accent:
-   RADAR   a night crescent whose inner curve is the sweep; the gold dot is the job it locked onto
+   RADAR   a scope whose beam trails off in a crescent; each turn it finds the gold job and pings
    Vettly  the terminus ring with one check-segment missing; the V drops into the gap
    EVES    one stroke: speech decays into a waiting cursor
-   A flat dark tile, the same in both themes, like the project screens. Hovering plays the mark's one motion. */
+   A flat dark tile, the same in both themes, like the project screens. RADAR's scope always turns; the others
+   play their one motion on hover. */
 const MARK_COLOR: Record<Visual, string> = { radar: '#34d399', router: '#a78bfa', wave: '#22d3ee', gold: '#f59e0b' }
 
 function Glyph({ kind }: { kind: Visual }) {
@@ -624,9 +625,18 @@ function Glyph({ kind }: { kind: Visual }) {
     <svg viewBox="0 0 24 24" className="w-[62%] h-[62%]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
       {kind === 'radar' && (
         <>
-          <mask id="gl-bite" maskUnits="userSpaceOnUse"><rect width="24" height="24" fill="#fff" /><circle cx="15.4" cy="9.4" r="7.2" fill="#000" /></mask>
-          <circle cx="12" cy="12" r="9" fill="currentColor" stroke="none" mask="url(#gl-bite)" />
-          <circle className="gl-dot" cx="16.2" cy="12.6" r="1.55" fill="#facc15" stroke="none" />
+          <defs>
+            <linearGradient id="gl-beam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stopColor="currentColor" stopOpacity="0.85" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient>
+          </defs>
+          <circle cx="12" cy="12" r="9.5" strokeWidth="1.2" strokeOpacity="0.45" />
+          <circle cx="12" cy="12" r="5" strokeWidth="0.8" strokeOpacity="0.3" strokeDasharray="1 1.6" />
+          <g className="gl-sweep">
+            <path d="M12 12L12 2.5A9.5 9.5 0 0 0 4.22 6.55Q7.6 9.6 12 12Z" fill="url(#gl-beam)" stroke="none" />
+            <path d="M12 12V2.5" strokeWidth="1.6" />
+          </g>
+          <circle className="gl-ping" cx="15.8" cy="7.2" r="1.5" stroke="#facc15" strokeWidth="0.8" />
+          <circle className="gl-blip" cx="15.8" cy="7.2" r="1.5" fill="#facc15" stroke="none" />
+          <circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
         </>
       )}
       {kind === 'router' && (

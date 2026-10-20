@@ -316,9 +316,12 @@ section[id] { scroll-margin-top: 80px; }
 @keyframes eq { from { transform: scaleY(0.2); } to { transform: scaleY(1); } }
 
 /* project marks: hovering plays the one motion each mark is about */
-.pm .gl-dot { transform-box: fill-box; transform-origin: center; }
-.pm:hover .gl-dot { animation: gl-lock 1.2s ease-out; }
-@keyframes gl-lock { 40% { transform: scale(1.6); } }
+/* RADAR: the beam turns every 3.2s and crosses the job at 38deg, 0.34s in; it flares and pings there */
+.gl-sweep { transform-box: view-box; transform-origin: 12px 12px; animation: spin 3.2s linear infinite; }
+.gl-blip { opacity: 0.35; animation: gl-blip 3.2s ease-out 0.34s infinite; }
+@keyframes gl-blip { 0% { opacity: 1; } 70%, 100% { opacity: 0.35; } }
+.gl-ping { transform-box: fill-box; transform-origin: center; opacity: 0; animation: gl-ping 3.2s ease-out 0.34s infinite; }
+@keyframes gl-ping { 0% { opacity: 0.9; transform: scale(1); } 40%, 100% { opacity: 0; transform: scale(3.2); } }
 .pm:hover .gl-v { animation: gl-drop 0.9s ease-out; }
 @keyframes gl-drop { 0% { transform: translateY(-4px); opacity: 0; } 100% { transform: none; opacity: 1; } }
 .pm .gl-wave { stroke-dasharray: 1 1.2; }
