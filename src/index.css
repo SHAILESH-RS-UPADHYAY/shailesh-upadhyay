@@ -208,44 +208,45 @@ section[id] { scroll-margin-top: 80px; }
 
 /* ---- project visuals (visuals.tsx) ---- */
 .rd-spin { transform-box: view-box; animation: spin 4s linear infinite; }
-.vt-429 { opacity: 0; animation: vt429 5.6s ease-in-out infinite; }
-@keyframes vt429 { 0%, 20% { opacity: 0; } 23%, 36% { opacity: 1; } 40%, 100% { opacity: 0; } }
-.vt-200 { opacity: 0; animation: vt200 5.6s ease-in-out infinite; }
-@keyframes vt200 { 0%, 46% { opacity: 0; } 50%, 90% { opacity: 1; } 94%, 100% { opacity: 0; } }
-.vt-ans { stroke-dasharray: 1; stroke-dashoffset: 1; animation: vtans 5.6s ease-in-out infinite; }
-@keyframes vtans { 0%, 60% { stroke-dashoffset: 1; } 76%, 95% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1; } }
-.vt-ring { stroke-dasharray: 1; stroke-dashoffset: 1; animation: vtring 5.6s ease-in-out infinite; }
-@keyframes vtring { 0%, 76% { stroke-dashoffset: 1; } 88%, 97% { stroke-dashoffset: 0.12; } 100% { stroke-dashoffset: 1; } }
-.vt-p1 { opacity: 0; animation: vtp1 5.6s ease-in-out infinite; }
-@keyframes vtp1 { 0% { transform: translate(132px, 88px); opacity: 0; } 6% { transform: translate(146px, 88px); opacity: 1; } 10% { transform: translate(170px, 92px); opacity: 1; } 14% { transform: translate(194px, 82px); opacity: 1; } 22% { transform: translate(222px, 50px); opacity: 1; } 28%, 100% { transform: translate(222px, 50px); opacity: 0; } }
-.vt-p2 { opacity: 0; animation: vtp2 5.6s ease-in-out infinite; }
-@keyframes vtp2 { 0%, 40% { transform: translate(194px, 89px); opacity: 0; } 50% { transform: translate(222px, 92px); opacity: 1; } 60% { transform: translate(222px, 92px); opacity: 1; } 68% { transform: translate(210px, 150px); opacity: 1; } 78%, 100% { transform: translate(191px, 200px); opacity: 0; } }
-.vt-shake { animation: vshake 5.6s linear infinite; }
-@keyframes vshake { 0%, 23%, 30%, 100% { transform: none; } 24% { transform: translateX(-1.4px); } 25.5% { transform: translateX(1.4px); } 27% { transform: translateX(-1px); } 28.5% { transform: translateX(0.7px); } }
-.vt-flash { opacity: 0; animation: vflash 5.6s ease-out infinite; }
-@keyframes vflash { 0%, 8%, 17%, 42%, 53%, 100% { opacity: 0; } 11%, 46% { opacity: 0.45; } }
-.vt-pop { transform-box: fill-box; transform-origin: center; opacity: 0.5; animation: vpop 5.6s ease-out infinite; }
-@keyframes vpop { 0%, 82% { opacity: 0.5; transform: scale(0.9); } 87% { opacity: 1; transform: scale(1.14); } 91%, 96% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.9); } }
-.vt-wave { animation: vwave 2.2s linear infinite; }
-@keyframes vwave { to { transform: translateX(12px); } }
-.vt-bubble { opacity: 0; animation: vbubble 2s ease-in infinite; }
-@keyframes vbubble { 0% { opacity: 0; transform: translateY(0); } 15%, 75% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-10px); } }
-.vt-facet { opacity: 0; animation: vfacet 2.8s ease-in-out infinite; }
-@keyframes vfacet { 0%, 30%, 100% { opacity: 0; } 12% { opacity: 0.55; } }
-.vt-core { transform-box: fill-box; transform-origin: center; animation: vcore 2.8s ease-in-out infinite; }
-@keyframes vcore { 0%, 100% { opacity: 0.45; transform: scale(0.85); } 50% { opacity: 0.85; transform: scale(1.15); } }
-.vt-slosh { transform-box: view-box; animation: vslosh 3.2s ease-in-out infinite alternate; }
-@keyframes vslosh { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
-.vt-flame { transform-box: fill-box; transform-origin: 50% 0; animation: vflame 0.16s ease-in-out infinite alternate; }
-@keyframes vflame { from { transform: scaleY(0.7); } to { transform: scaleY(1.15); } }
-.vt-bob { animation: vbob 3.6s ease-in-out infinite; }
-@keyframes vbob { 50% { transform: translateY(-1.6px); } }
-.vt-fill { transform: translateY(26px); animation: vfill 5.6s ease-in-out infinite; }
-@keyframes vfill { 0%, 74% { transform: translateY(26px); } 88%, 95% { transform: translateY(0); } 100% { transform: translateY(26px); } }
-.vt-code { clip-path: inset(0 100% 0 0); animation: vcode 5.6s steps(28) infinite; }
-@keyframes vcode { 0%, 2% { clip-path: inset(0 100% 0 0); } 16%, 94% { clip-path: inset(0 0 0 0); } 100% { clip-path: inset(0 100% 0 0); } }
-.vt-spectrum { opacity: 0.35; animation: vspectrum 2.8s ease-in-out infinite; }
-@keyframes vspectrum { 50% { opacity: 0.6; } }
+/* Vettly, one 9s run: pack the context (3-22%), ride to Groq (24-33%), 429 + 1s backoff (34-44%), throw the points
+   (45%), ride to Gemini and the terminus (45-62%), close the 7 checks and write the question (62-77%). The resting
+   styles are the finished run, so reduced motion shows the result. */
+.vt-cycle { animation: vt-cycle 9s linear infinite; }
+@keyframes vt-cycle { 0% { opacity: 0; } 2%, 95% { opacity: 1; } 100% { opacity: 0; } }
+.vt-pack { animation: vt-pack 9s linear infinite; }
+@keyframes vt-pack { 0%, 3% { clip-path: inset(0 100% 0 0); } 22%, 100% { clip-path: inset(0 0 0 0); } }
+.vt-spill { opacity: 0.35; animation: vt-spill 9s ease-out infinite; }
+@keyframes vt-spill { 0%, 22.5% { opacity: 1; } 27%, 100% { opacity: 0.35; } }
+.vt-sliced { animation: vt-sliced 9s ease-out infinite; }
+@keyframes vt-sliced { 0%, 22.5% { opacity: 0; } 24%, 100% { opacity: 1; } }
+.vt-run1 { opacity: 0; stroke-dasharray: 1 2; animation: vt-run1 9s linear infinite; }
+@keyframes vt-run1 { 0%, 24% { opacity: 1; stroke-dashoffset: 1; stroke: #a78bfa; } 33% { opacity: 1; stroke-dashoffset: 0; stroke: #a78bfa; } 34%, 37% { opacity: 1; stroke-dashoffset: 0; stroke: #f87171; } 42%, 100% { opacity: 0; stroke-dashoffset: 0; stroke: #f87171; } }
+.vt-car1 { opacity: 0; animation: vt-car1 9s linear infinite; }
+@keyframes vt-car1 { 0%, 23.9% { opacity: 0; stroke-dashoffset: 0.027; stroke: #fafafa; } 24% { opacity: 1; stroke-dashoffset: 0.027; stroke: #fafafa; } 33% { opacity: 1; stroke-dashoffset: -0.973; stroke: #fafafa; } 34% { opacity: 1; stroke-dashoffset: -0.973; stroke: #f87171; } 37%, 100% { opacity: 0; stroke-dashoffset: -0.973; stroke: #f87171; } }
+.vt-stop { animation: vt-stop 9s linear infinite; }
+@keyframes vt-stop { 0%, 33.4% { opacity: 0; } 34%, 100% { opacity: 1; } }
+.vt-wait { opacity: 0; stroke-dasharray: 1 2; animation: vt-wait 9s linear infinite; }
+@keyframes vt-wait { 0%, 33.9% { opacity: 0; stroke-dashoffset: 1; } 34% { opacity: 1; stroke-dashoffset: 1; } 44% { opacity: 1; stroke-dashoffset: 0; } 46%, 100% { opacity: 0; stroke-dashoffset: 0; } }
+.vt-ping { transform-box: fill-box; transform-origin: center; opacity: 0; animation: vt-ping 9s ease-out infinite; }
+@keyframes vt-ping { 0% { opacity: 1; transform: scale(1); } 7%, 100% { opacity: 0; transform: scale(3.4); } }
+.vt-run2 { stroke-dasharray: 1 2; animation: vt-run2 9s linear infinite; }
+@keyframes vt-run2 { 0%, 45% { stroke-dashoffset: 1; } 62%, 100% { stroke-dashoffset: 0; } }
+.vt-car2 { opacity: 0; animation: vt-car2 9s linear infinite; }
+@keyframes vt-car2 { 0%, 44.9% { opacity: 0; stroke-dashoffset: 0.012; } 45% { opacity: 1; stroke-dashoffset: 0.012; } 62% { opacity: 1; stroke-dashoffset: -0.988; } 63%, 100% { opacity: 0; stroke-dashoffset: -0.988; } }
+.vt-go { animation: vt-go 9s linear infinite; }
+@keyframes vt-go { 0%, 52% { opacity: 0; } 52.6%, 100% { opacity: 1; } }
+.vt-ring { stroke-dasharray: 1 2; animation: vt-ring 9s linear infinite; }
+@keyframes vt-ring { 0%, 62% { stroke-dashoffset: 1; } 72%, 100% { stroke-dashoffset: 0; } }
+.vt-score { transform-box: fill-box; transform-origin: center; animation: vt-score 9s ease-out infinite; }
+@keyframes vt-score { 0%, 72% { opacity: 0; transform: scale(0.6); } 75% { opacity: 1; transform: scale(1.12); } 77%, 100% { opacity: 1; transform: scale(1); } }
+.vt-tag { animation: vt-tag 9s ease-out infinite; }
+@keyframes vt-tag { 0%, 62% { opacity: 0; } 63%, 100% { opacity: 1; } }
+.vt-q1 { animation: vt-q1 9s steps(34) infinite; }
+@keyframes vt-q1 { 0%, 63% { clip-path: inset(0 100% 0 0); } 67%, 100% { clip-path: inset(0 0 0 0); } }
+.vt-q2 { animation: vt-q2 9s steps(40) infinite; }
+@keyframes vt-q2 { 0%, 67% { clip-path: inset(0 100% 0 0); } 72%, 100% { clip-path: inset(0 0 0 0); } }
+.vt-meta { animation: vt-meta 9s ease-out infinite; }
+@keyframes vt-meta { 0%, 74% { opacity: 0; } 76%, 100% { opacity: 1; } }
 .au-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: audraw 3.5s linear infinite; }
 @keyframes audraw { 0% { stroke-dashoffset: 1; } 70%, 100% { stroke-dashoffset: 0; } }
 .au-live { animation: aulive 1.6s ease-in-out infinite; }
@@ -283,14 +284,6 @@ section[id] { scroll-margin-top: 80px; }
 @keyframes rdust { 0% { opacity: 0; transform: translate(0, 0); } 20%, 70% { opacity: 0.8; } 100% { opacity: 0; transform: translate(5px, -28px); } }
 .rd-sheen { animation: rsheen 7s ease-in-out infinite; }
 @keyframes rsheen { 0% { transform: translateX(0) skewX(-22deg); } 40%, 100% { transform: translateX(260px) skewX(-22deg); } }
-.vt-flow { animation: vflow 1.4s linear infinite; }
-@keyframes vflow { to { stroke-dashoffset: -34; } }
-.vt-float { animation: vfloat 4s ease-in-out infinite; }
-@keyframes vfloat { 50% { transform: translateY(-3px); } }
-.vt-shine { animation: vshine 2.8s ease-in-out infinite; }
-@keyframes vshine { 0% { transform: translateX(0) skewX(-18deg); } 60%, 100% { transform: translateX(84px) skewX(-18deg); } }
-.vt-twinkle { transform-box: fill-box; transform-origin: center; animation: vtwinkle 1.8s ease-in-out infinite; }
-@keyframes vtwinkle { 0%, 100% { opacity: 0.1; transform: scale(0.4); } 50% { opacity: 1; transform: scale(1.1); } }
 .gl-eq { transform-box: fill-box; transform-origin: center; animation: gleq 0.9s ease-in-out infinite alternate; }
 @keyframes gleq { from { transform: scaleY(0.5); } to { transform: scaleY(1); } }
 .ev-eqc { transform-box: fill-box; transform-origin: center; animation: eq 0.8s ease-in-out infinite alternate; }

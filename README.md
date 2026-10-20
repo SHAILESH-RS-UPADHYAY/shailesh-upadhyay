@@ -22,7 +22,7 @@
 
 <p align="center">
   <a href="https://radar-neon-theta.vercel.app/"><img src="docs/readme/card-radar.svg" width="49%" alt="RADAR — AI job-intelligence engine: 20 live sources, 0–100 resume matching, honest AI tailoring" /></a>
-  <a href="https://github.com/SHAILESH-RS-UPADHYAY/vettly"><img src="docs/readme/card-vettly.svg" width="49%" alt="Vettly — AI interview-prep studio: your context refracted through a crystal prism into a 4-provider failover router" /></a>
+  <a href="https://github.com/SHAILESH-RS-UPADHYAY/vettly"><img src="docs/readme/card-vettly.svg" width="49%" alt="Vettly — AI interview-prep studio: a ranked 80K context rides a 4-track failover interlocking, Groq rate-limits, Gemini answers" /></a>
   <img src="docs/readme/card-eves.svg" width="49%" alt="EVES — meeting-intelligence desktop app: a self-writing mission brief and neon prompt pills" />
   <a href="https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend"><img src="docs/readme/card-simplify.svg" width="49%" alt="Simplify Money — conversational gold-investment backend with live INR pricing" /></a>
 </p>
@@ -51,7 +51,7 @@
 | **Neural boot** | A neural net draws itself, "hello" decodes in four scripts, and *Hi, Welcome* assembles from its nodes. Click or press any key to skip. |
 | **14-language hero** | *Hi, I'm Shailesh* in English, हिन्दी, தமிழ், తెలుగు, മലയാളം, संस्कृतम्, 日本語, 한국어, Русский, Deutsch, Svenska, Norsk, Lëtzebuergesch and Schwiizerdütsch, revealed by a scanner wipe. |
 | **Self-typing terminals** | Every experience, project and skill box decrypts and types itself as it scrolls in. Spend 6 seconds with one and it stays written. |
-| **Live project HUDs** | RADAR's phosphor scope locking onto a 91% match, Vettly's light prism failing over from Claude to Gemini, EVES's self-writing mission brief and neon prompt pills. Each is built from the product's own brand and workflow. |
+| **Live project HUDs** | RADAR's phosphor scope locking onto a 91% match, Vettly's rail interlocking failing over from a rate-limited Groq to Gemini, EVES's self-writing mission brief and neon prompt pills. Each is built from the product's own brand and workflow. |
 | **Spatial logos** | visionOS-style glass discs with depth layers that tilt toward your cursor. |
 | **Two themes** | Dark by default. A sun ↔ moon switch spreads the other theme across the page in a circle; light mode is a paper lab with aurora light and floating screens. [`?theme=light`](https://shailesh-rs-upadhyay.github.io/shailesh-upadhyay/?theme=light) opens it directly. |
 | **Any screen** | Audited on 18 viewports, from a 320px phone to 4K, with zero overflow. Big monitors scale the whole layout up. |
