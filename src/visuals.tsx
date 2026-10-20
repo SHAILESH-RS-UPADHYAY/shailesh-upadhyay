@@ -1,5 +1,3 @@
-import type { PointerEvent } from 'react'
-import { motion, useSpring } from 'framer-motion'
 import type { Visual } from './data'
 
 /*
@@ -613,66 +611,40 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
   )
 }
 
-/* ---------- Spatial logo marks next to each project name ----------
-   visionOS-style: a glass disc built from depth layers (gradient base, floating white glyph, specular
-   highlight, rim light) over a coloured shadow. It floats idly and tilts in 3D toward the cursor,
-   each layer at its own depth. Saturated disc + white glyph reads the same on light and dark pages. */
-const MARKS: Record<Visual, { from: string; via: string; to: string; glow: string }> = {
-  radar: { from: '#6ee7b7', via: '#059669', to: '#064e3b', glow: '#10b981' },
-  wave: { from: '#67e8f9', via: '#6366f1', to: '#9333ea', glow: '#6366f1' },
-  router: { from: '#c4b5fd', via: '#8b5cf6', to: '#db2777', glow: '#a855f7' },
-  gold: { from: '#fef08a', via: '#f59e0b', to: '#b45309', glow: '#f59e0b' },
-}
-
-// RADAR's mark: the 12 dial ticks as two paths, the 3-hour majors and the rest
-const DIAL_TICKS = [true, false].map((major) => Array.from({ length: 12 }, (_, k) => k)
-  .filter((k) => (k % 3 === 0) === major)
-  .map((k) => {
-    const c = Math.cos(deg(k * 30))
-    const s = Math.sin(deg(k * 30))
-    const r0 = major ? 6.2 : 7.2
-    return `M${(12 + r0 * c).toFixed(2)} ${(12 + r0 * s).toFixed(2)}L${(12 + 8.6 * c).toFixed(2)} ${(12 + 8.6 * s).toFixed(2)}`
-  }).join(''))
+/* ---------- Project marks next to each project name ----------
+   One idea per mark, taken from how the product works, drawn on a 24-unit grid in the project's accent:
+   RADAR   a night crescent whose inner curve is the sweep; the gold dot is the job it locked onto
+   Vettly  the terminus ring with one check-segment missing; the V drops into the gap
+   EVES    one stroke: speech decays into a waiting cursor
+   A flat dark tile, the same in both themes, like the project screens. Hovering plays the mark's one motion. */
+const MARK_COLOR: Record<Visual, string> = { radar: '#34d399', router: '#a78bfa', wave: '#22d3ee', gold: '#f59e0b' }
 
 function Glyph({ kind }: { kind: Visual }) {
   return (
-    <svg viewBox="0 0 24 24" className="w-[64%] h-[64%]" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.25))' }}>
+    <svg viewBox="0 0 24 24" className="w-[62%] h-[62%]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
       {kind === 'radar' && (
         <>
-          {/* the instrument dial: hour ticks, a sweep, a gold hub */}
-          <circle cx="12" cy="12" r="9.4" strokeOpacity="0.45" strokeWidth="0.9" />
-          <path d={DIAL_TICKS[0]} strokeWidth="1.5" />
-          <path d={DIAL_TICKS[1]} strokeOpacity="0.65" strokeWidth="0.9" />
-          <g className="gl-spin">
-            <path d="M12 12 L12 3.5 A8.5 8.5 0 0 1 19.4 7.8 Z" fill="#fff" fillOpacity="0.35" stroke="none" />
-            <path d="M12 12 L19.4 7.8" strokeWidth="1.8" />
-          </g>
-          <circle className="gl-ping" cx="16.2" cy="15.4" r="1.4" fill="#fff" stroke="none" />
-          <circle cx="12" cy="12" r="2.5" fill="#facc15" stroke="#fff" strokeWidth="0.6" />
-        </>
-      )}
-      {kind === 'wave' && (
-        <>
-          {/* the meeting (live waveform) becomes a prompt */}
-          {[[3.2, 7], [6.8, 13], [10.4, 9]].map(([x, h], i) => (
-            <rect key={i} className="gl-eq" x={x - 1.3} y={12 - h / 2} width="2.6" height={h} rx="1.3" fill="#fff" stroke="none" style={{ animationDelay: `${-i * 0.27}s` }} />
-          ))}
-          <path d="M14 7 L19 12 L14 17" strokeWidth="2.6" />
-          <path className="rd-live" d="M18.8 18.6 H22.2" strokeWidth="2.4" />
+          <mask id="gl-bite" maskUnits="userSpaceOnUse"><rect width="24" height="24" fill="#fff" /><circle cx="15.4" cy="9.4" r="7.2" fill="#000" /></mask>
+          <circle cx="12" cy="12" r="9" fill="currentColor" stroke="none" mask="url(#gl-bite)" />
+          <circle className="gl-dot" cx="16.2" cy="12.6" r="1.55" fill="#facc15" stroke="none" />
         </>
       )}
       {kind === 'router' && (
         <>
-          <path d="M5.5 6.5 L12 18 L18.5 6.5" strokeWidth="2.4" />
-          {[[5.5, 6.5], [18.5, 6.5], [12, 18]].map(([x, y], i) => (
-            <circle key={i} className="gl-node" cx={x} cy={y} r="2.1" fill="#fff" stroke="none" style={{ animationDelay: `${i * 0.35}s` }} />
-          ))}
+          <path pathLength={6} strokeLinecap="butt" strokeWidth="2.4" strokeDasharray="0.84 0.16" d="M15.51 4.81A8 8 0 1 1 8.49 4.81" />
+          <path className="gl-v" strokeWidth="2.4" d="M8.7 3L12 9.6L15.3 3" />
+        </>
+      )}
+      {kind === 'wave' && (
+        <>
+          <path className="gl-wave" pathLength={1} strokeWidth="2.1" d="M2.5 12C4 4.4 5.9 4.4 7.4 12C8.5 17.2 9.9 17.2 11 12C11.7 9.2 12.7 9.2 13.4 12H15.2" />
+          <rect className="gl-cursor" x="17.2" y="6.5" width="3.2" height="11" rx="0.5" fill="currentColor" stroke="none" />
         </>
       )}
       {kind === 'gold' && (
         <>
           <circle cx="12" cy="12" r="8.5" strokeOpacity="0.6" strokeWidth="1.4" strokeDasharray="2 2.2" />
-          <text x="12" y="16.6" fill="#fff" stroke="none" fontSize="12.5" fontWeight="700" textAnchor="middle" fontFamily="Oxanium, sans-serif">₹</text>
+          <text x="12" y="16.6" fill="currentColor" stroke="none" fontSize="12.5" fontWeight="700" textAnchor="middle" fontFamily="Oxanium, sans-serif">₹</text>
         </>
       )}
     </svg>
@@ -680,39 +652,11 @@ function Glyph({ kind }: { kind: Visual }) {
 }
 
 export function ProjectMark({ kind }: { kind: Visual }) {
-  const m = MARKS[kind]
-  const rx = useSpring(0, { stiffness: 220, damping: 16 })
-  const ry = useSpring(0, { stiffness: 220, damping: 16 })
-  const tilt = (e: PointerEvent<HTMLSpanElement>) => {
-    const r = e.currentTarget.getBoundingClientRect()
-    ry.set(((e.clientX - r.left) / r.width - 0.5) * 36)
-    rx.set(-((e.clientY - r.top) / r.height - 0.5) * 36)
-  }
-  const reset = () => { rx.set(0); ry.set(0) }
+  const c = MARK_COLOR[kind]
   return (
-    <span aria-hidden className="mark-float inline-block shrink-0 p-1.5 -m-1.5 [perspective:360px]" onPointerMove={tilt} onPointerLeave={reset}>
-      <motion.span className="relative block w-14 h-14 md:w-16 md:h-16 [transform-style:preserve-3d]" style={{ rotateX: rx, rotateY: ry }}
-        whileHover={{ scale: 1.08 }} transition={{ type: 'spring', stiffness: 300, damping: 18 }}>
-        {/* coloured floating shadow */}
-        <span className="absolute left-2 right-2 -bottom-2.5 h-4 rounded-full blur-md opacity-70" style={{ background: m.glow, transform: 'translateZ(-24px)' }} />
-        {/* gradient base with depth shading */}
-        <span className="absolute inset-0 rounded-full" style={{
-          background: `radial-gradient(130% 130% at 28% 18%, ${m.from} 0%, ${m.via} 45%, ${m.to} 100%)`,
-          boxShadow: `inset 0 1.5px 1px rgba(255,255,255,0.55), inset 0 -8px 14px rgba(0,0,0,0.28), 0 10px 26px -10px ${m.glow}`,
-        }} />
-        {/* floating glyph */}
-        <span className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(16px)' }}>
-          <Glyph kind={kind} />
-        </span>
-        {/* glass: specular highlight + rim light */}
-        <span className="absolute inset-0 rounded-full pointer-events-none" style={{
-          background: 'radial-gradient(55% 40% at 34% 16%, rgba(255,255,255,0.7), rgba(255,255,255,0) 70%)',
-          transform: 'translateZ(22px)', mixBlendMode: 'soft-light',
-        }} />
-        <span className="absolute inset-0 rounded-full pointer-events-none" style={{
-          boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.35), inset 0 0 12px rgba(255,255,255,0.12)', transform: 'translateZ(22px)',
-        }} />
-      </motion.span>
+    <span aria-hidden className="pm grid place-items-center shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-[#0c0d10]"
+      style={{ color: c, boxShadow: `inset 0 0 0 1px ${c}40` }}>
+      <Glyph kind={kind} />
     </span>
   )
 }
