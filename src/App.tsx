@@ -300,7 +300,7 @@ function Hero() {
           </Rise>
           <Rise d={0.3}>
             <p className="font-oxanium text-lg md:text-xl text-fg/85 leading-relaxed max-w-xl text-pretty">
-              {profile.tagline} <span className="text-fg/55">Right now I build LLM infrastructure with a US team at {profile.current}.</span>
+              {profile.tagline} <span className="text-fg/55">Right now I&apos;m building AgentHub with a US team at {profile.current}.</span>
             </p>
           </Rise>
           <Rise d={0.4} className="flex flex-wrap items-center gap-4 mt-2">

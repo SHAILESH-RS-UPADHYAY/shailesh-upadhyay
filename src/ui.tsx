@@ -56,8 +56,7 @@ function lineClass(l: string) {
 
 const CHARS_PER_TICK = 3
 const TICK_MS = 20
-const SETTLE_MS = 6000
-// Terminals a visitor has already spent 6s+ with: they stay fully written instead of replaying.
+// Terminals that have started typing this visit: they show written from then on, never retyping.
 const settled = new Set<string>()
 
 export function Terminal({ lines, file, accent, className = '' }: {
@@ -65,7 +64,6 @@ export function Terminal({ lines, file, accent, className = '' }: {
 }) {
   const reduce = useReducedMotion()
   const ref = useRef<HTMLDivElement>(null)
-  const running = useRef(false)
   const starts = useMemo(() => {
     const s = [0]
     for (let i = 1; i < lines.length; i++) s.push(s[i - 1] + lines[i - 1].length + 1)
@@ -77,32 +75,19 @@ export function Terminal({ lines, file, accent, className = '' }: {
   const started = phase === 'typing'
   const done = started && n >= total
 
-  // Start when 30% of the box is on screen and replay on every visit — until the visitor has spent
-  // 6s with it; after that it stays written (a return visit shows it complete, no retyping).
+  // Types once, the first time 30% of the box scrolls into view, and always finishes even if the visitor
+  // scrolls on. Scrolling back shows it written; it never retypes this visit.
   useEffect(() => {
     const el = ref.current
     if (!el) return
     let t = 0
-    let settle = 0
-    const keepWatching = () => {} // returning a function keeps inView observing; returning nothing makes it one-shot
-    const stopEnter = onInView(el, () => {
-      if (running.current) return keepWatching
-      running.current = true
-      if (reduce || settled.has(file)) { setPhase('typing'); setN(total); return keepWatching }
+    const stop = onInView(el, () => {
+      if (reduce || settled.has(file)) { setPhase('typing'); setN(total); return }
+      settled.add(file)
       setPhase('glitch')
       t = window.setTimeout(() => setPhase('typing'), 650)
-      settle = window.setTimeout(() => settled.add(file), SETTLE_MS)
-      return keepWatching
     }, { amount: 0.3 })
-    const stopLeave = onInView(el, () => () => {
-      clearTimeout(t)
-      clearTimeout(settle)
-      running.current = false
-      if (settled.has(file)) { setPhase('typing'); setN(total); return }
-      setPhase('idle')
-      setN(0)
-    })
-    return () => { clearTimeout(t); clearTimeout(settle); stopEnter(); stopLeave() }
+    return () => { clearTimeout(t); stop() }
   }, [reduce, total, file])
 
   useEffect(() => {

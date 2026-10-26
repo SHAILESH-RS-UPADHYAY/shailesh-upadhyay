@@ -21,7 +21,7 @@
 <img src="docs/readme/h-work.svg" width="100%" alt="01 / Projects — Things I've built" />
 
 <p align="center">
-  <a href="https://radar-neon-theta.vercel.app/"><img src="docs/readme/card-radar.svg" width="49%" alt="RADAR — AI job-intelligence engine: 20 live sources, 0–100 resume matching, honest AI tailoring" /></a>
+  <a href="https://radar-neon-theta.vercel.app/"><img src="docs/readme/card-radar.svg" width="49%" alt="RADAR — AI job-intelligence engine: 25+ sources, 0–100 resume matching, forms opened already filled" /></a>
   <a href="https://github.com/SHAILESH-RS-UPADHYAY/vettly"><img src="docs/readme/card-vettly.svg" width="49%" alt="Vettly — AI interview-prep studio: a ranked 80K context rides a 4-track failover interlocking, Groq rate-limits, Gemini answers" /></a>
   <img src="docs/readme/card-eves.svg" width="49%" alt="EVES — meeting-intelligence desktop app: a self-writing mission brief and neon prompt pills" />
   <a href="https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend"><img src="docs/readme/card-simplify.svg" width="49%" alt="Simplify Money — conversational gold-investment backend with live INR pricing" /></a>

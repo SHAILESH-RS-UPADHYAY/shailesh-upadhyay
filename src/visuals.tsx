@@ -97,7 +97,7 @@ const DUST = Array.from({ length: 34 }, (_, i) => {
 const BEZEL = Array.from({ length: 48 }, (_, i) => ({ a: i * 7.5 - 90, hour: i % 2 === 0, run: i === 3 }))
   .filter(({ a }) => ![-90, 0, 180].includes(a) && !(a > 50 && a < 130))
 const FLOAT = Array.from({ length: 12 }, (_, i) => ({ x: 12 + 296 * rnd(i + 200), y: 40 + 150 * rnd(i + 300), r: 0.4 + 0.5 * rnd(i + 400), d: 7 + 6 * rnd(i + 500) }))
-const STAGES: [string, string][] = [['DISCOVER', 'robots.txt'], ['INGEST', '20 feeds'], ['VERIFY', 'link alive'], ['MATCH', '0-100'], ['VAULT', '≥ 80 kept']]
+const STAGES: [string, string][] = [['DISCOVER', 'robots.txt'], ['INGEST', '25+ feeds'], ['VERIFY', 'link alive'], ['MATCH', '0-100'], ['VAULT', '≥ 80 kept']]
 const PANE = plate(182, 30, 124, 148)
 const CHAPTER = Array.from({ length: 72 }, (_, i) => i * 5) // dial ticks every 5°, majors every 30°
 
@@ -275,10 +275,10 @@ function Radar() {
       <g clipPath="url(#rd-pane-clip)"><rect className="rd-sheen" x="80" y="20" width="16" height="170" fill="#eafff0" fillOpacity="0.07" transform="skewX(-22)" /></g>
       <path d="M186 40V34H192M302 168V174H296" fill="none" stroke={MINT} strokeOpacity="0.6" strokeWidth="0.8" />
       <text x="190" y="43" fill={MINT} fillOpacity="0.65" fontSize="5.6" letterSpacing="1.5" fontFamily={MONO}>LIVE SOURCES</text>
-      <text x="189" y="74" fill="none" stroke={G} strokeOpacity="0.18" strokeWidth="3.4" strokeLinejoin="round" fontSize="27" fontWeight="600" fontFamily={MONO}>20</text>
-      <text x="189" y="74" fill={G} fontSize="27" fontWeight="600" fontFamily={MONO}>20</text>
-      <text x="228" y="59" fill={G} fontSize="6.2" fontFamily={MONO}>■ 11 ATS feeds</text>
-      <text x="228" y="70" fill={MINT} fontSize="6.2" fontFamily={MONO}>■ 9 job boards</text>
+      <text x="189" y="74" fill="none" stroke={G} strokeOpacity="0.18" strokeWidth="3.4" strokeLinejoin="round" fontSize="27" fontWeight="600" fontFamily={MONO}>25</text>
+      <text x="189" y="74" fill={G} fontSize="27" fontWeight="600" fontFamily={MONO}>25</text>
+      <text x="228" y="59" fill={G} fontSize="6.2" fontFamily={MONO}>■ 12 ATS feeds</text>
+      <text x="228" y="70" fill={MINT} fontSize="6.2" fontFamily={MONO}>■ boards + alerts</text>
       <line x1="190" y1="84" x2="298" y2="84" stroke={G} strokeOpacity="0.2" />
       <text x="190" y="95" fill={MINT} fillOpacity="0.55" fontSize="5.2" letterSpacing="1.4" fontFamily={MONO}>SCAN LOG</text>
       <circle className="rd-live" cx="294" cy="93" r="2" fill={G} />
