@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-24 -24 48 48">
+  <defs>
+    <radialGradient id="c" cx="38%" cy="32%"><stop offset="0%" stop-color="#ffffff"/><stop offset="45%" stop-color="#ead7ff"/><stop offset="100%" stop-color="#9f8cff"/></radialGradient>
+    <linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffb38a"/><stop offset="17%" stop-color="#ff7eb3"/><stop offset="33%" stop-color="#d58cff"/><stop offset="50%" stop-color="#9f8cff"/><stop offset="67%" stop-color="#6ea8ff"/><stop offset="83%" stop-color="#5fe3e0"/><stop offset="100%" stop-color="#8ff5b5"/></linearGradient>
+  </defs>
+  <rect x="-24" y="-24" width="48" height="48" rx="12" fill="#07060d"/>
+  <circle r="19" fill="none" stroke="url(#s)" stroke-width="2.2" stroke-dasharray="26.5 13.3" stroke-linecap="round"/>
+  <path d="M0.00 -9.60L0.00 -11.20M3.67 -8.87L4.38 -10.58M6.79 -6.79L8.54 -8.54M8.87 -3.67L12.00 -4.97M9.60 0.00L13.10 0.00M8.87 3.67L10.87 4.50M6.79 6.79L9.43 9.43M3.67 8.87L4.82 11.63M0.00 9.60L0.00 15.03M-3.67 8.87L-5.23 12.62M-6.79 6.79L-8.60 8.60M-8.87 3.67L-10.54 4.37M-9.60 0.00L-11.60 0.00M-8.87 -3.67L-11.19 -4.64M-6.79 -6.79L-8.27 -8.27M-3.67 -8.87L-4.55 -11.00" stroke="url(#s)" stroke-width="2.2" stroke-linecap="round"/>
+  <circle r="7.2" fill="url(#c)"/>
+</svg>
