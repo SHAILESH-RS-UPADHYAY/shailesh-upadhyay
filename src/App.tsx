@@ -3,15 +3,18 @@ import { flushSync } from 'react-dom'
 import { AnimatePresence, MotionConfig, motion, useScroll } from 'framer-motion'
 import Lenis from 'lenis'
 import Intro from './Intro'
-import { education, experience, greetings, marquee, moreBuilds, profile, projects, skills, stats, whoami, type Accent } from './data'
-import { acVar, asset, EASE } from './lib'
+import BuildLayer from './BuildLayer'
+import { Products } from './Products'
+import { education, experience, greetings, marquee, profile, projects, skills, stats, whoami, type Accent } from './data'
+import { acVar, asset, EASE, spotlight } from './lib'
 import { Chips, CountUp, ExtLink, MailPicker, MatrixRain, ResumeCard, SectionHeader, Terminal } from './ui'
 import { ProjectMark, ProjectVisual } from './visuals'
 
 const NAV = [
   { id: 'about', label: 'About' },
   { id: 'experience', label: 'Experience' },
-  { id: 'projects', label: 'Projects' },
+  { id: 'products', label: 'Products' },
+  { id: 'projects', label: 'Deep dives' },
   { id: 'skills', label: 'Skills' },
   { id: 'education', label: 'Education' },
 ]
@@ -255,7 +258,7 @@ function Hero() {
         <div className="flex flex-col gap-6 md:gap-7">
           <Rise>
             <AnimatePresence mode="wait">
-              <motion.div key={i} aria-hidden className="flex flex-wrap items-center gap-3 min-h-9"
+              <motion.div key={i} aria-hidden data-b-greeting className="flex flex-wrap items-center gap-3 min-h-9"
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3, ease: EASE }}>
                 <span className="font-oxanium text-xl md:text-2xl text-fg/65">{g.hi}</span>
                 <span className="font-geist-mono text-[0.625rem] md:text-[0.6875rem] tracking-widest px-2 py-1 rounded-md border border-acc/30 bg-acc/10 text-acc">
@@ -319,7 +322,7 @@ function Hero() {
         {/* Portrait — slides in, then keeps bouncing */}
         {/* Portrait — drops in from above the screen on a spring (lands with one soft bounce and a slight
             wobble), a glow spreads on the "floor" at impact, then the idle bounce takes over. */}
-        <motion.div className="relative mx-auto w-full max-w-[20.625rem] md:max-w-[23.75rem] lg:max-w-[25.625rem]"
+        <motion.div data-b-portrait className="relative mx-auto w-full max-w-[20.625rem] md:max-w-[23.75rem] lg:max-w-[25.625rem]"
           initial={{ y: '-120vh', rotate: -6 }}
           animate={{ y: ['-120vh', '0vh', '-6vh', '0vh', '-1.6vh', '0vh'], rotate: [-6, 0, 1.6, 0, -0.5, 0] }}
           transition={{
@@ -437,12 +440,6 @@ function Experience() {
 }
 
 /* ====== PROJECTS ====== */
-function spotlight(e: MouseEvent<HTMLElement>) {
-  const r = e.currentTarget.getBoundingClientRect()
-  e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`)
-  e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
-}
-
 function Private() {
   return <span className="font-geist-mono text-xs text-fg/55 px-3 py-1.5 rounded-lg border border-fg/10">Private repo · demo on request</span>
 }
@@ -451,10 +448,10 @@ function Projects() {
   return (
     <section id="projects" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05]">
       <div className="max-w-7xl mx-auto">
-        <SectionHeader n="03" label="PROJECTS" title="Things I've built" />
+        <SectionHeader n="04" label="DEEP DIVES" title="How the big ones work" />
         <div className="space-y-24 md:space-y-32">
           {projects.map((p, i) => (
-            <motion.article key={p.name} style={acVar(p.accent)} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start"
+            <motion.article key={p.name} id={`deep-${p.name.split('.')[0].split(' ')[0].toLowerCase()}`} style={acVar(p.accent)} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start scroll-mt-24"
               initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8, ease: EASE }}>
               <div className={i % 2 ? 'lg:order-2' : ''}>
                 <ProjectVisual kind={p.visual} />
@@ -483,20 +480,6 @@ function Projects() {
           ))}
         </div>
 
-        <h3 className="font-museo text-3xl md:text-4xl text-fg/90 text-center mt-32 mb-10">More builds</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {moreBuilds.map((b, i) => (
-            <motion.div key={b.name} style={acVar(b.accent)} onMouseMove={spotlight}
-              className="card spotlight relative flex flex-col rounded-2xl border border-fg/[0.08] p-6 md:p-8 hover:border-(--ac)/40 transition-colors"
-              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.6, delay: (i % 2) * 0.1, ease: EASE }}>
-              <p className="font-geist-mono text-[0.6875rem] tracking-[0.18em] uppercase text-(--ac)">{b.kind}</p>
-              <h4 className="font-museo text-2xl md:text-3xl text-fg mt-2">{b.name}</h4>
-              <p className="font-oxanium text-fg/70 mt-3 leading-relaxed flex-1">{b.text}</p>
-              <Chips className="mt-5" items={b.stack} />
-              <div className="mt-5 flex flex-wrap gap-2">{b.links.length ? b.links.map((l) => <ExtLink key={l.href} href={l.href}>{l.label}</ExtLink>) : <Private />}</div>
-            </motion.div>
-          ))}
-        </div>
       </div>
     </section>
   )
@@ -507,7 +490,7 @@ function Skills() {
   return (
     <section id="skills" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05]">
       <div className="max-w-6xl mx-auto">
-        <SectionHeader n="04" label="SKILLS" title="The toolbelt" />
+        <SectionHeader n="05" label="SKILLS" title="The toolbelt" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {skills.map((s) => (
             <div key={s.title} className="flex flex-col">
@@ -529,7 +512,7 @@ function Education() {
   return (
     <section id="education" className="relative py-28 md:py-40 px-5 md:px-10 border-t border-fg/[0.05]">
       <div className="max-w-5xl mx-auto">
-        <SectionHeader n="05" label="EDUCATION" title="Foundations" />
+        <SectionHeader n="06" label="EDUCATION" title="Foundations" />
         <motion.div className="card relative overflow-hidden rounded-3xl border border-fg/[0.08] p-8 md:p-12"
           initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.7, ease: EASE }}>
           <span aria-hidden className="absolute -right-4 -bottom-10 font-museo text-[9rem] md:text-[13rem] leading-none text-transparent select-none"
@@ -619,7 +602,7 @@ function Contact() {
       <div className="relative w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-10 lg:gap-14 items-center">
         <motion.div className="text-center lg:text-left"
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE }}>
-          <p className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em]">06 / CONTACT</p>
+          <p className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em]">07 / CONTACT</p>
           <h2 className="font-museo text-[2.5rem] md:text-[3.4rem] xl:text-[3.9rem] leading-[1.04] tracking-tight mt-5 text-fg/90 text-balance">
             Let's build something that <span className="text-gradient">ships.</span>
           </h2>
@@ -682,11 +665,15 @@ function Footer() {
 export default function App() {
   const [ready, setReady] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [revealed, setRevealed] = useState(false)
+  const lenis = useRef<Lenis | null>(null)
   useEffect(() => {
     if (!ready) return
-    const lenis = new Lenis({ autoRaf: true, anchors: true }) // offset comes from section[id] scroll-margin-top
-    return () => lenis.destroy()
+    const l = new Lenis({ autoRaf: true, anchors: true }) // offset comes from section[id] scroll-margin-top
+    lenis.current = l
+    return () => { l.destroy(); lenis.current = null }
   }, [ready])
+  const scrollTo = (y: number, seconds: number) =>
+    lenis.current?.scrollTo(y, seconds ? { duration: seconds, easing: (t) => t } : { immediate: true })
   return (
     <MotionConfig reducedMotion="user">
       <a href="#main" className="skip-link">Skip to content</a>
@@ -694,11 +681,13 @@ export default function App() {
       {ready && (
         <>
           {!revealed && <BlackholeOverlay onDone={() => setRevealed(true)} />}
+          <BuildLayer scrollTo={scrollTo} />
           <Navbar />
           <main id="main">
             <Hero />
             <About />
             <Experience />
+            <Products />
             <Projects />
             <Skills />
             <Education />
