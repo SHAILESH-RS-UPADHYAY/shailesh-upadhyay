@@ -349,3 +349,8 @@ html.lenis, html.lenis body { height: auto; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* The build layer clips elements until their turn. Printing should never catch one mid-build. */
+@media print {
+  [data-b-pending], [data-b-pending] > * { clip-path: none !important; }
+}
