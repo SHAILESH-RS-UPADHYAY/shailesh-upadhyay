@@ -124,7 +124,7 @@ function Compact({ p, picked }: { p: Product; picked: boolean }) {
 function LogoSheet({ picked, onPick }: { picked: string; onPick: (slug: string) => void }) {
   return (
     <div className="sheet mb-12 md:mb-16 rounded-2xl border overflow-x-auto [scrollbar-width:none] shadow-(--screen-shadow)">
-      <nav aria-label="Jump to a product" data-b-row className="grid grid-rows-2 grid-flow-col auto-cols-[6.5rem] lg:grid-rows-none lg:grid-flow-row lg:grid-cols-10 w-max lg:w-full gap-px bg-(--sheet-line)">
+      <nav aria-label="Jump to a product" data-b-row className="grid grid-cols-[repeat(10,6.5rem)] lg:grid-cols-10 w-max lg:w-full gap-px bg-(--sheet-line)">
         {products.map((p) => (
           <a key={p.slug} href={`#p-${p.slug}`} onClick={() => onPick(p.slug)} style={acVar(p.accent)} aria-current={picked === p.slug ? 'true' : undefined}
             className="sheet-cell group flex flex-col items-center gap-3 px-2 pt-6 pb-4 transition-colors">
