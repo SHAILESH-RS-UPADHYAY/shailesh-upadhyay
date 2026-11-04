@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 import { AnimatePresence, MotionConfig, motion, useScroll } from 'framer-motion'
 import Lenis from 'lenis'
@@ -451,7 +451,7 @@ function Projects() {
         <SectionHeader n="04" label="DEEP DIVES" title="How the big ones work" />
         <div className="space-y-24 md:space-y-32">
           {projects.map((p, i) => (
-            <motion.article key={p.name} id={`deep-${p.name.split('.')[0].split(' ')[0].toLowerCase()}`} style={acVar(p.accent)} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start scroll-mt-24"
+            <motion.article key={p.name} id={`deep-${p.name.split('.')[0].split(' ')[0].toLowerCase()}`} style={acVar(p.accent)} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start scroll-mt-36"
               initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8, ease: EASE }}>
               <div className={i % 2 ? 'lg:order-2' : ''}>
                 <ProjectVisual kind={p.visual} />
@@ -664,22 +664,27 @@ function Footer() {
 /* ====== APP ====== */
 export default function App() {
   const [ready, setReady] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [intro, setIntro] = useState(!ready)
+  const open = useCallback(() => setReady(true), [])
+  const done = useCallback(() => setIntro(false), [])
   const [revealed, setRevealed] = useState(false)
   const lenis = useRef<Lenis | null>(null)
   useEffect(() => {
     if (!ready) return
     const l = new Lenis({ autoRaf: true, anchors: true }) // offset comes from section[id] scroll-margin-top
     lenis.current = l
+    // The page only exists once the intro ends, so the browser couldn't honour a link like /#products on its own.
+    if (location.hash) l.scrollTo(location.hash, { immediate: true })
     return () => { l.destroy(); lenis.current = null }
   }, [ready])
   const scrollTo = (y: number, seconds: number) =>
     lenis.current?.scrollTo(y, seconds ? { duration: seconds, easing: (t) => t } : { immediate: true })
   return (
     <MotionConfig reducedMotion="user">
-      <a href="#main" className="skip-link">Skip to content</a>
-      {!ready && <Intro onDone={() => setReady(true)} />}
+      {intro && <Intro onOpen={open} onDone={done} />}
       {ready && (
         <>
+          <a href="#main" className="skip-link">Skip to content</a>
           {!revealed && <BlackholeOverlay onDone={() => setRevealed(true)} />}
           <BuildLayer scrollTo={scrollTo} />
           <Navbar />
