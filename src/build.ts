@@ -1,5 +1,5 @@
 /*
-  The build layer: the page looks like a swarm of agents is assembling it live, Figma-style.
+  The build layer: when a visitor asks for it, the page looks like a swarm of agents is assembling it live, Figma-style.
 
   It only ever adds to the page. All content is in the DOM from the start, so search engines and screen readers read it
   as normal. An element is clipped until its turn and its inline clip-path is removed afterwards, which leaves it exactly
@@ -10,7 +10,7 @@
 */
 
 export type Phase = 'scan' | 'build' | 'idle' | 'done'
-export type Status = { phase: Phase; done: number; total: number; agents: number; seconds: number; skipped: boolean }
+export type Status = { phase: Phase; done: number; total: number; agents: number; seconds: number }
 
 type Kind = 'text' | 'box' | 'media' | 'frame' | 'row'
 type Rect = { left: number; top: number; right: number; bottom: number; width: number; height: number }
@@ -78,7 +78,7 @@ function layoutRect(el: HTMLElement): Rect {
   return { left, top, right: left + el.offsetWidth, bottom: top + el.offsetHeight, width: el.offsetWidth, height: el.offsetHeight }
 }
 
-export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => void, alreadyBuilt: boolean) {
+export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => void) {
   const ctx = canvas.getContext('2d')
   const small = innerWidth < 768
   const weak = (navigator.hardwareConcurrency ?? 8) <= 2
@@ -93,7 +93,6 @@ export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => v
   let heroFrames: HeroFrame[] = []
   let doneCount = 0
   let buildMs = 0
-  let skipped = false
   let startedAt = 0
   let lastT = 0
   let raf = 0
@@ -102,7 +101,7 @@ export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => v
   let swarm = 0
   let idleFor = 0
   let ringAt = 0
-  let finished = alreadyBuilt
+  let finished = false
   let dpr = 1
 
   const agents: Agent[] = Array.from({ length: agentCount }, (_, i) => ({
@@ -118,7 +117,7 @@ export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => v
     canvas.style.height = `${innerHeight}px`
   }
 
-  const report = (phase: Phase) => onStatus({ phase, done: doneCount, total: items.length, agents: agentCount, seconds: buildMs / 1000, skipped })
+  const report = (phase: Phase) => onStatus({ phase, done: doneCount, total: items.length, agents: agentCount, seconds: buildMs / 1000 })
 
   /* ---------- scan: find the layers ---------- */
   function scan() {
@@ -189,6 +188,8 @@ export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => v
       if (!it || it.state === 'done' || it.state === 'active') continue
       if (e.isIntersecting) {
         if (it.state === 'pending') enqueue(it)
+      } else if (e.boundingClientRect.left < 0 || e.boundingClientRect.left >= document.documentElement.clientWidth) {
+        finish(it) // off to the side of a phone's swipe row: nobody is watching it, and it must not hold up the finish
       } else if (it.state === 'queued') {
         if (e.boundingClientRect.bottom < 0) finish(it)
         else { it.state = 'pending'; queue = queue.filter((q) => q !== it) }
@@ -285,8 +286,7 @@ export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => v
 
   function complete() {
     finished = true
-    if (!skipped) ringAt = performance.now()
-    try { sessionStorage.setItem('built', '1') } catch { /* private mode: it just builds again next time */ }
+    ringAt = performance.now()
     report('done')
     wake()
   }
@@ -559,7 +559,7 @@ export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => v
     ctx.clearRect(0, 0, innerWidth, innerHeight)
 
     const since = now - startedAt
-    if (!alreadyBuilt || heroFrames.length) drawHero(ctx, since)
+    drawHero(ctx, since)
 
     // Start what's due. A long queue speeds everything up, so fast scrolling never leaves people waiting on the page.
     const hurry = 1 + queue.length / 8
@@ -647,50 +647,25 @@ export function startBuild(canvas: HTMLCanvasElement, onStatus: (s: Status) => v
     wake()
   }
 
-  function run() {
-    doneCount = 0
-    buildMs = 0
-    skipped = false
-    finished = false
-    ringAt = 0
-    queue = []
-    active = []
-    ghosts = []
-    marks = []
-    startedAt = performance.now()
-    scan()
-    scanHero()
-    byEl = new Map(items.map((it) => [it.el, it]))
-    for (const it of items) io.observe(it.el)
-    report('scan')
-    wake()
-  }
-
   size()
   addEventListener('resize', onResize)
   document.addEventListener('focusin', onFocus)
-  if (!alreadyBuilt) run()
-  else report('done')
+  startedAt = performance.now()
+  scan()
+  scanHero()
+  byEl = new Map(items.map((it) => [it.el, it]))
+  for (const it of items) io.observe(it.el)
+  report('scan')
+  wake()
 
-  return {
-    skip() {
-      skipped = true
-      for (const it of [...items]) finish(it)
-      if (!finished) complete()
-      report('done')
-    },
-    replay() {
-      for (const it of items) { show(it); io.unobserve(it.el) }
-      for (const a of agents) a.job = null
-      run()
-    },
-    stop() {
-      cancelAnimationFrame(raf)
-      raf = 0
-      io.disconnect()
-      for (const it of items) show(it)
-      removeEventListener('resize', onResize)
-      document.removeEventListener('focusin', onFocus)
-    },
+  // Stopping shows everything straight away, so it doubles as "skip".
+  return function stop() {
+    cancelAnimationFrame(raf)
+    raf = 0
+    io.disconnect()
+    for (const it of items) show(it)
+    ctx?.clearRect(0, 0, innerWidth, innerHeight)
+    removeEventListener('resize', onResize)
+    document.removeEventListener('focusin', onFocus)
   }
 }
