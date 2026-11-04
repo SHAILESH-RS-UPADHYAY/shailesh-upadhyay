@@ -9,7 +9,7 @@ export function SectionHeader({ n, label, title }: { n: string; label: string; t
     <div className="mb-14 md:mb-20">
       <div className="flex items-center gap-5 mb-8">
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-acc/25 to-transparent" />
-        <span className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em] whitespace-nowrap">
+        <span data-b-text className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em] whitespace-nowrap">
           {n} / {label}
         </span>
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-acc/25 to-transparent" />
