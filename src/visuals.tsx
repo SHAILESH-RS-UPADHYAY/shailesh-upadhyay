@@ -615,30 +615,43 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
 
 /* ---------- Project marks next to each project name ----------
    One idea per mark, taken from how the product works, drawn on a 24-unit grid in the project's accent:
-   RADAR   a scope whose beam trails off in a crescent; each turn it finds the gold job and pings
+   RADAR   the big scope in miniature: steel bezel, phosphor dial, gold hub; each turn the beam finds the gold job and pings
    Vettly  the terminus ring with one check-segment missing; the V drops into the gap
    EVES    one stroke: speech decays into a waiting cursor
-   A flat dark tile, the same in both themes, like the project screens. RADAR's scope always turns; the others
-   play their one motion on hover. */
+   No tile around them. In day mode the neon ones sit on a plain dark plate (.plate); RADAR has its own body. RADAR's
+   scope always turns; the others play their one motion on hover. */
 const MARK_COLOR: Record<Visual, string> = { radar: '#34d399', router: '#a78bfa', wave: '#22d3ee', gold: '#f59e0b', sheet: '#22d3ee' }
 
 function Glyph({ kind }: { kind: Visual }) {
   return (
-    <svg viewBox="0 0 24 24" className="w-[62%] h-[62%]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" className="w-full h-full" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
       {kind === 'radar' && (
         <>
           <defs>
-            <linearGradient id="gl-beam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stopColor="currentColor" stopOpacity="0.85" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient>
+            <linearGradient id="gl-steel" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#1b211e" /><stop offset="0.16" stopColor="#7c8883" /><stop offset="0.34" stopColor="#161b19" />
+              <stop offset="0.52" stopColor="#3b4541" /><stop offset="0.7" stopColor="#c4ccc8" /><stop offset="0.84" stopColor="#1c2320" /><stop offset="1" stopColor="#4d5853" />
+            </linearGradient>
+            <radialGradient id="gl-face" cx="0.45" cy="0.4"><stop offset="0" stopColor="#07301a" /><stop offset="0.65" stopColor="#03160b" /><stop offset="1" stopColor="#010703" /></radialGradient>
+            <radialGradient id="gl-gold" cx="0.36" cy="0.3" r="0.8"><stop offset="0" stopColor="#fff8d6" /><stop offset="0.4" stopColor="#f5c542" /><stop offset="1" stopColor="#7a5300" /></radialGradient>
+            <linearGradient id="gl-beam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stopColor={G} stopOpacity="0.8" /><stop offset="1" stopColor={G} stopOpacity="0" /></linearGradient>
           </defs>
-          <circle cx="12" cy="12" r="9.5" strokeWidth="1.2" strokeOpacity="0.45" />
-          <circle cx="12" cy="12" r="5" strokeWidth="0.8" strokeOpacity="0.3" strokeDasharray="1 1.6" />
+          <circle cx="12" cy="12" r="9.5" fill="url(#gl-face)" stroke="none" />
+          <circle cx="12" cy="12" r="10.7" stroke="url(#gl-steel)" strokeWidth="2.4" />
+          <circle cx="12" cy="12" r="11.85" stroke="#fff" strokeOpacity="0.28" strokeWidth="0.15" />
+          <circle cx="12" cy="12" r="9.5" stroke="#000" strokeOpacity="0.8" strokeWidth="0.2" />
+          <path d="M12 0.6V2.2" stroke={GOLD} strokeWidth="0.55" transform="rotate(22.5 12 12)" />
+          {Array.from({ length: 12 }, (_, i) => (
+            <path key={i} d="M12 3.2V4.6" stroke={MINT} strokeOpacity={i % 3 ? 0.55 : 1} strokeWidth={i % 3 ? 0.35 : 0.6} strokeLinecap="butt" transform={`rotate(${i * 30} 12 12)`} />
+          ))}
+          <circle cx="12" cy="12" r="5.2" stroke={G} strokeOpacity="0.6" strokeWidth="0.35" />
           <g className="gl-sweep">
             <path d="M12 12L12 2.5A9.5 9.5 0 0 0 4.22 6.55Q7.6 9.6 12 12Z" fill="url(#gl-beam)" stroke="none" />
-            <path d="M12 12V2.5" strokeWidth="1.6" />
+            <path d="M12 12V2.7" stroke={MINT} strokeWidth="0.7" />
           </g>
-          <circle className="gl-ping" cx="15.8" cy="7.2" r="1.5" stroke="#facc15" strokeWidth="0.8" />
-          <circle className="gl-blip" cx="15.8" cy="7.2" r="1.5" fill="#facc15" stroke="none" />
-          <circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
+          <circle className="gl-ping" cx="15.8" cy="7.2" r="1.1" stroke={GOLD} strokeWidth="0.5" />
+          <circle className="gl-blip" cx="15.8" cy="7.2" r="1.1" fill={GOLD} stroke="none" />
+          <circle cx="12" cy="12" r="1.5" fill="url(#gl-gold)" stroke="#000" strokeOpacity="0.7" strokeWidth="0.2" />
         </>
       )}
       {kind === 'router' && (
@@ -663,16 +676,10 @@ function Glyph({ kind }: { kind: Visual }) {
   )
 }
 
-export function ProjectMark({ kind, small = false }: { kind: Visual; small?: boolean }) {
-  const c = MARK_COLOR[kind]
-  if (kind === 'sheet') return (
-    <span aria-hidden className="grid place-items-center shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-[#0c0d10]" style={{ boxShadow: `inset 0 0 0 1px ${c}40` }}>
-      <img src={asset('products/logos/blueprint.svg')} alt="" width={40} height={40} className="w-[62%] h-[62%]" />
-    </span>
-  )
+export function ProjectMark({ kind, className = 'w-14 h-14 md:w-16 md:h-16' }: { kind: Visual; className?: string }) {
+  if (kind === 'sheet') return <img src={asset('products/logos/blueprint.svg')} alt="" width={64} height={64} className={`shrink-0 ${className}`} />
   return (
-    <span aria-hidden className={`pm grid place-items-center shrink-0 bg-[#0c0d10] ${small ? 'w-11 h-11 rounded-xl' : 'w-14 h-14 md:w-16 md:h-16 rounded-2xl'}`}
-      style={{ color: c, boxShadow: `inset 0 0 0 1px ${c}40` }}>
+    <span aria-hidden className={`pm grid place-items-center shrink-0 ${kind === 'radar' ? '' : 'plate'} ${className}`} style={{ color: MARK_COLOR[kind] }}>
       <Glyph kind={kind} />
     </span>
   )
