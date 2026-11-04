@@ -1,4 +1,5 @@
 import type { Visual } from './data'
+import { asset } from './lib'
 
 /*
   Project dashboards. Each is a small HUD built from the real product's brand and workflow:
@@ -607,6 +608,7 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
         {kind === 'wave' && <Eves />}
         {kind === 'gold' && <Gold />}
       </svg>
+      {kind === 'sheet' && <img src={asset('products/blueprint.webp')} alt="" width={960} height={600} loading="lazy" className="absolute inset-0 w-full h-full object-cover object-left-top" />}
     </div>
   )
 }
@@ -618,7 +620,7 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
    EVES    one stroke: speech decays into a waiting cursor
    A flat dark tile, the same in both themes, like the project screens. RADAR's scope always turns; the others
    play their one motion on hover. */
-const MARK_COLOR: Record<Visual, string> = { radar: '#34d399', router: '#a78bfa', wave: '#22d3ee', gold: '#f59e0b' }
+const MARK_COLOR: Record<Visual, string> = { radar: '#34d399', router: '#a78bfa', wave: '#22d3ee', gold: '#f59e0b', sheet: '#22d3ee' }
 
 function Glyph({ kind }: { kind: Visual }) {
   return (
@@ -661,10 +663,15 @@ function Glyph({ kind }: { kind: Visual }) {
   )
 }
 
-export function ProjectMark({ kind }: { kind: Visual }) {
+export function ProjectMark({ kind, small = false }: { kind: Visual; small?: boolean }) {
   const c = MARK_COLOR[kind]
+  if (kind === 'sheet') return (
+    <span aria-hidden className="grid place-items-center shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-[#0c0d10]" style={{ boxShadow: `inset 0 0 0 1px ${c}40` }}>
+      <img src={asset('products/logos/blueprint.svg')} alt="" width={40} height={40} className="w-[62%] h-[62%]" />
+    </span>
+  )
   return (
-    <span aria-hidden className="pm grid place-items-center shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-[#0c0d10]"
+    <span aria-hidden className={`pm grid place-items-center shrink-0 bg-[#0c0d10] ${small ? 'w-11 h-11 rounded-xl' : 'w-14 h-14 md:w-16 md:h-16 rounded-2xl'}`}
       style={{ color: c, boxShadow: `inset 0 0 0 1px ${c}40` }}>
       <Glyph kind={kind} />
     </span>
