@@ -9,6 +9,7 @@ import { ProjectMark, ProjectVisual } from './visuals'
 type Product = (typeof products)[number]
 const KINDS = ['radar', 'router', 'wave', 'gold']
 const UP_FRONT = 6
+const PICKED = 'border-(--ac)/70 shadow-[0_0_0_1px_var(--ac)]'
 // Two files need help: Autopsy is drawn for dark backgrounds, and Inkly's is square because phones round it themselves.
 const MARK_FIT: Record<string, string> = { 'autopsy.svg': 'plate', 'inkly.webp': 'rounded-[22%]' }
 // On phones a row of cards swipes sideways instead of stacking, which keeps the page short.
@@ -54,23 +55,23 @@ function Links({ p }: { p: Product }) {
           Deep dive <span aria-hidden>↓</span>
         </a>
       )}
-      {!p.links.length && !p.deep && <span className="font-geist-mono text-xs text-fg/55 px-3 py-1.5 rounded-lg border border-fg/10">Private · demo on request</span>}
+      {!p.links.length && !p.deep && <span className="font-geist-mono text-xs text-fg/65 px-3 py-1.5 rounded-lg border border-fg/10">Private · demo on request</span>}
     </div>
   )
 }
 
-function Card({ p }: { p: Product }) {
+function Card({ p, picked }: { p: Product; picked: boolean }) {
   const main = p.links[0]?.href
   const media = (
     <>
       {/* A small browser bar, so a screenshot reads as the running product. */}
-      <span className="flex items-center gap-1.5 h-7 px-3 bg-[#0c0f0e] border-b border-white/[0.06]">
+      <span className="flex items-center gap-1.5 h-7 px-3 bg-(--bar) border-b border-fg/[0.08]">
         <span className="w-2 h-2 rounded-full bg-red-500/70" />
         <span className="w-2 h-2 rounded-full bg-yellow-500/70" />
         <span className="w-2 h-2 rounded-full bg-green-500/70" />
-        {p.host && <span className="ml-2 min-w-0 truncate font-geist-mono text-[0.625rem] text-white/45">{p.host}</span>}
+        {p.host && <span className="ml-2 min-w-0 truncate font-geist-mono text-[0.625rem] text-fg/60">{p.host}</span>}
       </span>
-      <span className="block aspect-[8/5] overflow-hidden bg-black">
+      <span className="block aspect-[8/5] overflow-hidden bg-(--v-panel)">
         <img src={asset(`products/${p.shot}.webp`)} alt={`${p.name} running`} width={960} height={600} loading="lazy"
           className="block w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover/shot:scale-[1.04]" />
       </span>
@@ -78,12 +79,12 @@ function Card({ p }: { p: Product }) {
   )
   return (
     <article id={`p-${p.slug}`} style={acVar(p.accent)} onMouseMove={spotlight}
-      className="card spotlight relative flex flex-col rounded-2xl border border-fg/[0.08] hover:border-(--ac)/40 transition-colors scroll-mt-24 overflow-hidden">
+      className={`card spotlight relative flex flex-col rounded-2xl border border-fg/[0.08] hover:border-(--ac)/40 transition-[border-color,box-shadow] duration-300 scroll-mt-24 overflow-hidden ${picked ? PICKED : ''}`}>
       {p.shot
         ? main
-          ? <a data-b-media href={main} target="_blank" rel="noopener noreferrer" className="screen group/shot block">{media}</a>
-          : <div data-b-media className="screen group/shot block">{media}</div>
-        : <div className="aspect-[36/25] bg-black [&>div]:aspect-auto [&>div]:h-full [&>div]:rounded-none [&>div]:border-0"><ProjectVisual kind={p.mark as 'wave'} /></div>}
+          ? <a data-b-media href={main} target="_blank" rel="noopener noreferrer" className="group/shot block">{media}</a>
+          : <div data-b-media className="group/shot block">{media}</div>
+        : <div className="aspect-[36/25] bg-(--v-panel) [&>div]:aspect-auto [&>div]:h-full [&>div]:rounded-none [&>div]:border-0"><ProjectVisual kind={p.mark as 'wave'} /></div>}
       <div className="flex flex-col flex-1 p-5 md:p-6">
         <div className="flex items-center gap-3">
           <Mark p={p} className="w-10 h-10" />
@@ -102,10 +103,10 @@ function Card({ p }: { p: Product }) {
   )
 }
 
-function Compact({ p }: { p: Product }) {
+function Compact({ p, picked }: { p: Product; picked: boolean }) {
   return (
     <article id={`p-${p.slug}`} style={acVar(p.accent)} onMouseMove={spotlight}
-      className="card spotlight relative flex flex-col rounded-2xl border border-fg/[0.08] hover:border-(--ac)/40 transition-colors p-5 scroll-mt-24">
+      className={`card spotlight relative flex flex-col rounded-2xl border border-fg/[0.08] hover:border-(--ac)/40 transition-[border-color,box-shadow] duration-300 p-5 scroll-mt-24 ${picked ? PICKED : ''}`}>
       <div className="flex items-center gap-3">
         <Mark p={p} className="w-10 h-10" />
         <div className="min-w-0">
@@ -119,17 +120,17 @@ function Compact({ p }: { p: Product }) {
   )
 }
 
-// All twenty on one ruled sheet, always on the dark surface the logos were drawn for. Phones swipe along it.
-function LogoSheet({ onPick }: { onPick: (slug: string) => void }) {
+// All twenty on one ruled sheet that follows the theme. The clicked logo stays selected. Phones swipe along it.
+function LogoSheet({ picked, onPick }: { picked: string; onPick: (slug: string) => void }) {
   return (
-    <div className="screen mb-12 md:mb-16 rounded-2xl border border-white/[0.08] overflow-x-auto [scrollbar-width:none] shadow-(--screen-shadow)">
-      <nav aria-label="Jump to a product" data-b-row className="grid grid-rows-2 grid-flow-col auto-cols-[6.5rem] lg:grid-rows-none lg:grid-flow-row lg:grid-cols-10 w-max lg:w-full gap-px bg-[#181c1a]">
+    <div className="sheet mb-12 md:mb-16 rounded-2xl border overflow-x-auto [scrollbar-width:none] shadow-(--screen-shadow)">
+      <nav aria-label="Jump to a product" data-b-row className="grid grid-rows-2 grid-flow-col auto-cols-[6.5rem] lg:grid-rows-none lg:grid-flow-row lg:grid-cols-10 w-max lg:w-full gap-px bg-(--sheet-line)">
         {products.map((p) => (
-          <a key={p.slug} href={`#p-${p.slug}`} onClick={() => onPick(p.slug)} style={acVar(p.accent)}
-            className="sheet-cell group flex flex-col items-center gap-3 px-2 pt-6 pb-4 bg-[#070a09] hover:bg-[#0d1210] transition-colors">
+          <a key={p.slug} href={`#p-${p.slug}`} onClick={() => onPick(p.slug)} style={acVar(p.accent)} aria-current={picked === p.slug ? 'true' : undefined}
+            className="sheet-cell group flex flex-col items-center gap-3 px-2 pt-6 pb-4 transition-colors">
             {p.status === 'Live' && <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-emerald-400"><span className="sr-only">Live: </span></span>}
             <Mark p={p} className="w-12 h-12 transition-transform duration-300 ease-out group-hover:scale-110" />
-            <span className="font-geist-mono text-[0.625rem] leading-tight text-center text-balance text-white/60 group-hover:text-white transition-colors">{p.name}</span>
+            <span className="font-geist-mono text-[0.625rem] leading-tight text-center text-balance text-fg/65 group-hover:text-fg group-aria-[current]:text-fg transition-colors">{p.name}</span>
           </a>
         ))}
       </nav>
@@ -139,12 +140,14 @@ function LogoSheet({ onPick }: { onPick: (slug: string) => void }) {
 
 export function Products() {
   const rest = products.slice(UP_FRONT)
+  const [picked, setPicked] = useState('')
   const [open, setOpen] = useState(() => rest.some((p) => location.hash === `#p-${p.slug}`))
   const live = products.filter((p) => p.status === 'Live').length
 
   // A logo can point at a card that's still packed away, or one off to the side of a phone's swipe row.
   // The page's smooth scroller handles the vertical part after this, once the card exists.
   const pick = (slug: string) => {
+    setPicked(slug)
     flushSync(() => setOpen((o) => o || rest.some((p) => p.slug === slug)))
     const card = document.getElementById(`p-${slug}`)
     const row = card?.parentElement
@@ -161,9 +164,9 @@ export function Products() {
         <p className="font-oxanium text-center text-lg text-fg/70 -mt-8 md:-mt-12 mb-10">
           {products.length} products, <span aria-hidden className="inline-block w-1.5 h-1.5 mx-0.5 align-middle rounded-full bg-emerald-400" /> {live} of them live right now. Open any of them.
         </p>
-        <LogoSheet onPick={pick} />
+        <LogoSheet picked={picked} onPick={pick} />
         <div className={`${SWIPE} md:grid-cols-2 xl:grid-cols-3`}>
-          {products.slice(0, UP_FRONT).map((p) => <Card key={p.slug} p={p} />)}
+          {products.slice(0, UP_FRONT).map((p) => <Card key={p.slug} p={p} picked={picked === p.slug} />)}
         </div>
 
         <div className="flex items-center gap-4 md:gap-5 mt-12 md:mt-16">
@@ -175,17 +178,17 @@ export function Products() {
           </button>
           {line}
         </div>
-        {!open && <p className="font-oxanium text-center text-fg/55 mt-4">Client sites, apps, AI tools and backends</p>}
+        {!open && <p className="font-oxanium text-center text-fg/65 mt-4">Client sites, apps, AI tools and backends</p>}
 
         {open && (
           <motion.div id="packed-products" className="mt-10 md:mt-14"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, ease: EASE }}>
             <div className={`${SWIPE} md:grid-cols-2 xl:grid-cols-3`}>
-              {rest.filter((p) => p.shot).map((p) => <Card key={p.slug} p={p} />)}
+              {rest.filter((p) => p.shot).map((p) => <Card key={p.slug} p={p} picked={picked === p.slug} />)}
             </div>
             <h3 className="font-museo text-3xl md:text-4xl text-fg/90 text-center mt-16 md:mt-20 mb-8 md:mb-10">Smaller builds</h3>
             <div className={`${SWIPE} md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:gap-5`}>
-              {rest.filter((p) => !p.shot).map((p) => <Compact key={p.slug} p={p} />)}
+              {rest.filter((p) => !p.shot).map((p) => <Compact key={p.slug} p={p} picked={picked === p.slug} />)}
             </div>
           </motion.div>
         )}
