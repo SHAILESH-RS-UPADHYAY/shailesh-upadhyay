@@ -44,23 +44,137 @@
   --violet: #6d28d9;
   --rose: #be123c;
   --amber: #b45309;
-  /* light mode = "lab paper": white cards that lift off the page, dark screens that float above it */
+  /* light mode = "lab paper": white cards and paper panels that lift off the page */
   --card: rgba(255, 255, 255, 0.82);
   --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(6, 40, 30, 0.06), 0 18px 40px -22px rgba(6, 70, 50, 0.35);
-  --screen-shadow: 0 2px 4px rgba(6, 30, 22, 0.08), 0 30px 60px -26px rgba(6, 40, 30, 0.55);
+  --screen-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(6, 40, 30, 0.06), 0 22px 44px -24px rgba(6, 70, 50, 0.3);
   --rain-opacity: 0.34;
   --rain-head: #053d2e;
 }
 
-/* Terminals and project visuals are dark "screens" in both themes, so their accents stay neon. */
-.screen {
-  color-scheme: dark;
-  --grad: linear-gradient(135deg, #34d399 0%, #22d3ee 35%, #a78bfa 68%, #fb7185 100%);
-  --emerald: #34d399;
-  --cyan: #22d3ee;
-  --violet: #a78bfa;
-  --rose: #fb7185;
-  --amber: #fbbf24;
+/* Surfaces that follow the theme: terminals, chips, product dashboards. Night keeps its phosphor and neon; day is paper
+   with the same accents deepened until small text clears 4.5:1. */
+:root {
+  --term-bg: #070a09;
+  --bar: #0c0f0e;
+  --chip: rgba(0, 0, 0, 0.9);
+  --scan: rgba(255, 255, 255, 0.03);
+  --v-panel: #000;
+  --v-gridline: rgba(255, 255, 255, 0.04);
+  --v-ink: #fafafa;
+  --v-well: #0d0b16;
+  --v-toast: #06140c;
+  --v-g: #00FF41;
+  --v-mint: #B6FFC6;
+  --v-gold: #FACC15;
+  --v-spark: #eafff0;
+  --v-beam: #d8ffe0;
+  --v-packet: #fff;
+  --v-st1: #1b211e;
+  --v-st2: #7c8883;
+  --v-st3: #161b19;
+  --v-st4: #3b4541;
+  --v-st5: #c4ccc8;
+  --v-st6: #1c2320;
+  --v-st7: #4d5853;
+  --v-face1: #07301a;
+  --v-face2: #03160b;
+  --v-face3: #010703;
+  --v-pane1: #001a08;
+  --v-pane2: #000d04;
+  --v-card: #0d0c02;
+  --v-engrave: #dfe6e2;
+  --v-shadow: #000;
+  --v-shadow-o: 0.85;
+  --v-violet: #a78bfa;
+  --v-stop: #f87171;
+  --v-go: #4ade80;
+  --v-wait: #fbbf24;
+  --v-idle: #3f3f46;
+  --v-muted: #71717a;
+  --v-p1: #ddd6fe;
+  --v-p2: #c4b5fd;
+  --v-p3: #a78bfa;
+  --v-p4: #2a1f4d;
+  --v-i1: #1e1338;
+  --v-i2: #1e1338;
+  --v-i3: #1e1338;
+  --v-i4: #ddd6fe;
+  --v-cy: #22d3ee;
+  --v-gr: #7ee787;
+  --v-pu: #c678dd;
+  --v-orange: #fb923c;
+  --v-blue: #60a5fa;
+  --v-purple: #c084fc;
+  --v-pink: #f472b6;
+  --v-press: #fed7aa;
+  --v-rose: #fb7185;
+  --v-au: #fbbf24;
+  --v-au-panel: #120d02;
+  --v-au-ink: #fef3c7;
+  --v-rose-ink: #fecdd3;
+  --v-mark-gold: #f59e0b;
+}
+:root[data-theme="light"] {
+  --term-bg: #fbfcf9;
+  --bar: #eceFEB;
+  --chip: rgba(255, 255, 255, 0.94);
+  --scan: rgba(11, 18, 16, 0.018);
+  --v-panel: #fbfcfa;
+  --v-gridline: rgba(11, 18, 16, 0.05);
+  --v-ink: #101713;
+  --v-well: #ffffff;
+  --v-toast: #ecfaf1;
+  --v-g: #0b7a37;
+  --v-mint: #1c5c38;
+  --v-gold: #a16207;
+  --v-spark: #ffffff;
+  --v-beam: #f2fff5;
+  --v-packet: #0b7a37;
+  --v-st1: #aeb7b3;
+  --v-st2: #e8ecea;
+  --v-st3: #9aa3a0;
+  --v-st4: #c5ccc9;
+  --v-st5: #f7f9f8;
+  --v-st6: #a3acaa;
+  --v-st7: #ccd2d0;
+  --v-face1: #fdfffb;
+  --v-face2: #f0f8f1;
+  --v-face3: #dfeee3;
+  --v-pane1: #f6fcf7;
+  --v-pane2: #edf7ef;
+  --v-card: #fffdf2;
+  --v-engrave: #39443f;
+  --v-shadow: #2a4a38;
+  --v-shadow-o: 0.28;
+  --v-violet: #6d28d9;
+  --v-stop: #dc2626;
+  --v-go: #15803d;
+  --v-wait: #b45309;
+  --v-idle: #ced3da;
+  --v-muted: #59626f;
+  --v-p1: #5b21b6;
+  --v-p2: #7c3aed;
+  --v-p3: #a78bfa;
+  --v-p4: #ede9fe;
+  --v-i1: #ffffff;
+  --v-i2: #ffffff;
+  --v-i3: #1e1338;
+  --v-i4: #4c1d95;
+  --v-cy: #0e7490;
+  --v-gr: #15803d;
+  --v-pu: #9333ea;
+  --v-orange: #c2410c;
+  --v-blue: #1d4ed8;
+  --v-purple: #7e22ce;
+  --v-pink: #be185d;
+  --v-press: #c2410c;
+  --v-rose: #be123c;
+  --v-au: #b45309;
+  --v-au-panel: #fffbeb;
+  --v-au-ink: #78350f;
+  --v-rose-ink: #9f1239;
+  --v-mark-gold: #b45309;
 }
 
 html {
@@ -107,6 +221,7 @@ section[id] { scroll-margin-top: 80px; }
   .screen-panel { box-shadow: var(--screen-shadow); }
   .terminal { box-shadow: var(--screen-shadow); }
   .terminal[data-done] { box-shadow: 0 0 40px -12px var(--ac), var(--screen-shadow); }
+  :root[data-theme="light"] .terminal[data-done] { box-shadow: var(--screen-shadow); }
   .rain { opacity: var(--rain-opacity); }
 
   /* Aurora: slow-drifting pastel light, light mode only (dark mode has the matrix rain). */
@@ -135,7 +250,7 @@ section[id] { scroll-margin-top: 80px; }
 
 .scanlines {
   pointer-events: none;
-  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
+  background: repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px);
 }
 
 .terminal::after {
@@ -143,7 +258,7 @@ section[id] { scroll-margin-top: 80px; }
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 3px);
+  background: repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px);
 }
 
 /* Border glow that follows the cursor; --mx/--my are set on mousemove. */
@@ -197,9 +312,9 @@ section[id] { scroll-margin-top: 80px; }
 .vt-sliced { animation: vt-sliced 9s ease-out infinite; }
 @keyframes vt-sliced { 0%, 22.5% { opacity: 0; } 24%, 100% { opacity: 1; } }
 .vt-run1 { opacity: 0; stroke-dasharray: 1 2; animation: vt-run1 9s linear infinite; }
-@keyframes vt-run1 { 0%, 24% { opacity: 1; stroke-dashoffset: 1; stroke: #a78bfa; } 33% { opacity: 1; stroke-dashoffset: 0; stroke: #a78bfa; } 34%, 37% { opacity: 1; stroke-dashoffset: 0; stroke: #f87171; } 42%, 100% { opacity: 0; stroke-dashoffset: 0; stroke: #f87171; } }
+@keyframes vt-run1 { 0%, 24% { opacity: 1; stroke-dashoffset: 1; stroke: var(--v-violet); } 33% { opacity: 1; stroke-dashoffset: 0; stroke: var(--v-violet); } 34%, 37% { opacity: 1; stroke-dashoffset: 0; stroke: var(--v-stop); } 42%, 100% { opacity: 0; stroke-dashoffset: 0; stroke: var(--v-stop); } }
 .vt-car1 { opacity: 0; animation: vt-car1 9s linear infinite; }
-@keyframes vt-car1 { 0%, 23.9% { opacity: 0; stroke-dashoffset: 0.027; stroke: #fafafa; } 24% { opacity: 1; stroke-dashoffset: 0.027; stroke: #fafafa; } 33% { opacity: 1; stroke-dashoffset: -0.973; stroke: #fafafa; } 34% { opacity: 1; stroke-dashoffset: -0.973; stroke: #f87171; } 37%, 100% { opacity: 0; stroke-dashoffset: -0.973; stroke: #f87171; } }
+@keyframes vt-car1 { 0%, 23.9% { opacity: 0; stroke-dashoffset: 0.027; stroke: var(--v-ink); } 24% { opacity: 1; stroke-dashoffset: 0.027; stroke: var(--v-ink); } 33% { opacity: 1; stroke-dashoffset: -0.973; stroke: var(--v-ink); } 34% { opacity: 1; stroke-dashoffset: -0.973; stroke: var(--v-stop); } 37%, 100% { opacity: 0; stroke-dashoffset: -0.973; stroke: var(--v-stop); } }
 .vt-stop { animation: vt-stop 9s linear infinite; }
 @keyframes vt-stop { 0%, 33.4% { opacity: 0; } 34%, 100% { opacity: 1; } }
 .vt-wait { opacity: 0; stroke-dasharray: 1 2; animation: vt-wait 9s linear infinite; }
@@ -308,10 +423,16 @@ section[id] { scroll-margin-top: 80px; }
 
 /* Logos sit bare. In day mode, the ones drawn for dark backgrounds keep a plain dark plate. */
 :root[data-theme="light"] .plate { background: #0c0d10; border-radius: 22%; }
-:root[data-theme="light"] .screen .plate { background: none; }
 
 /* The logo sheet: hovering a cell selects it the way a design tool selects a frame, hairline and corner handles. */
-.sheet-cell { position: relative; }
+:root { --sheet-cell: #070a09; --sheet-hover: #0d1210; --sheet-line: #181c1a; --sheet-edge: rgba(255, 255, 255, 0.08); --handle: #fff; }
+:root[data-theme="light"] { --sheet-cell: #fdfefc; --sheet-hover: #ffffff; --sheet-line: #e6ebe6; --sheet-edge: #dde3dd; --handle: var(--ac); }
+.sheet { border-color: var(--sheet-edge); box-shadow: var(--card-shadow); }
+.sheet-cell { position: relative; background: var(--sheet-cell); }
+.sheet-cell:hover { background: var(--sheet-hover); }
+.sheet-cell[aria-current] { background: color-mix(in srgb, var(--ac) 12%, var(--sheet-cell)); }
+.sheet-cell[aria-current]::after { opacity: 1; }
+:root[data-theme="light"] .sheet-cell img { filter: drop-shadow(0 1px 2px rgba(6, 40, 30, 0.18)); }
 .sheet-cell:focus-visible { outline: none; }
 .sheet-cell::after {
   content: '';
@@ -322,10 +443,10 @@ section[id] { scroll-margin-top: 80px; }
   transition: opacity 0.15s;
   border: 1px solid var(--ac);
   background:
-    linear-gradient(#fff 0 0) left top / 5px 5px no-repeat,
-    linear-gradient(#fff 0 0) right top / 5px 5px no-repeat,
-    linear-gradient(#fff 0 0) left bottom / 5px 5px no-repeat,
-    linear-gradient(#fff 0 0) right bottom / 5px 5px no-repeat;
+    linear-gradient(var(--handle) 0 0) left top / 5px 5px no-repeat,
+    linear-gradient(var(--handle) 0 0) right top / 5px 5px no-repeat,
+    linear-gradient(var(--handle) 0 0) left bottom / 5px 5px no-repeat,
+    linear-gradient(var(--handle) 0 0) right bottom / 5px 5px no-repeat;
 }
 .sheet-cell:hover::after, .sheet-cell:focus-visible::after { opacity: 1; }
 

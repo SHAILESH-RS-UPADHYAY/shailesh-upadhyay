@@ -2,7 +2,7 @@ import type { Visual } from './data'
 import { asset } from './lib'
 
 /*
-  Project dashboards. Each is a small HUD built from the real product's brand and workflow:
+  Project dashboards, in theme tokens (index.css, --v-*). Each is a small HUD built from the real product's brand and workflow:
   RADAR   phosphor #00FF41 scope (as in its own logo), gold target lock, scan log, nightly pipeline rail
   Vettly  a railway interlocking: ranked 80K context → one track per provider (Groq 429, Gemini 200) → 7-check score
   EVES    live capture → mission brief that writes itself → neon prompt pills (as in the app)
@@ -53,9 +53,9 @@ function Glow({ id, blur = 1.6 }: { id: string; blur?: number }) {
 /* ================= RADAR ================= */
 // A precision instrument: brushed-steel 24h bezel (the nightly run marked in gold at 01:30), a lume chapter ring the
 // beam lights as it passes, phosphor returns, a gold hub under a glass dome. Lock readout and sources pane are glass.
-const G = '#00FF41'
-const MINT = '#B6FFC6'
-const GOLD = '#FACC15'
+const G = 'var(--v-g)'
+const MINT = 'var(--v-mint)'
+const GOLD = 'var(--v-gold)'
 const RS = { x: 92, y: 110, r: 64 } // scope; the dial face is r 66, the bezel runs from 66 to 78
 const onScope = (a: number, r: number) => ({ x: RS.x + r * Math.cos(deg(a)), y: RS.y + r * Math.sin(deg(a)) })
 const sweepDelay = (a: number) => `${(a / 360) * 4 - 4}s` // the beam crosses angle a at this point of its 4s turn
@@ -124,7 +124,7 @@ function Lock({ a, r, card: [dx, dy], match, role, via, k }: (typeof LOCKS)[numb
       </g>
       <g className="rd-card" style={{ animationDelay: delay }}>
         <path d={`M${t.x + (nx - t.x) * u} ${t.y + (ny - t.y) * u}L${nx} ${ny}`} stroke={GOLD} strokeOpacity="0.8" strokeWidth="0.7" />
-        <rect x={x} y={y} width={CARD.w} height={CARD.h} rx="3.5" fill="#0d0c02" fillOpacity="0.78" stroke={GOLD} strokeOpacity="0.7" strokeWidth="0.6" />
+        <rect x={x} y={y} width={CARD.w} height={CARD.h} rx="3.5" fill="var(--v-card)" fillOpacity="0.78" stroke={GOLD} strokeOpacity="0.7" strokeWidth="0.6" />
         <rect x={x + 4} y={y} width="36" height="0.6" fill="url(#rd-edge)" />
         <g className="rd-type" style={{ animationDelay: delay }}>
           <text x={x + 5} y={y + 8.5} fill={GOLD} fontSize="6.4" fontWeight="700" fontFamily={MONO} filter="url(#rd-glow)">MATCH {match}</text>
@@ -144,15 +144,15 @@ function Radar() {
         <Glow id="rd-bloom" blur={3.2} />
         <filter id="rd-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" /></filter>
         {/* static glows are gradients, not blur filters: the spinning beam repaints this area every frame */}
-        <radialGradient id="rd-shadow"><stop offset="0.86" stopColor="#000" stopOpacity="0.85" /><stop offset="1" stopColor="#000" stopOpacity="0" /></radialGradient>
+        <radialGradient id="rd-shadow"><stop offset="0.86" stopColor="var(--v-shadow)" stopOpacity="var(--v-shadow-o)" /><stop offset="1" stopColor="var(--v-shadow)" stopOpacity="0" /></radialGradient>
         <radialGradient id="rd-haze"><stop offset="0" stopColor={G} stopOpacity="0.16" /><stop offset="1" stopColor={G} stopOpacity="0" /></radialGradient>
         <radialGradient id="rd-face" cx="0.45" cy="0.4">
-          <stop offset="0" stopColor="#07301a" /><stop offset="0.65" stopColor="#03160b" /><stop offset="1" stopColor="#010703" />
+          <stop offset="0" stopColor="var(--v-face1)" /><stop offset="0.65" stopColor="var(--v-face2)" /><stop offset="1" stopColor="var(--v-face3)" />
         </radialGradient>
         {/* brushed steel: dark and light bands, a second pass for the specular streak */}
         <linearGradient id="rd-steel" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#1b211e" /><stop offset="0.16" stopColor="#7c8883" /><stop offset="0.34" stopColor="#161b19" />
-          <stop offset="0.52" stopColor="#3b4541" /><stop offset="0.7" stopColor="#c4ccc8" /><stop offset="0.84" stopColor="#1c2320" /><stop offset="1" stopColor="#4d5853" />
+          <stop offset="0" stopColor="var(--v-st1)" /><stop offset="0.16" stopColor="var(--v-st2)" /><stop offset="0.34" stopColor="var(--v-st3)" />
+          <stop offset="0.52" stopColor="var(--v-st4)" /><stop offset="0.7" stopColor="var(--v-st5)" /><stop offset="0.84" stopColor="var(--v-st6)" /><stop offset="1" stopColor="var(--v-st7)" />
         </linearGradient>
         <linearGradient id="rd-streak" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0.3" stopColor="#fff" stopOpacity="0" /><stop offset="0.48" stopColor="#fff" stopOpacity="0.35" /><stop offset="0.66" stopColor="#fff" stopOpacity="0" />
@@ -164,10 +164,10 @@ function Radar() {
           <stop offset="0" stopColor="#fff" stopOpacity="0.13" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="rd-pane" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor={G} stopOpacity="0.12" /><stop offset="0.45" stopColor="#001a08" stopOpacity="0.82" /><stop offset="1" stopColor="#000d04" stopOpacity="0.92" />
+          <stop offset="0" stopColor={G} stopOpacity="0.12" /><stop offset="0.45" stopColor="var(--v-pane1)" stopOpacity="0.82" /><stop offset="1" stopColor="var(--v-pane2)" stopOpacity="0.92" />
         </linearGradient>
         <linearGradient id="rd-edge" x1="0" x2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.5" stopColor="#eafff0" stopOpacity="0.75" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.5" stopColor="var(--v-spark)" stopOpacity="0.75" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="rd-fade" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.25" stopColor="#fff" />
@@ -207,7 +207,7 @@ function Radar() {
       <text fill="#000" fillOpacity="0.7" fontSize="4.6" fontWeight="700" letterSpacing="1.3" fontFamily={MONO} transform="translate(0 0.45)">
         <textPath href="#rd-engrave" startOffset="50%" textAnchor="middle">PRECISION SCAN</textPath>
       </text>
-      <text fill="#dfe6e2" fillOpacity="0.7" fontSize="4.6" fontWeight="700" letterSpacing="1.3" fontFamily={MONO}>
+      <text fill="var(--v-engrave)" fillOpacity="0.7" fontSize="4.6" fontWeight="700" letterSpacing="1.3" fontFamily={MONO}>
         <textPath href="#rd-engrave" startOffset="50%" textAnchor="middle">PRECISION SCAN</textPath>
       </text>
 
@@ -234,9 +234,9 @@ function Radar() {
         <g filter="url(#rd-bloom)">
           <path d={arc(67.4, -12, 3)} fill="none" stroke={G} strokeOpacity="0.55" strokeWidth="2.4" />
           <path d={`M${RS.x} ${RS.y}L${RS.x + RS.r} ${RS.y}`} stroke={G} strokeWidth="5" />
-          <circle cx={RS.x + RS.r} cy={RS.y} r="2.2" fill="#eafff0" />
+          <circle cx={RS.x + RS.r} cy={RS.y} r="2.2" fill="var(--v-spark)" />
         </g>
-        <path d={`M${RS.x} ${RS.y}L${RS.x + RS.r} ${RS.y}`} stroke="#d8ffe0" strokeWidth="1.3" strokeLinecap="round" />
+        <path d={`M${RS.x} ${RS.y}L${RS.x + RS.r} ${RS.y}`} stroke="var(--v-beam)" strokeWidth="1.3" strokeLinecap="round" />
       </g>
       {[0, 1].map((k) => <circle key={k} className="rd-sonar" cx={RS.x} cy={RS.y} r={RS.r} fill="none" stroke={G} strokeWidth="1.2" style={{ animationDelay: `${-k * 1.6}s` }} />)}
 
@@ -270,10 +270,10 @@ function Radar() {
       <ellipse cx={RS.x - 1.6} cy={RS.y - 2} rx="1.8" ry="1" fill="#fff" fillOpacity="0.75" />
 
       {/* sources: stacked glass panes, a light sweep crossing the top one */}
-      {[2, 1].map((k) => <polygon key={k} points={PANE} transform={`translate(${k * 2} ${k * 3})`} fill="#000d04" fillOpacity="0.5" stroke={G} strokeOpacity={0.24 - k * 0.07} />)}
+      {[2, 1].map((k) => <polygon key={k} points={PANE} transform={`translate(${k * 2} ${k * 3})`} fill="var(--v-pane2)" fillOpacity="0.5" stroke={G} strokeOpacity={0.24 - k * 0.07} />)}
       <polygon points={PANE} fill="url(#rd-pane)" stroke={G} strokeOpacity="0.45" />
       <rect x="186" y="29.9" width="110" height="0.8" fill="url(#rd-edge)" />
-      <g clipPath="url(#rd-pane-clip)"><rect className="rd-sheen" x="80" y="20" width="16" height="170" fill="#eafff0" fillOpacity="0.07" transform="skewX(-22)" /></g>
+      <g clipPath="url(#rd-pane-clip)"><rect className="rd-sheen" x="80" y="20" width="16" height="170" fill="var(--v-spark)" fillOpacity="0.07" transform="skewX(-22)" /></g>
       <path d="M186 40V34H192M302 168V174H296" fill="none" stroke={MINT} strokeOpacity="0.6" strokeWidth="0.8" />
       <text x="190" y="43" fill={MINT} fillOpacity="0.65" fontSize="5.6" letterSpacing="1.5" fontFamily={MONO}>LIVE SOURCES</text>
       <text x="189" y="74" fill="none" stroke={G} strokeOpacity="0.18" strokeWidth="3.4" strokeLinejoin="round" fontSize="27" fontWeight="600" fontFamily={MONO}>25</text>
@@ -305,7 +305,7 @@ function Radar() {
         return (
           <g key={name}>
             <text x={x} y="203" fill={k === 4 ? GOLD : MINT} fontSize="6" fontWeight="600" letterSpacing="0.8" textAnchor="middle" fontFamily={MONO}>{name}</text>
-            <rect x={x - 5} y="209" width="10" height="10" transform={`rotate(45 ${x} 214)`} fill="#000d04" stroke={c} />
+            <rect x={x - 5} y="209" width="10" height="10" transform={`rotate(45 ${x} 214)`} fill="var(--v-pane2)" stroke={c} />
             <rect className="rd-flash" x={x - 5} y="209" width="10" height="10" transform={`rotate(45 ${x} 214)`} fill={c} filter="url(#rd-bloom)" style={{ animationDelay: `${k * 0.8}s` }} />
             <text x={x} y="231" fill={MINT} fillOpacity="0.6" fontSize="5.4" textAnchor="middle" fontFamily={MONO}>{detail}</text>
           </g>
@@ -313,7 +313,7 @@ function Radar() {
       })}
       <g className="rd-packet">
         <rect x="2" y="212.5" width="28" height="3" rx="1.5" fill="url(#rd-tail)" />
-        <circle cx="30" cy="214" r="2.8" fill="#fff" filter="url(#rd-glow)" />
+        <circle cx="30" cy="214" r="2.8" fill="var(--v-packet)" filter="url(#rd-glow)" />
       </g>
     </g>
   )
@@ -325,18 +325,18 @@ function Radar() {
 // The request runs out on track 1: Groq's signal goes red (429), a 1s backoff runs down, the points throw to
 // track 2, Gemini's signal goes green (200) and the route lights through to the terminus, where 7 checks score the
 // answer. One 9s timeline (vt-* in index.css); the resting styles are the finished run, which reduced motion shows.
-const VIOLET = '#a78bfa'
-const STOP = '#f87171'
-const GO = '#4ade80'
-const WAIT = '#fbbf24'
-const IDLE = '#3f3f46'
-const MUTED = '#71717a'
+const VIOLET = 'var(--v-violet)'
+const STOP = 'var(--v-stop)'
+const GO = 'var(--v-go)'
+const WAIT = 'var(--v-wait)'
+const IDLE = 'var(--v-idle)'
+const MUTED = 'var(--v-muted)'
 const BAR = { x: 14, y: 36, h: 10, perK: 3 } // the 80K budget is 240 units wide
 const LIMIT = BAR.x + 80 * BAR.perK
 // label, thousands of chars, fill, ink: priority 1 to 4, fading as the priority drops
 const PACK: [string, number, string, string][] = [
-  ['assignment', 11.2, '#ddd6fe', '#1e1338'], ['jd + stack', 10.4, '#c4b5fd', '#1e1338'],
-  ['resume', 7.4, '#a78bfa', '#1e1338'], ['repos', 51, '#2a1f4d', '#ddd6fe'],
+  ['assignment', 11.2, 'var(--v-p1)', 'var(--v-i1)'], ['jd + stack', 10.4, 'var(--v-p2)', 'var(--v-i2)'],
+  ['resume', 7.4, 'var(--v-p3)', 'var(--v-i3)'], ['repos', 51, 'var(--v-p4)', 'var(--v-i4)'],
 ]
 const SEGS = (() => {
   let x = BAR.x
@@ -370,15 +370,15 @@ function Vettly() {
 
       {/* the budget, empty, with its scale */}
       <text x="14" y="31" fontSize="4.4" letterSpacing="1.1"><tspan fill={VIOLET}>CONTEXT</tspan><tspan fill={MUTED}> · RANKED BY PRIORITY</tspan></text>
-      <rect x={BAR.x} y={BAR.y} width={LIMIT - BAR.x} height={BAR.h} rx="1.6" fill="#0d0b16" stroke={IDLE} strokeWidth="0.6" />
+      <rect x={BAR.x} y={BAR.y} width={LIMIT - BAR.x} height={BAR.h} rx="1.6" fill="var(--v-well)" stroke={IDLE} strokeWidth="0.6" />
       {[20, 40, 60].map((k) => (
         <g key={k}>
           <line x1={BAR.x + k * BAR.perK} y1={BAR.y + BAR.h + 1} x2={BAR.x + k * BAR.perK} y2={BAR.y + BAR.h + 3} stroke={MUTED} strokeWidth="0.5" />
           <text x={BAR.x + k * BAR.perK} y={BAR.y + BAR.h + 8} fill={MUTED} fontSize="4" textAnchor="middle">{k}K</text>
         </g>
       ))}
-      <line x1={LIMIT} y1={BAR.y - 3} x2={LIMIT} y2={BAR.y + BAR.h + 3} stroke="#fafafa" strokeWidth="0.8" />
-      <text x={LIMIT} y={BAR.y + BAR.h + 8} fill="#fafafa" fontSize="4" fontWeight="700" textAnchor="middle">80K</text>
+      <line x1={LIMIT} y1={BAR.y - 3} x2={LIMIT} y2={BAR.y + BAR.h + 3} stroke="var(--v-ink)" strokeWidth="0.8" />
+      <text x={LIMIT} y={BAR.y + BAR.h + 8} fill="var(--v-ink)" fontSize="4" fontWeight="700" textAnchor="middle">80K</text>
 
       {/* the yard, unlit: the line out of the context bar, two ladders, four tracks, a signal on each */}
       <g fill="none" stroke={IDLE} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -387,11 +387,11 @@ function Vettly() {
       <text x="118" y={ty(0) - 16} fontSize="4.4" letterSpacing="1.1"><tspan fill={VIOLET}>FAILOVER</tspan><tspan fill={MUTED}> ORDER</tspan></text>
       {TRACKS.map((name, k) => (
         <g key={name}>
-          <text x="118" y={ty(k) - 4.6} fill="#e4e4e7" fontSize="5.6"><tspan fill={MUTED}>{k + 1} </tspan>{name}</text>
-          <circle cx={SIG} cy={ty(k)} r="2.8" fill="#09090b" stroke={MUTED} strokeWidth="0.9" />
+          <text x="118" y={ty(k) - 4.6} fill="var(--v-ink)" fontSize="5.6"><tspan fill={MUTED}>{k + 1} </tspan>{name}</text>
+          <circle cx={SIG} cy={ty(k)} r="2.8" fill="var(--v-well)" stroke={MUTED} strokeWidth="0.9" />
         </g>
       ))}
-      <circle cx={TERM.x} cy={TERM.y} r={TERM.r - 1.4} fill="#0d0b16" />
+      <circle cx={TERM.x} cy={TERM.y} r={TERM.r - 1.4} fill="var(--v-well)" />
       <circle cx={TERM.x} cy={TERM.y} r={TERM.r} fill="none" stroke={IDLE} strokeWidth="2.2" />
       <text x={TERM.x} y={TERM.y + TERM.r + 9} fill={MUTED} fontSize="4" letterSpacing="1" textAnchor="middle">7 CHECKS</text>
 
@@ -430,28 +430,28 @@ function Vettly() {
           <text x={SIG + 6} y={ty(1) - 4.6} fontSize="5.6"><tspan fill={GO} fontWeight="700">200</tspan><tspan fill={MUTED} fontSize="4.6"> 1.8s</tspan></text>
         </g>
         {/* the request: a short car riding the lit route */}
-        <path className="vt-car1" pathLength={1} d={RUN_GROQ} fill="none" stroke="#fafafa" strokeWidth="4.6" strokeLinecap="round" strokeDasharray="0.027 2" />
-        <path className="vt-car2" pathLength={1} d={RUN_GEMINI} fill="none" stroke="#fafafa" strokeWidth="4.6" strokeLinecap="round" strokeDasharray="0.012 2" />
+        <path className="vt-car1" pathLength={1} d={RUN_GROQ} fill="none" stroke="var(--v-ink)" strokeWidth="4.6" strokeLinecap="round" strokeDasharray="0.027 2" />
+        <path className="vt-car2" pathLength={1} d={RUN_GEMINI} fill="none" stroke="var(--v-ink)" strokeWidth="4.6" strokeLinecap="round" strokeDasharray="0.012 2" />
 
         {/* the terminus: the ring closes check by check and the score lands */}
         <circle className="vt-ring" pathLength={1} cx={TERM.x} cy={TERM.y} r={TERM.r} fill="none" stroke={VIOLET} strokeWidth="2.2" transform={`rotate(-90 ${TERM.x} ${TERM.y})`} />
-        <text className="vt-score" x={TERM.x} y={TERM.y + 3} fill="#fafafa" fontSize="8.4" fontWeight="700" textAnchor="middle">8.8</text>
+        <text className="vt-score" x={TERM.x} y={TERM.y + 3} fill="var(--v-ink)" fontSize="8.4" fontWeight="700" textAnchor="middle">8.8</text>
         {/* the question it wrote, grounded in a real repo */}
         <text className="vt-tag" x="14" y="182" fontSize="4.4" letterSpacing="1.1"><tspan fill={VIOLET}>Q12</tspan><tspan fill={MUTED}> · PROJECT DEEP-DIVE</tspan></text>
-        <text className="vt-q1" x="14" y="196" fill="#f4f4f5" fontSize="6.6" fontWeight="600">Your gold price is spot × live FX.</text>
-        <text className="vt-q2" x="14" y="207" fill="#f4f4f5" fontSize="6.6" fontWeight="600">What breaks when the FX feed goes stale?</text>
+        <text className="vt-q1" x="14" y="196" fill="var(--v-ink)" fontSize="6.6" fontWeight="600">Your gold price is spot × live FX.</text>
+        <text className="vt-q2" x="14" y="207" fill="var(--v-ink)" fontSize="6.6" fontWeight="600">What breaks when the FX feed goes stale?</text>
         <text className="vt-meta" x="14" y="221" fontSize="4.6"><tspan fill={GO}>✓ humanized</tspan><tspan fill={MUTED}> · from simplify-money-backend</tspan></text>
       </g>
-      <path d={NOTCHES} stroke="#000" strokeWidth="1.4" />
+      <path d={NOTCHES} stroke="var(--v-panel)" strokeWidth="1.4" />
     </g>
   )
 }
 
 /* ================= EVES — mission brief ================= */
 // Mirrors the app itself: a mission brief that writes itself from the call, then the neon prompt pills.
-const CY = '#22d3ee'
-const GR = '#7ee787'
-const PU = '#c678dd'
+const CY = 'var(--v-cy)'
+const GR = 'var(--v-gr)'
+const PU = 'var(--v-pu)'
 const PILL_ICONS: Record<string, string> = {
   target: 'M4 0.8a3.2 3.2 0 1 1 0 6.4a3.2 3.2 0 1 1 0-6.4M4 3a1 1 0 1 1 0 2a1 1 0 1 1 0-2',
   build: 'M1 2.2h6M1 5.8h6M2.6 1v2.4M5.4 4.6V7',
@@ -463,10 +463,10 @@ const PILL_ICONS: Record<string, string> = {
   shield: 'M4 0.6l3 1.2v2.3c0 1.8-1.3 3-3 3.4-1.7-.4-3-1.6-3-3.4V1.8z',
 }
 const PILLS: [string, string, string][] = [
-  ['MAIN GOAL', '#fbbf24', 'target'], ['HOW TO BUILD', '#4ade80', 'build'], ['CODEX PROMPT', '#22d3ee', 'term'], ['CLAUDE CODE', '#fb923c', 'spark'],
-  ['CURSOR PROMPT', '#60a5fa', 'cursor'], ['FRONTEND', '#c084fc', 'layout'], ['ACTION PLAN', '#f472b6', 'list'], ['RISKS & Qs', '#f87171', 'shield'],
+  ['MAIN GOAL', 'var(--v-wait)', 'target'], ['HOW TO BUILD', 'var(--v-go)', 'build'], ['CODEX PROMPT', 'var(--v-cy)', 'term'], ['CLAUDE CODE', 'var(--v-orange)', 'spark'],
+  ['CURSOR PROMPT', 'var(--v-blue)', 'cursor'], ['FRONTEND', 'var(--v-purple)', 'layout'], ['ACTION PLAN', 'var(--v-pink)', 'list'], ['RISKS & Qs', 'var(--v-stop)', 'shield'],
 ]
-const BRIEF_CHIPS: [string, string][] = [['2 decisions', CY], ['3 action items', GR], ['1 open question', '#fbbf24'], ['1 concern', '#fb7185'], ['planning · focused', PU]]
+const BRIEF_CHIPS: [string, string][] = [['2 decisions', CY], ['3 action items', GR], ['1 open question', 'var(--v-wait)'], ['1 concern', 'var(--v-rose)'], ['planning · focused', PU]]
 const MINI_WAVE = Array.from({ length: 24 }, (_, i) => 3 + 8 * Math.abs(Math.sin(i * 0.9) * Math.cos(i * 0.31)))
 
 const CHIPS = (() => {
@@ -502,18 +502,18 @@ function Eves() {
       <rect x="112" y="31" width="122" height="14" rx="7" fill={GR} fillOpacity="0.07" stroke={GR} strokeOpacity="0.5" />
       <circle className="rd-live" cx="120" cy="38" r="2" fill={GR} />
       <text x="126" y="40" fill={GR} fontSize="5.8" fontFamily={MONO}>GROQ · openai/gpt-oss-120b</text>
-      <rect x="244" y="31" width="62" height="14" rx="5" fill="none" stroke="#fff" strokeOpacity="0.15" />
+      <rect x="244" y="31" width="62" height="14" rx="5" fill="none" stroke="var(--v-ink)" strokeOpacity="0.15" />
       <rect x="246" y="33" width="29" height="10" rx="3" fill={CY} fillOpacity="0.2" />
       <text x="260.5" y="40" fill={CY} fontSize="5.6" fontWeight="700" textAnchor="middle" fontFamily={MONO}>WSL</text>
-      <text x="290" y="40" fill="#fff" fillOpacity="0.45" fontSize="5.6" textAnchor="middle" fontFamily={MONO}>WIN</text>
+      <text x="290" y="40" fill="var(--v-ink)" fillOpacity="0.55" fontSize="5.6" textAnchor="middle" fontFamily={MONO}>WIN</text>
 
       {/* mission brief: the main goal types itself out of the meeting */}
-      <rect x="14" y="52" width="292" height="80" rx="8" fill="#0b1117" stroke={CY} strokeOpacity="0.32" />
+      <rect x="14" y="52" width="292" height="80" rx="8" fill="var(--v-well)" stroke={CY} strokeOpacity="0.32" />
       <rect x="40" y="52" width="240" height="1" fill="url(#ev-edge)" />
       <circle className="rd-live" cx="24" cy="64" r="2.2" fill={GR} filter="url(#ev-glow)" />
       <text x="30" y="66" fill={GR} fontSize="5.6" letterSpacing="1.4" fontFamily={MONO}>MISSION BRIEF // MAIN GOAL</text>
-      <text className="ev-type" x="22" y="84" fill="#ffffff" fontSize="7.6" fontWeight="700" fontFamily={MONO}>Ship the cache layer first, then open senior access.</text>
-      <text className="ev-sub" x="22" y="97" fill="#ffffff" fillOpacity="0.55" fontSize="5.8" fontFamily={MONO}>Redis, 5-min TTL · owners and deadlines pulled from the call</text>
+      <text className="ev-type" x="22" y="84" fill="var(--v-ink)" fontSize="7.6" fontWeight="700" fontFamily={MONO}>Ship the cache layer first, then open senior access.</text>
+      <text className="ev-sub" x="22" y="97" fill="var(--v-ink)" fillOpacity="0.6" fontSize="5.8" fontFamily={MONO}>Redis, 5-min TTL · owners and deadlines pulled from the call</text>
       {CHIPS.map((c, i) => (
         <g key={c.t} className="ev-chip" style={{ animationDelay: `${2.9 + i * 0.12}s` }}>
           <rect x={c.x} y="108" width={c.w} height="13" rx="6.5" fill={c.c} fillOpacity="0.1" stroke={c.c} strokeOpacity="0.6" />
@@ -528,7 +528,7 @@ function Eves() {
         return (
           <g key={label} className="ev-neon" style={{ animationDelay: `${3.4 + i * 0.16}s` }}>
             <rect x={x} y={y} width="70" height="22" rx="11" fill={c} opacity="0.22" filter="url(#ev-bloom)" />
-            <rect x={x} y={y} width="70" height="22" rx="11" fill="#07090c" stroke={c} strokeOpacity="0.8" />
+            <rect x={x} y={y} width="70" height="22" rx="11" fill="var(--v-well)" stroke={c} strokeOpacity="0.8" />
             <g transform={`translate(${x + 8} ${y + 7})`} fill="none" stroke={c} strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round">
               <path d={PILL_ICONS[icon]} />
             </g>
@@ -537,10 +537,10 @@ function Eves() {
         )
       })}
       {/* one gets pressed */}
-      <rect className="ev-press" x={14 + 3 * 74} y="144" width="70" height="22" rx="11" fill="#fb923c" fillOpacity="0.35" stroke="#fed7aa" strokeWidth="1.2" filter="url(#ev-glow)" />
+      <rect className="ev-press" x={14 + 3 * 74} y="144" width="70" height="22" rx="11" fill="var(--v-orange)" fillOpacity="0.35" stroke="var(--v-press)" strokeWidth="1.2" filter="url(#ev-glow)" />
       <g clipPath="url(#ev-pills)"><rect className="ev-sweep" x="-60" y="140" width="40" height="64" fill="url(#ev-sweep)" transform="skewX(-20)" /></g>
       <g className="ev-toast">
-        <rect x="96" y="204" width="128" height="17" rx="8.5" fill="#06140c" stroke={GR} strokeOpacity="0.7" />
+        <rect x="96" y="204" width="128" height="17" rx="8.5" fill="var(--v-toast)" stroke={GR} strokeOpacity="0.7" />
         <text x="160" y="215" fill={GR} fontSize="5.8" textAnchor="middle" fontFamily={MONO}>✓ prompt copied → Claude Code</text>
       </g>
       <text x="14" y="229" fill={CY} fillOpacity="0.8" fontSize="5.2" fontFamily={MONO}>nova-3 · hi ↔ en</text>
@@ -550,8 +550,8 @@ function Eves() {
 }
 
 /* ================= Simplify Money ================= */
-const AU = '#fbbf24'
-const ROSE = '#fb7185'
+const AU = 'var(--v-au)'
+const ROSE = 'var(--v-rose)'
 const PRICE = 'M22 118 L56 108 L86 114 L118 88 L150 96 L182 70 L214 78 L246 50 L282 56 L300 44'
 
 function Gold() {
@@ -569,25 +569,25 @@ function Gold() {
       <text className="au-live" x="300" y="36" fill={ROSE} fontSize="7" fontWeight="600" textAnchor="end" fontFamily={MONO}>▲ LIVE</text>
 
       {/* the conversation */}
-      <polygon points={plate(12, 146, 178, 84)} fill="#120d02" fillOpacity="0.9" stroke={AU} strokeOpacity="0.35" />
+      <polygon points={plate(12, 146, 178, 84)} fill="var(--v-au-panel)" fillOpacity="0.9" stroke={AU} strokeOpacity="0.35" />
       <g className="au-s0">
         <rect x="70" y="154" width="112" height="16" rx="8" fill={AU} fillOpacity="0.16" stroke={AU} strokeOpacity="0.6" />
-        <text x="126" y="164.5" fill="#fef3c7" fontSize="6" textAnchor="middle" fontFamily={MONO}>I want to invest ₹5000 in gold</text>
+        <text x="126" y="164.5" fill="var(--v-au-ink)" fontSize="6" textAnchor="middle" fontFamily={MONO}>I want to invest ₹5000 in gold</text>
       </g>
       <g className="au-s1">
-        <rect x="20" y="176" width="130" height="16" rx="8" fill="#fff" fillOpacity="0.06" stroke="#fff" strokeOpacity="0.25" />
-        <text x="85" y="186.5" fill="#f5f5f4" fontSize="6" textAnchor="middle" fontFamily={MONO}>Today's 24K rate is live. Buy now?</text>
+        <rect x="20" y="176" width="130" height="16" rx="8" fill="var(--v-ink)" fillOpacity="0.06" stroke="var(--v-ink)" strokeOpacity="0.25" />
+        <text x="85" y="186.5" fill="var(--v-ink)" fontSize="6" textAnchor="middle" fontFamily={MONO}>Today's 24K rate is live. Buy now?</text>
       </g>
       <g className="au-s2">
         <rect x="20" y="200" width="92" height="14" rx="4" fill={ROSE} fillOpacity="0.15" stroke={ROSE} />
-        <text x="66" y="209.5" fill="#fecdd3" fontSize="6" textAnchor="middle" fontFamily={MONO}>wants_to_buy: true</text>
+        <text x="66" y="209.5" fill="var(--v-rose-ink)" fontSize="6" textAnchor="middle" fontFamily={MONO}>wants_to_buy: true</text>
       </g>
 
       {/* the price engine */}
-      <polygon points={plate(198, 146, 110, 84)} fill="#120d02" fillOpacity="0.9" stroke={AU} strokeOpacity="0.35" />
+      <polygon points={plate(198, 146, 110, 84)} fill="var(--v-au-panel)" fillOpacity="0.9" stroke={AU} strokeOpacity="0.35" />
       <text x="206" y="158" fill={AU} fillOpacity="0.75" fontSize="5.6" letterSpacing="1.2" fontFamily={MONO}>PRICE ENGINE</text>
       {['spot  USD / oz', '× FX  USD → INR', '+ duty + GST', '= ₹ per gram'].map((l, i) => (
-        <text key={l} className={`au-p${i}`} x="206" y={172 + i * 14} fill={i === 3 ? AU : '#fef3c7'} fontSize="6.4" fontWeight={i === 3 ? 700 : 400} fontFamily={MONO}>{l}</text>
+        <text key={l} className={`au-p${i}`} x="206" y={172 + i * 14} fill={i === 3 ? AU : 'var(--v-au-ink)'} fontSize="6.4" fontWeight={i === 3 ? 700 : 400} fontFamily={MONO}>{l}</text>
       ))}
     </g>
   )
@@ -595,9 +595,9 @@ function Gold() {
 
 export function ProjectVisual({ kind }: { kind: Visual }) {
   return (
-    <div className="screen screen-panel relative aspect-[4/3] rounded-2xl border border-fg/10 bg-black overflow-hidden" aria-hidden>
+    <div className="screen-panel relative aspect-[4/3] rounded-2xl border border-fg/10 bg-(--v-panel) overflow-hidden" aria-hidden>
       <div className="absolute inset-0" style={{
-        backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(to right, var(--v-gridline) 1px, transparent 1px), linear-gradient(to bottom, var(--v-gridline) 1px, transparent 1px)',
         backgroundSize: '20px 20px',
       }} />
       {/* RADAR's beam: a smooth conic gradient, positioned exactly under the SVG scope */}
@@ -618,9 +618,11 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
    RADAR   the big scope in miniature: steel bezel, phosphor dial, gold hub; each turn the beam finds the gold job and pings
    Vettly  the terminus ring with one check-segment missing; the V drops into the gap
    EVES    one stroke: speech decays into a waiting cursor
-   No tile around them. In day mode the neon ones sit on a plain dark plate (.plate); RADAR has its own body. RADAR's
+   No tile around them: their colours follow the theme, and RADAR has its own body. RADAR's
    scope always turns; the others play their one motion on hover. */
-const MARK_COLOR: Record<Visual, string> = { radar: '#34d399', router: '#a78bfa', wave: '#22d3ee', gold: '#f59e0b', sheet: '#22d3ee' }
+const MARK_COLOR: Record<Visual, string> = { radar: '#34d399', router: 'var(--v-violet)', wave: 'var(--v-cy)', gold: 'var(--v-mark-gold)', sheet: 'var(--v-cy)' }
+// RADAR's mark is a physical instrument with its own dark dial, the same in both themes.
+const DIAL = { G: '#00FF41', MINT: '#B6FFC6', GOLD: '#FACC15' }
 
 function Glyph({ kind }: { kind: Visual }) {
   return (
@@ -634,23 +636,23 @@ function Glyph({ kind }: { kind: Visual }) {
             </linearGradient>
             <radialGradient id="gl-face" cx="0.45" cy="0.4"><stop offset="0" stopColor="#07301a" /><stop offset="0.65" stopColor="#03160b" /><stop offset="1" stopColor="#010703" /></radialGradient>
             <radialGradient id="gl-gold" cx="0.36" cy="0.3" r="0.8"><stop offset="0" stopColor="#fff8d6" /><stop offset="0.4" stopColor="#f5c542" /><stop offset="1" stopColor="#7a5300" /></radialGradient>
-            <linearGradient id="gl-beam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stopColor={G} stopOpacity="0.8" /><stop offset="1" stopColor={G} stopOpacity="0" /></linearGradient>
+            <linearGradient id="gl-beam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stopColor={DIAL.G} stopOpacity="0.8" /><stop offset="1" stopColor={DIAL.G} stopOpacity="0" /></linearGradient>
           </defs>
           <circle cx="12" cy="12" r="9.5" fill="url(#gl-face)" stroke="none" />
           <circle cx="12" cy="12" r="10.7" stroke="url(#gl-steel)" strokeWidth="2.4" />
           <circle cx="12" cy="12" r="11.85" stroke="#fff" strokeOpacity="0.28" strokeWidth="0.15" />
           <circle cx="12" cy="12" r="9.5" stroke="#000" strokeOpacity="0.8" strokeWidth="0.2" />
-          <path d="M12 0.6V2.2" stroke={GOLD} strokeWidth="0.55" transform="rotate(22.5 12 12)" />
+          <path d="M12 0.6V2.2" stroke={DIAL.GOLD} strokeWidth="0.55" transform="rotate(22.5 12 12)" />
           {Array.from({ length: 12 }, (_, i) => (
-            <path key={i} d="M12 3.2V4.6" stroke={MINT} strokeOpacity={i % 3 ? 0.55 : 1} strokeWidth={i % 3 ? 0.35 : 0.6} strokeLinecap="butt" transform={`rotate(${i * 30} 12 12)`} />
+            <path key={i} d="M12 3.2V4.6" stroke={DIAL.MINT} strokeOpacity={i % 3 ? 0.55 : 1} strokeWidth={i % 3 ? 0.35 : 0.6} strokeLinecap="butt" transform={`rotate(${i * 30} 12 12)`} />
           ))}
-          <circle cx="12" cy="12" r="5.2" stroke={G} strokeOpacity="0.6" strokeWidth="0.35" />
+          <circle cx="12" cy="12" r="5.2" stroke={DIAL.G} strokeOpacity="0.6" strokeWidth="0.35" />
           <g className="gl-sweep">
             <path d="M12 12L12 2.5A9.5 9.5 0 0 0 4.22 6.55Q7.6 9.6 12 12Z" fill="url(#gl-beam)" stroke="none" />
-            <path d="M12 12V2.7" stroke={MINT} strokeWidth="0.7" />
+            <path d="M12 12V2.7" stroke={DIAL.MINT} strokeWidth="0.7" />
           </g>
-          <circle className="gl-ping" cx="15.8" cy="7.2" r="1.1" stroke={GOLD} strokeWidth="0.5" />
-          <circle className="gl-blip" cx="15.8" cy="7.2" r="1.1" fill={GOLD} stroke="none" />
+          <circle className="gl-ping" cx="15.8" cy="7.2" r="1.1" stroke={DIAL.GOLD} strokeWidth="0.5" />
+          <circle className="gl-blip" cx="15.8" cy="7.2" r="1.1" fill={DIAL.GOLD} stroke="none" />
           <circle cx="12" cy="12" r="1.5" fill="url(#gl-gold)" stroke="#000" strokeOpacity="0.7" strokeWidth="0.2" />
         </>
       )}
@@ -679,7 +681,7 @@ function Glyph({ kind }: { kind: Visual }) {
 export function ProjectMark({ kind, className = 'w-14 h-14 md:w-16 md:h-16' }: { kind: Visual; className?: string }) {
   if (kind === 'sheet') return <img src={asset('products/logos/blueprint.svg')} alt="" width={64} height={64} className={`shrink-0 ${className}`} />
   return (
-    <span aria-hidden className={`pm grid place-items-center shrink-0 ${kind === 'radar' ? '' : 'plate'} ${className}`} style={{ color: MARK_COLOR[kind] }}>
+    <span aria-hidden className={`pm grid place-items-center shrink-0 ${className}`} style={{ color: MARK_COLOR[kind] }}>
       <Glyph kind={kind} />
     </span>
   )

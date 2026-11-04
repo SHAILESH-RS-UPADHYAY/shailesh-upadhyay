@@ -9,7 +9,7 @@ export function SectionHeader({ n, label, title }: { n: string; label: string; t
     <div className="mb-14 md:mb-20">
       <div className="flex items-center gap-5 mb-8">
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-acc/25 to-transparent" />
-        <span data-b-text className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em] whitespace-nowrap">
+        <span data-b-text className="font-geist-mono text-sm md:text-base text-acc/95 tracking-[0.25em] whitespace-nowrap">
           {n} / {label}
         </span>
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-acc/25 to-transparent" />
@@ -48,10 +48,10 @@ export function ExtLink({ href, children }: { href: string; children: ReactNode 
 /* ====== TERMINAL — each box glitches, then types itself out whenever it scrolls into view ====== */
 function lineClass(l: string) {
   if (l.startsWith('$ ')) return 'text-(--ac)'
-  if (l.startsWith('# ')) return 'text-(--ac)/75'
-  if (l.startsWith('→ ')) return 'text-white/85 pl-[2ch] -indent-[2ch]'
-  if (l.startsWith('  ')) return 'text-white/55 pl-[calc(1rem+2ch)] -indent-[2ch]' // hanging indent for wrapped detail lines
-  return 'text-white/65'
+  if (l.startsWith('# ')) return 'text-(--ac)/90'
+  if (l.startsWith('→ ')) return 'text-fg/85 pl-[2ch] -indent-[2ch]'
+  if (l.startsWith('  ')) return 'text-fg/65 pl-[calc(1rem+2ch)] -indent-[2ch]' // hanging indent for wrapped detail lines
+  return 'text-fg/70'
 }
 
 const CHARS_PER_TICK = 3
@@ -100,13 +100,13 @@ export function Terminal({ lines, file, accent, className = '' }: {
   return (
     <div ref={ref} style={acVar(accent)}
       data-done={done || undefined}
-      className={`terminal screen relative rounded-2xl border border-(--ac)/25 bg-[#070a09] overflow-hidden text-left transition-shadow duration-700 ${className}`}>
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06]">
+      className={`terminal relative rounded-2xl border border-(--ac)/25 bg-(--term-bg) overflow-hidden text-left transition-shadow duration-700 ${className}`}>
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-fg/[0.08]">
         <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
         <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
         <span className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
-        <span className="ml-2 min-w-0 font-geist-mono text-xs text-white/45 truncate">{file}</span>
-        <span className="ml-auto shrink-0 font-geist-mono text-[0.6875rem] tracking-widest text-(--ac)/80">
+        <span className="ml-2 min-w-0 font-geist-mono text-xs text-fg/65 truncate">{file}</span>
+        <span className="ml-auto shrink-0 font-geist-mono text-[0.6875rem] tracking-widest text-(--ac)/90">
           {done ? 'READY' : started ? 'STREAMING' : glitching ? 'DECRYPTING' : 'STANDBY'}
         </span>
       </div>
@@ -125,7 +125,7 @@ export function Terminal({ lines, file, accent, className = '' }: {
         })}
         <AnimatePresence>
           {glitching && (
-            <motion.div className="absolute inset-0 flex items-center justify-center bg-black/80"
+            <motion.div className="absolute inset-0 flex items-center justify-center bg-(--term-bg)/85"
               initial={{ opacity: 0 }} exit={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 0.4, 1, 0.6, 1], x: [0, -4, 4, -2, 2, 0] }} transition={{ duration: 0.5 }}>
               <span className="font-geist-mono text-(--ac) tracking-widest text-sm">ACCESSING DATA<span className="animate-pulse">█</span></span>
@@ -231,7 +231,7 @@ export function ResumeCard() {
         </span>
         <span>
           <span className="block font-oxanium text-base md:text-lg font-semibold text-fg/90">View resume</span>
-          <span className="block font-geist-mono text-[0.6875rem] text-fg/50 mt-1 tracking-wider">1 page · updated Sep 2026</span>
+          <span className="block font-geist-mono text-[0.6875rem] text-fg/65 mt-1 tracking-wider">1 page · updated Sep 2026</span>
         </span>
       </button>
 
@@ -324,37 +324,37 @@ export function MailPicker({ email, label, side: prefer = 'up', className, child
 
   const panel = (
           <motion.div ref={menu} role="menu" aria-label="Write an email with"
-            className={`screen z-[80] rounded-2xl border border-emerald-400/25 bg-[#070a09] p-2 text-left shadow-[0_24px_60px_-20px_rgba(0,0,0,0.7),0_0_40px_-14px_#34d399] ${sheet
+            className={`z-[80] rounded-2xl border border-(--emerald)/25 bg-(--term-bg) p-2 text-left shadow-[0_24px_60px_-20px_rgba(0,0,0,0.45)] ${sheet
               ? 'fixed inset-x-3 bottom-3 mx-auto max-w-sm pb-[max(0.5rem,env(safe-area-inset-bottom))]'
               : `absolute left-1/2 -translate-x-1/2 w-[min(18.5rem,calc(100vw-2rem))] ${side === 'up' ? 'bottom-full mb-3 origin-bottom' : 'top-full mt-3 origin-top'}`}`}
             initial={sheet ? { opacity: 0, y: 60 } : { opacity: 0, scale: 0.92, y: side === 'up' ? 10 : -10 }}
             animate={sheet ? { opacity: 1, y: 0 } : { opacity: 1, scale: 1, y: 0 }}
             exit={sheet ? { opacity: 0, y: 60 } : { opacity: 0, scale: 0.95, y: side === 'up' ? 6 : -6 }}
             transition={{ duration: sheet ? 0.32 : 0.25, ease: EASE }}>
-            {sheet && <span aria-hidden className="block mx-auto mt-0.5 mb-2 w-10 h-1 rounded-full bg-white/20" />}
-            <p className="px-3 pt-2 pb-2.5 font-geist-mono text-[0.6875rem] text-white/50 border-b border-white/[0.07] mb-1">
-              <span className="text-emerald-400">$</span> compose --to shailesh<span className="text-emerald-400 animate-pulse">█</span>
+            {sheet && <span aria-hidden className="block mx-auto mt-0.5 mb-2 w-10 h-1 rounded-full bg-fg/20" />}
+            <p className="px-3 pt-2 pb-2.5 font-geist-mono text-[0.6875rem] text-fg/65 border-b border-fg/[0.07] mb-1">
+              <span className="text-(--emerald)">$</span> compose --to shailesh<span className="text-(--emerald) animate-pulse">█</span>
             </p>
             <motion.ul initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.045, delayChildren: 0.05 } } }}>
               {composers(email).map((c) => (
                 <motion.li key={c.label} variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }}>
                   <a role="menuitem" href={c.href} target={c.href.startsWith('mailto') ? undefined : '_blank'} rel="noopener noreferrer" onClick={() => setOpen(false)}
-                    className="group flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/[0.06] focus-visible:bg-white/[0.06] outline-none transition-colors">
+                    className="group flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-fg/[0.06] focus-visible:bg-fg/[0.06] outline-none transition-colors">
                     <span className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center font-oxanium font-bold text-sm text-white transition-transform group-hover:scale-110 group-hover:-rotate-6"
                       style={{ background: c.color, boxShadow: `0 0 18px -4px ${c.color}` }}>{c.mark}</span>
                     <span className="min-w-0">
-                      <span className="block font-oxanium text-[0.9375rem] text-white/90">{c.label}</span>
-                      <span className="block font-geist-mono text-[0.65625rem] text-white/45">{c.sub}</span>
+                      <span className="block font-oxanium text-[0.9375rem] text-fg/90">{c.label}</span>
+                      <span className="block font-geist-mono text-[0.65625rem] text-fg/60">{c.sub}</span>
                     </span>
-                    <span aria-hidden className="ml-auto text-white/30 group-hover:text-emerald-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all">↗</span>
+                    <span aria-hidden className="ml-auto text-fg/45 group-hover:text-(--emerald) group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all">↗</span>
                   </a>
                 </motion.li>
               ))}
-              <motion.li variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }} className="mt-1 pt-1 border-t border-white/[0.07]">
+              <motion.li variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }} className="mt-1 pt-1 border-t border-fg/[0.07]">
                 <button role="menuitem" type="button" onClick={copy}
-                  className="w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:bg-white/[0.06] focus-visible:bg-white/[0.06] outline-none transition-colors cursor-pointer">
-                  <span className="font-geist-mono text-[0.6875rem] text-white/60 truncate">{email}</span>
-                  <span aria-live="polite" className="font-geist-mono text-[0.625rem] tracking-widest text-emerald-400 shrink-0">{copied ? 'COPIED ✓' : 'COPY'}</span>
+                  className="w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:bg-fg/[0.06] focus-visible:bg-fg/[0.06] outline-none transition-colors cursor-pointer">
+                  <span className="font-geist-mono text-[0.6875rem] text-fg/60 truncate">{email}</span>
+                  <span aria-live="polite" className="font-geist-mono text-[0.625rem] tracking-widest text-(--emerald) shrink-0">{copied ? 'COPIED ✓' : 'COPY'}</span>
                 </button>
               </motion.li>
             </motion.ul>

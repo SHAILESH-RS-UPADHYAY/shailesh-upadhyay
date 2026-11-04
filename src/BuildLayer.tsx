@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Status } from './build'
 
 const RESULT_MS = 7000
-const TAB = 'screen fixed z-[56] top-1/2 -translate-y-1/2 right-0 print:hidden flex flex-col items-center gap-2.5 w-7 py-3 rounded-l-xl border border-r-0 border-white/10 bg-[#080b0a]/90 backdrop-blur-md font-geist-mono text-[0.625rem] tracking-[0.2em] uppercase text-white/65'
+const TAB = 'fixed z-[56] top-1/2 -translate-y-1/2 right-0 print:hidden flex flex-col items-center gap-2.5 w-7 py-3 rounded-l-xl border border-r-0 border-fg/10 bg-(--term-bg)/90 backdrop-blur-md font-geist-mono text-[0.625rem] tracking-[0.2em] uppercase text-fg/70'
 const VERTICAL = '[writing-mode:vertical-rl] whitespace-nowrap'
 
 function Cursor() {
@@ -59,7 +59,7 @@ export default function BuildLayer({ scrollTo }: { scrollTo: (y: number, seconds
       <canvas ref={canvas} aria-hidden hidden={!status} className="fixed inset-0 z-[55] pointer-events-none" />
       {!status && (
         <button type="button" onClick={watch} aria-label="Watch this page build itself" title="Watch this page build itself"
-          className={`${TAB} cursor-pointer hover:w-8 hover:text-white active:scale-95 transition-[width,color,scale] before:absolute before:inset-y-0 before:right-0 before:w-10 before:content-['']`}>
+          className={`${TAB} cursor-pointer hover:w-8 hover:text-fg active:scale-95 transition-[width,color,scale] before:absolute before:inset-y-0 before:right-0 before:w-10 before:content-['']`}>
           <Cursor />
           <span className={VERTICAL}>Build</span>
         </button>
@@ -68,11 +68,11 @@ export default function BuildLayer({ scrollTo }: { scrollTo: (y: number, seconds
         <div className={TAB}>
           <Cursor />
           <span className={`${VERTICAL} tabular-nums tracking-normal`}>{status.done} / {status.total}</span>
-          <span aria-hidden className="block w-[3px] h-14 rounded-full bg-white/10 overflow-hidden">
+          <span aria-hidden className="block w-[3px] h-14 rounded-full bg-fg/10 overflow-hidden">
             <span className="block w-full h-full origin-top bg-[#3b9dff] transition-transform duration-200" style={{ transform: `scaleY(${status.total ? status.done / status.total : 0})` }} />
           </span>
           <button type="button" onClick={stop} aria-label="Stop the build" title="Stop"
-            className="relative w-6 h-6 -my-1 grid place-items-center rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer before:absolute before:-inset-2 before:content-['']">✕</button>
+            className="relative w-6 h-6 -my-1 grid place-items-center rounded-full text-fg/60 hover:text-fg hover:bg-fg/10 transition-colors cursor-pointer before:absolute before:-inset-2 before:content-['']">✕</button>
         </div>
       )}
       {done && (

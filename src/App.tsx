@@ -303,7 +303,7 @@ function Hero() {
           </Rise>
           <Rise d={0.3}>
             <p className="font-oxanium text-lg md:text-xl text-fg/85 leading-relaxed max-w-xl text-pretty">
-              {profile.tagline} <span className="text-fg/55">Right now I&apos;m building AgentHub with a US team at {profile.current}.</span>
+              {profile.tagline} <span className="text-fg/65">Right now I&apos;m building AgentHub with a US team at {profile.current}.</span>
             </p>
           </Rise>
           <Rise d={0.4} className="flex flex-wrap items-center gap-4 mt-2">
@@ -347,16 +347,16 @@ function Hero() {
                 'bottom-3 left-3 border-b-2 border-l-2 rounded-bl-lg border-violet-400', 'bottom-3 right-3 border-b-2 border-r-2 rounded-br-lg border-rose-400']).map((c) => (
                 <div key={c} className={`absolute w-6 h-6 opacity-70 group-hover:opacity-100 transition-opacity ${c}`} />
               ))}
-              <div className="screen screen-panel absolute -top-4 left-6 flex items-center gap-2 rounded-full border border-emerald-400/25 bg-black/90 backdrop-blur px-3.5 py-1.5 font-geist-mono text-[0.6875rem] text-white/85">
+              <div className="screen-panel absolute -top-4 left-6 flex items-center gap-2 rounded-full border border-(--emerald)/25 bg-(--chip) backdrop-blur px-3.5 py-1.5 font-geist-mono text-[0.6875rem] text-fg/85">
                 <span className="relative flex w-2 h-2"><span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping" /><span className="relative w-2 h-2 rounded-full bg-emerald-400" /></span>
                 Currently @ {profile.current}
               </div>
-              <div className="screen screen-panel absolute -bottom-4 -right-3 rounded-xl border border-white/10 bg-black/90 backdrop-blur px-4 py-2 font-geist-mono text-[0.6875rem] tracking-widest">
-                <span className="text-gradient">AI BACKEND ENGINEER</span>
+              <div className="screen-panel absolute -bottom-4 -right-3 rounded-xl border border-fg/10 bg-(--chip) backdrop-blur px-4 py-2 font-geist-mono text-[0.6875rem] tracking-widest">
+                <span className="text-gradient">AI ENGINEER</span>
               </div>
-              <div className="screen-panel hidden md:block absolute top-[58%] -left-16 rounded-xl border border-emerald-400/25 bg-black/90 backdrop-blur px-4 py-3 font-geist-mono text-[0.6875rem] leading-relaxed shadow-[0_0_40px_-10px_#34d399]">
-                <div className="text-emerald-400">$ curl -N /v1/chat/stream</div>
-                <div className="text-white/60">p95 <span className="text-white/40 line-through">1.2s</span> → <span className="text-emerald-300">660ms</span> ✓</div>
+              <div className="screen-panel hidden md:block absolute top-[58%] -left-16 rounded-xl border border-(--emerald)/25 bg-(--chip) backdrop-blur px-4 py-3 font-geist-mono text-[0.6875rem] leading-relaxed">
+                <div className="text-(--emerald)">$ curl -N /v1/chat/stream</div>
+                <div className="text-fg/65">p95 <span className="text-fg/65 line-through">1.2s</span> → <span className="text-(--emerald)">660ms</span> ✓</div>
               </div>
             </div>
           </motion.div>
@@ -441,7 +441,7 @@ function Experience() {
 
 /* ====== PROJECTS ====== */
 function Private() {
-  return <span className="font-geist-mono text-xs text-fg/55 px-3 py-1.5 rounded-lg border border-fg/10">Private repo · demo on request</span>
+  return <span className="font-geist-mono text-xs text-fg/65 px-3 py-1.5 rounded-lg border border-fg/10">Private repo · demo on request</span>
 }
 
 function Projects() {
@@ -463,7 +463,7 @@ function Projects() {
                 <dl className="flex flex-wrap gap-x-10 gap-y-4 mt-6">
                   {p.metrics.map((m) => (
                     <div key={m.l} className="flex flex-col-reverse">
-                      <dt className="font-oxanium text-xs text-fg/55 mt-1">{m.l}</dt>
+                      <dt className="font-oxanium text-xs text-fg/65 mt-1">{m.l}</dt>
                       <dd className="font-museo text-2xl md:text-3xl text-(--ac)">{m.v}</dd>
                     </div>
                   ))}
@@ -496,7 +496,7 @@ function Skills() {
             <div key={s.title} className="flex flex-col">
               <div className="flex items-baseline justify-between gap-4 mb-3 px-1">
                 <h3 className="font-museo text-xl md:text-2xl text-fg/90">{s.title}</h3>
-                <span className="font-oxanium text-sm text-fg/50 text-right">{s.sub}</span>
+                <span className="font-oxanium text-sm text-fg/65 text-right">{s.sub}</span>
               </div>
               <Terminal className="flex-1" lines={s.lines} file={s.file} accent={s.accent} />
             </div>
@@ -521,7 +521,7 @@ function Education() {
             <p className="font-geist-mono text-sm text-acc">{education.period}</p>
             <h3 className="font-museo text-3xl md:text-4xl text-fg mt-3">{education.degree}</h3>
             <p className="font-oxanium text-lg text-fg/70 mt-2">{education.spec} · <span className="text-fg/90">{education.school}</span></p>
-            <p className="font-oxanium text-sm text-fg/50 mt-8 mb-3">Relevant coursework</p>
+            <p className="font-oxanium text-sm text-fg/65 mt-8 mb-3">Relevant coursework</p>
             <Chips items={education.coursework} />
           </div>
         </motion.div>
@@ -602,7 +602,7 @@ function Contact() {
       <div className="relative w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-10 lg:gap-14 items-center">
         <motion.div className="text-center lg:text-left"
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE }}>
-          <p className="font-geist-mono text-sm md:text-base text-acc/70 tracking-[0.25em]">07 / CONTACT</p>
+          <p className="font-geist-mono text-sm md:text-base text-acc/95 tracking-[0.25em]">07 / CONTACT</p>
           <h2 className="font-museo text-[2.5rem] md:text-[3.4rem] xl:text-[3.9rem] leading-[1.04] tracking-tight mt-5 text-fg/90 text-balance">
             Let's build something that <span className="text-gradient">ships.</span>
           </h2>
@@ -637,7 +637,7 @@ function Contact() {
                   </span>
                   <span className="min-w-0">
                     <span className="block font-oxanium font-semibold text-fg/90">{c.label}</span>
-                    <span className="block font-geist-mono text-[0.6875rem] text-fg/50 truncate">{c.sub}</span>
+                    <span className="block font-geist-mono text-[0.6875rem] text-fg/65 truncate">{c.sub}</span>
                   </span>
                   <span aria-hidden className="ml-auto text-fg/40 group-hover:text-acc group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all">↗</span>
                 </a>
@@ -653,7 +653,7 @@ function Contact() {
 function Footer() {
   return (
     <footer className="border-t border-fg/[0.06] px-5 md:px-10 py-8">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 font-geist-mono text-xs text-fg/50">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 font-geist-mono text-xs text-fg/65">
         <span>© 2026 Shailesh Upadhyay · Based in {profile.location}</span>
         <a href="#home" className="py-2 hover:text-acc transition-colors">Back to top ↑</a>
       </div>
