@@ -7,11 +7,11 @@ type Link = { label: string; href: string }
 export const profile = {
   first: 'SHAILESH',
   last: 'UPADHYAY',
-  role: 'AI Backend Engineer',
-  focus: ['Python', 'LLMs', 'RAG Systems', 'AI Agents'],
+  role: 'AI Engineer',
+  focus: ['LLMs', 'RAG Systems', 'AI Agents', 'Full-Stack'],
   tagline: "I don't just prototype models; I ship them into production.",
   summary:
-    "AI Backend Engineer building conversational AI pipelines, LLM agents, high-concurrency backend services and web apps that don't break at 3 AM. From async FastAPI streaming and query optimization to sub-15ms inference engines, I find the bottleneck that actually slows a system down and fix it. Right now I'm shipping AgentHub with a US engineering team and I own its deployments, at 99.9% uptime. Before that, in contract roles, I shipped production Next.js platforms and dashboard apps.",
+    "AI engineer building LLM pipelines, RAG systems and agents, with the full-stack products and high-concurrency backends around them, and web apps that don't break at 3 AM. From async FastAPI streaming and query optimization to sub-15ms inference engines, I find the bottleneck that actually slows a system down and fix it. Right now I'm shipping AgentHub with a US engineering team and I own its deployments, at 99.9% uptime. Before that, in contract roles, I shipped production Next.js platforms and dashboard apps.",
   current: 'WebVory',
   location: 'India',
   email: 'shaileshrsupadhyay@gmail.com',
@@ -49,11 +49,11 @@ export const stats = [
 
 export const whoami = [
   '$ whoami',
-  'shailesh upadhyay · ai backend engineer',
+  'shailesh upadhyay · ai engineer · llm systems · full stack',
   '$ cat now.txt',
   'shipping AgentHub, an AI-agent workspace @ WebVory (US team)',
   '$ ls ~/focus',
-  'llm-pipelines/  rag/  agents/  async-backends/  inference/',
+  'llm-pipelines/  rag/  agents/  inference/  full-stack/',
   '$ echo $MOTTO',
   'ship it, measure it, make it not break at 3 AM',
 ]
@@ -228,33 +228,6 @@ export const projects: {
     ],
   },
   {
-    name: 'EVES',
-    kind: 'Meeting-intelligence desktop app',
-    pitch: 'Records long engineering calls and turns them into build-ready prompts for your coding agent.',
-    accent: 'cyan',
-    visual: 'wave',
-    file: 'eves/core.ts',
-    metrics: [
-      { v: '2h+', l: 'meetings' },
-      { v: '≤5s', l: 'loss on crash' },
-      { v: '100%', l: 'local data' },
-    ],
-    lines: [
-      '# record → transcribe → brief → ask → prompt',
-      '→ Captures system audio + mic into one Opus file, flushed every 5s',
-      '→ Deepgram nova-3 live, diarized, Hindi ↔ English mid-sentence',
-      '→ Groq, Gemini or OpenAI digests 2h+ meetings part by part',
-      '→ Brief: main goal, decisions, ruled-out options, owners',
-      '→ Grounded chat over transcript + repo index + skill vault',
-      '→ One-tap prompts for three coding agents',
-      '→ Keys, audio and transcripts never leave the machine',
-    ],
-    stack: ['React', 'TypeScript', 'Node.js', 'Deepgram', 'Zustand', 'Web Audio'],
-    links: [
-      { label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' },
-    ],
-  },
-  {
     name: 'Blueprint.sh',
     kind: 'Codebase architecture drawing',
     pitch: 'Drop a codebase in and get its real architecture drawn. Parsing, layout and rendering all happen in your browser.',
@@ -279,6 +252,33 @@ export const projects: {
     links: [
       { label: 'Live', href: 'https://blueprint-sh.vercel.app/' },
       { label: 'GitHub', href: 'https://github.com/SHAILESH-RS-UPADHYAY/blueprint-sh' },
+    ],
+  },
+  {
+    name: 'EVES',
+    kind: 'Meeting-intelligence desktop app',
+    pitch: 'Records long engineering calls and turns them into build-ready prompts for your coding agent.',
+    accent: 'cyan',
+    visual: 'wave',
+    file: 'eves/core.ts',
+    metrics: [
+      { v: '2h+', l: 'meetings' },
+      { v: '≤5s', l: 'loss on crash' },
+      { v: '100%', l: 'local data' },
+    ],
+    lines: [
+      '# record → transcribe → brief → ask → prompt',
+      '→ Captures system audio + mic into one Opus file, flushed every 5s',
+      '→ Deepgram nova-3 live, diarized, Hindi ↔ English mid-sentence',
+      '→ Groq, Gemini or OpenAI digests 2h+ meetings part by part',
+      '→ Brief: main goal, decisions, ruled-out options, owners',
+      '→ Grounded chat over transcript + repo index + skill vault',
+      '→ One-tap prompts for three coding agents',
+      '→ Keys, audio and transcripts never leave the machine',
+    ],
+    stack: ['React', 'TypeScript', 'Node.js', 'Deepgram', 'Zustand', 'Web Audio'],
+    links: [
+      { label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' },
     ],
   },
   {
@@ -339,16 +339,16 @@ export const products: {
     links: [{ label: 'Live', href: 'https://vettly-sigma.vercel.app/' }],
   },
   {
-    slug: 'eves', name: 'EVES', kind: 'Meeting-intelligence desktop app', status: 'Desktop', accent: 'cyan', mark: 'wave', deep: 'eves',
-    text: 'Records long engineering calls, transcribes them live in Hindi and English, and writes the prompt your coding agent needs. All of it stays on your machine.',
-    stack: ['React', 'TypeScript', 'Deepgram'],
-    links: [{ label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' }],
-  },
-  {
     slug: 'blueprint', name: 'Blueprint.sh', kind: 'Codebase architecture drawing', status: 'Live', accent: 'cyan', mark: 'blueprint.svg', shot: 'blueprint', host: 'blueprint-sh.vercel.app', deep: 'blueprint',
     text: 'Drop a codebase in and get its real architecture drawn, cycles marked in red. Nothing leaves your browser.',
     stack: ['TypeScript', 'ELK', 'SVG'],
     links: [{ label: 'Live', href: 'https://blueprint-sh.vercel.app/' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/blueprint-sh' }],
+  },
+  {
+    slug: 'eves', name: 'EVES', kind: 'Meeting-intelligence desktop app', status: 'Desktop', accent: 'cyan', mark: 'wave', deep: 'eves',
+    text: 'Records long engineering calls, transcribes them live in Hindi and English, and writes the prompt your coding agent needs. All of it stays on your machine.',
+    stack: ['React', 'TypeScript', 'Deepgram'],
+    links: [{ label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' }],
   },
   {
     slug: 'autopsy', name: 'Autopsy', kind: 'Website forensics', status: 'Live', accent: 'rose', mark: 'autopsy.svg', shot: 'autopsy', host: 'autopsy-casefile.vercel.app',
@@ -377,6 +377,36 @@ export const products: {
     ],
     stack: ['Manifest V3', 'JavaScript', 'Service worker'],
     links: [{ label: 'Live', href: 'https://tether-capsule.vercel.app/' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/tether' }],
+  },
+  {
+    slug: 'simplify', name: 'Simplify Money', kind: 'Conversational finance backend', status: 'Live', accent: 'amber', mark: 'gold', shot: 'simplify', host: 'simplify-money-backend.onrender.com', deep: 'simplify',
+    text: 'Chat with an AI gold advisor that understands buy intent and prices gold live. The first load wakes the free server, so give it a moment.',
+    stack: ['FastAPI', 'LangChain', 'SQLite'],
+    links: [{ label: 'Live API', href: 'https://simplify-money-backend.onrender.com/docs' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend' }],
+  },
+  {
+    slug: 'echosoul', name: 'EchoSoul', kind: 'Voice conversion studio', status: 'Runs locally', accent: 'rose', mark: 'echosoul.svg', shot: 'echosoul',
+    text: 'Upload a song, choose a voice shared with permission, and hear it sung again: same music, new singer. Every output is labelled as AI-made.',
+    stack: ['React', 'FastAPI', 'Seed-VC'],
+    links: [],
+  },
+  {
+    slug: 'panna', name: 'Panna', kind: 'Local RAG chatbot', status: 'Runs locally', accent: 'cyan', mark: 'panna.svg', shot: 'panna',
+    text: 'Add a PDF, ask a question, and read the answer with its source text beside it. If the document does not say it, Panna refuses instead of inventing.',
+    lines: [
+      '# two guards stop made-up answers',
+      '→ Score gate: if no passage is close enough, the model is never called',
+      '→ Prompt rule: use only the retrieved passages, or give a fixed refusal',
+      '→ FAISS index, llama3.2 through Ollama, works offline after setup',
+    ],
+    stack: ['Python', 'FAISS', 'Ollama', 'Gradio'],
+    links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/panna-rag' }],
+  },
+  {
+    slug: 'shiori', name: 'Shiori', kind: 'Personal life OS', status: 'Live', accent: 'rose', mark: 'shiori.webp', shot: 'shiori', host: 'shiori-nu.vercel.app',
+    text: 'Type anything and it is kept: money by day and month, debts, people, music and things you learned. Private and local-first.',
+    stack: ['React', 'Dexie', 'Supabase', 'Capacitor'],
+    links: [{ label: 'Live', href: 'https://shiori-nu.vercel.app/' }],
   },
   {
     slug: 'devine', name: 'Devine CDC', kind: 'Client website', status: 'Live', accent: 'rose', mark: 'devine-cdc.webp', shot: 'devine', host: 'devinecdc.in',
@@ -425,40 +455,22 @@ export const products: {
     links: [{ label: 'Live', href: 'https://barfanibasket.in' }],
   },
   {
-    slug: 'shiori', name: 'Shiori', kind: 'Personal life OS', status: 'Live', accent: 'rose', mark: 'shiori.webp', shot: 'shiori', host: 'shiori-nu.vercel.app',
-    text: 'Type anything and it is kept: money by day and month, debts, people, music and things you learned. Private and local-first.',
-    stack: ['React', 'Dexie', 'Supabase', 'Capacitor'],
-    links: [{ label: 'Live', href: 'https://shiori-nu.vercel.app/' }],
-  },
-  {
-    slug: 'simplify', name: 'Simplify Money', kind: 'Conversational finance backend', status: 'Live', accent: 'amber', mark: 'gold', shot: 'simplify', host: 'simplify-money-backend.onrender.com', deep: 'simplify',
-    text: 'Chat with an AI gold advisor that understands buy intent and prices gold live. The first load wakes the free server, so give it a moment.',
-    stack: ['FastAPI', 'LangChain', 'SQLite'],
-    links: [{ label: 'Live API', href: 'https://simplify-money-backend.onrender.com/docs' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend' }],
-  },
-  {
-    slug: 'echosoul', name: 'EchoSoul', kind: 'Voice conversion studio', status: 'Runs locally', accent: 'rose', mark: 'echosoul.svg', shot: 'echosoul',
-    text: 'Upload a song, choose a voice shared with permission, and hear it sung again: same music, new singer. Every output is labelled as AI-made.',
-    stack: ['React', 'FastAPI', 'Seed-VC'],
-    links: [],
-  },
-  {
-    slug: 'panna', name: 'Panna', kind: 'Local RAG chatbot', status: 'Runs locally', accent: 'cyan', mark: 'panna.svg', shot: 'panna',
-    text: 'Add a PDF, ask a question, and read the answer with its source text beside it. If the document does not say it, Panna refuses instead of inventing.',
-    lines: [
-      '# two guards stop made-up answers',
-      '→ Score gate: if no passage is close enough, the model is never called',
-      '→ Prompt rule: use only the retrieved passages, or give a fixed refusal',
-      '→ FAISS index, llama3.2 through Ollama, works offline after setup',
-    ],
-    stack: ['Python', 'FAISS', 'Ollama', 'Gradio'],
-    links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/panna-rag' }],
-  },
-  {
     slug: 'inkly', name: 'Inkly', kind: 'Print-on-demand mobile app', status: 'Mobile', accent: 'violet', mark: 'inkly.webp', shot: 'inkly',
     text: 'Upload documents from your phone, pick print options with instant pricing, pay by UPI and track delivery. Store managers run orders from a web panel.',
     stack: ['React Native', 'Expo', 'Express', 'MongoDB', 'Razorpay'],
     links: [],
+  },
+  {
+    slug: 'autoflow', name: 'AutoFlow', kind: 'GenAI automation', status: 'Backend', accent: 'cyan', mark: 'autoflow.svg',
+    text: 'Writes the weekly executive report on its own: Pandas KPIs from Postgres, company goals from ChromaDB, and an LLM that turns both into a summary.',
+    stack: ['Python', 'Pandas', 'ChromaDB'],
+    links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/autoflow' }],
+  },
+  {
+    slug: 'iota', name: 'Iota', kind: 'NLP · address parsing', status: 'Backend', accent: 'rose', mark: 'iota.svg',
+    text: 'A SpaCy NER pipeline that pulls street, city, state and ZIP out of raw address strings, at 87.1% F1 on held-out data.',
+    stack: ['Python', 'SpaCy', 'NER'],
+    links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/iota-address-parser' }],
   },
   {
     slug: 'luq', name: 'LÜQ', kind: 'Emotion-aware character', status: 'Live', accent: 'violet', mark: 'luq.svg',
@@ -473,22 +485,10 @@ export const products: {
     links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/webvory-scalable-analytics-engine' }],
   },
   {
-    slug: 'autoflow', name: 'AutoFlow', kind: 'GenAI automation', status: 'Backend', accent: 'cyan', mark: 'autoflow.svg',
-    text: 'Writes the weekly executive report on its own: Pandas KPIs from Postgres, company goals from ChromaDB, and an LLM that turns both into a summary.',
-    stack: ['Python', 'Pandas', 'ChromaDB'],
-    links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/autoflow' }],
-  },
-  {
     slug: 'finance', name: 'Finance API', kind: 'Backend · access control', status: 'Backend', accent: 'amber', mark: 'finance.svg',
     text: 'JWT auth with Admin, Analyst and Viewer roles, soft deletes, filtered pagination and dashboard summary endpoints.',
     stack: ['Flask', 'SQLAlchemy', 'JWT'],
     links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/finance-dashboard-backend' }],
-  },
-  {
-    slug: 'iota', name: 'Iota', kind: 'NLP · address parsing', status: 'Backend', accent: 'rose', mark: 'iota.svg',
-    text: 'A SpaCy NER pipeline that pulls street, city, state and ZIP out of raw address strings, at 87.1% F1 on held-out data.',
-    stack: ['Python', 'SpaCy', 'NER'],
-    links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/iota-address-parser' }],
   },
 ]
 
@@ -504,6 +504,17 @@ export const skills: { title: string; sub: string; accent: Accent; file: string;
       '→ Agents     tool-using agents, Botpress',
       '→ Vector DB  ChromaDB, Pinecone, pgvector',
       '→ Voice AI   Whisper, Deepgram, ElevenLabs, Retell',
+    ],
+  },
+  {
+    title: 'ML & optimization',
+    sub: 'Training to fast inference',
+    accent: 'rose',
+    file: 'ml.sys',
+    lines: [
+      '→ Training   PyTorch',
+      '→ Inference  ONNX, TensorRT (INT8 / FP16)',
+      '→ NLP        SpaCy NER, Sentence Transformers',
     ],
   },
   {
@@ -531,23 +542,9 @@ export const skills: { title: string; sub: string; accent: Accent; file: string;
       '→ Tooling    Git, Linux',
     ],
   },
-  {
-    title: 'ML & optimization',
-    sub: 'Training to fast inference',
-    accent: 'rose',
-    file: 'ml.sys',
-    lines: [
-      '→ Training   PyTorch',
-      '→ Inference  ONNX, TensorRT (INT8 / FP16)',
-      '→ NLP        SpaCy NER, Sentence Transformers',
-    ],
-  },
 ]
 
-export const marquee = [
-  'Python', 'FastAPI', 'LangChain', 'LangGraph', 'RAG', 'Pinecone', 'pgvector', 'PyTorch', 'TensorRT',
-  'Next.js', 'React', 'TypeScript', 'PostgreSQL', 'Redis', 'Supabase', 'Docker', 'GitHub Actions', 'Deepgram',
-]
+export const marquee = ['LangChain', 'LangGraph', 'RAG', 'Pinecone', 'pgvector', 'PyTorch', 'TensorRT', 'FastAPI', 'Next.js', 'React', 'TypeScript', 'Python', 'PostgreSQL', 'Redis', 'Supabase', 'Docker', 'GitHub Actions', 'Deepgram']
 
 export const education = {
   degree: 'B.E. Computer Science Engineering',
