@@ -225,13 +225,13 @@ export function ResumeCard() {
         className="card group relative z-20 flex items-center gap-5 rounded-2xl border border-fg/10 pl-3 pr-7 py-3 text-left hover:border-acc/40 transition-colors cursor-pointer">
         {/* Outer span owns the hover "peek" (CSS), inner img owns the open/close morph (layoutId). */}
         <span className="relative z-20 block w-14 md:w-16 origin-bottom-left transition-transform duration-500 ease-out group-hover:scale-[3.2] group-hover:-rotate-2">
-          <motion.img layoutId="resume" src={asset('resume.webp')} alt="" width={1489} height={2105}
+          <motion.img layoutId="resume" src={asset('resume.webp')} alt="" width={1489} height={1927}
             className="block w-full h-auto rounded-md shadow-lg group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
             style={{ visibility: open ? 'hidden' : 'visible' }} />
         </span>
         <span>
           <span className="block font-oxanium text-base md:text-lg font-semibold text-fg/90">View resume</span>
-          <span className="block font-geist-mono text-[0.6875rem] text-fg/65 mt-1 tracking-wider">1 page · updated Sep 2026</span>
+          <span className="block font-geist-mono text-[0.6875rem] text-fg/65 mt-1 tracking-wider">1 page · updated Nov 2026</span>
         </span>
       </button>
 
@@ -261,7 +261,7 @@ export function ResumeCard() {
             {/* Scrollable Content */}
             <div className="w-full min-h-full flex flex-col items-center p-4 md:p-8 pt-24 md:pt-28">
               <motion.img layoutId="resume" src={asset('resume.webp')} alt="Resume of Shailesh Upadhyay, AI Backend Engineer"
-                width={1489} height={2105} onClick={(e) => e.stopPropagation()}
+                width={1489} height={1927} onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-4xl h-auto rounded-lg shadow-[0_0_80px_rgba(52,211,153,0.15)]"
                 transition={{ duration: 0.5, ease: EASE }} />
             </div>
