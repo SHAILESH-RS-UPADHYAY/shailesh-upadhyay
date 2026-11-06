@@ -32,7 +32,7 @@ const BOOT = [
   'llm router online · claude gemini groq',
   'warming vector index · 1024-d',
   'async workers ×8 ready',
-  'tensorrt engine · <15ms',
+  // 'tensorrt engine · <15ms', // hidden with FAR Labs
   'all systems nominal',
 ]
 

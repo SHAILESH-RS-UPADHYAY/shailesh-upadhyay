@@ -11,7 +11,7 @@ export const profile = {
   focus: ['LLMs', 'RAG Systems', 'AI Agents', 'Full-Stack'],
   tagline: "I don't just prototype models; I ship them into production.",
   summary:
-    "AI engineer building LLM pipelines, RAG systems and agents, with the full-stack products and high-concurrency backends around them, and web apps that don't break at 3 AM. From async FastAPI streaming and query optimization to sub-15ms inference engines, I find the bottleneck that actually slows a system down and fix it. Right now I'm shipping AgentHub with a US engineering team and I own its deployments, at 99.9% uptime. Before that, in contract roles, I shipped production Next.js platforms and dashboard apps.",
+    "AI engineer. I build LLM pipelines, RAG search and agents, and the FastAPI and Next.js products around them. What I enjoy most is finding the one thing that actually slows a system down: on AgentHub it was LLM streaming, and token rate limits plus connection pooling took p95 from 1.2s to 660ms. I'm shipping AgentHub with a US engineering team now, and I own its deployments, at 99.9% uptime. Before that, on contract, I built production Next.js platforms and dashboard apps.",
   current: 'WebVory',
   location: 'India',
   email: 'shaileshrsupadhyay@gmail.com',
@@ -42,7 +42,8 @@ export const greetings: { hi: string; name: string; code: string; lang: string }
 
 export const stats = [
   { prefix: '−', to: 45, dec: 0, suffix: '%', label: 'p95 latency on LLM streaming, 1.2s → 660ms' },
-  { prefix: '<', to: 15, dec: 0, suffix: 'ms', label: 'production inference with ONNX + TensorRT' },
+  // { prefix: '<', to: 15, dec: 0, suffix: 'ms', label: 'production inference with ONNX + TensorRT' }, // hidden with FAR Labs
+  { prefix: '', to: 20, dec: 0, suffix: '', label: 'products shipped, 12 of them live' },
   { prefix: '', to: 99.9, dec: 1, suffix: '%', label: 'uptime on the deploys I own' },
   { prefix: '', to: 87.1, dec: 1, suffix: '%', label: 'F1 on address-extraction NER' },
 ]
@@ -116,6 +117,7 @@ export const experience: {
       { label: 'LÜQ prototype', href: 'https://shailesh-rs-upadhyay.github.io/luq-prototype/' },
     ],
   },
+  /* Hidden for now (FAR Labs / Dizzaract). Uncomment to show it again.
   {
     role: 'ML Engineer (Contract)',
     org: 'FAR Labs / Dizzaract',
@@ -133,6 +135,7 @@ export const experience: {
     stack: ['PyTorch', 'LSTM', 'Transformers', 'ONNX', 'TensorRT'],
     links: [],
   },
+  */
   {
     role: 'NLP Engineer (Collaboration)',
     org: 'IOTA',
