@@ -616,7 +616,7 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
 /* ---------- Project marks next to each project name ----------
    One idea per mark, taken from how the product works, drawn on a 24-unit grid in the project's accent:
    RADAR   the big scope in miniature: steel bezel, phosphor dial, gold hub; each turn the beam finds the gold job and pings
-   Vettly  the terminus ring with one check-segment missing; the V drops into the gap
+   Vettly  its real two-part V; the orange stroke drops in on hover
    EVES    one stroke: speech decays into a waiting cursor
    No tile around them: their colours follow the theme, and RADAR has its own body. RADAR's
    scope always turns; the others play their one motion on hover. */
@@ -657,10 +657,11 @@ function Glyph({ kind }: { kind: Visual }) {
         </>
       )}
       {kind === 'router' && (
-        <>
-          <path pathLength={6} strokeLinecap="butt" strokeWidth="2.4" strokeDasharray="0.84 0.16" d="M15.51 4.81A8 8 0 1 1 8.49 4.81" />
-          <path className="gl-v" strokeWidth="2.4" d="M8.7 3L12 9.6L15.3 3" />
-        </>
+        // Vettly's own logo (vettly/.github/logo.svg), drawn on its 64-unit grid
+        <g transform="scale(0.375)" stroke="none">
+          <path fill="#64748B" d="M7.3 31h12l6 12-6 12z" />
+          <path className="gl-v" fill="#EA580C" d="M21.7 55h12l23-46h-12z" />
+        </g>
       )}
       {kind === 'wave' && (
         <>
