@@ -616,7 +616,7 @@ export function ProjectVisual({ kind }: { kind: Visual }) {
 /* ---------- Project marks next to each project name ----------
    One idea per mark, taken from how the product works, drawn on a 24-unit grid in the project's accent:
    RADAR   the big scope in miniature: steel bezel, phosphor dial, gold hub; each turn the beam finds the gold job and pings
-   Vettly  its real two-part V; the orange stroke drops in on hover
+   Vettly  its splash orb (public/products/logos/vettly.svg, same file as the GitHub profile): SMIL, so it plays inside <img>
    EVES    one stroke: speech decays into a waiting cursor
    No tile around them: their colours follow the theme, and RADAR has its own body. RADAR's
    scope always turns; the others play their one motion on hover. */
@@ -656,13 +656,6 @@ function Glyph({ kind }: { kind: Visual }) {
           <circle cx="12" cy="12" r="1.5" fill="url(#gl-gold)" stroke="#000" strokeOpacity="0.7" strokeWidth="0.2" />
         </>
       )}
-      {kind === 'router' && (
-        // Vettly's own logo (vettly/.github/logo.svg), drawn on its 64-unit grid
-        <g transform="scale(0.375)" stroke="none">
-          <path fill="#64748B" d="M7.3 31h12l6 12-6 12z" />
-          <path className="gl-v" fill="#EA580C" d="M21.7 55h12l23-46h-12z" />
-        </g>
-      )}
       {kind === 'wave' && (
         <>
           <path className="gl-wave" pathLength={1} strokeWidth="2.1" d="M2.5 12C4 4.4 5.9 4.4 7.4 12C8.5 17.2 9.9 17.2 11 12C11.7 9.2 12.7 9.2 13.4 12H15.2" />
@@ -680,7 +673,7 @@ function Glyph({ kind }: { kind: Visual }) {
 }
 
 export function ProjectMark({ kind, className = 'w-14 h-14 md:w-16 md:h-16' }: { kind: Visual; className?: string }) {
-  if (kind === 'sheet') return <img src={asset('products/logos/blueprint.svg')} alt="" width={64} height={64} className={`shrink-0 ${className}`} />
+  if (kind === 'sheet' || kind === 'router') return <img src={asset(`products/logos/${kind === 'sheet' ? 'blueprint' : 'vettly'}.svg`)} alt="" width={64} height={64} className={`shrink-0 ${className}`} />
   return (
     <span aria-hidden className={`pm grid place-items-center shrink-0 ${className}`} style={{ color: MARK_COLOR[kind] }}>
       <Glyph kind={kind} />

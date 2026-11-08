@@ -414,8 +414,6 @@ section[id] { scroll-margin-top: 80px; }
 @keyframes gl-blip { 0% { opacity: 1; } 70%, 100% { opacity: 0.35; } }
 .gl-ping { transform-box: fill-box; transform-origin: center; opacity: 0; animation: gl-ping 3.2s ease-out 0.34s infinite; }
 @keyframes gl-ping { 0% { opacity: 0.9; transform: scale(1); } 40%, 100% { opacity: 0; transform: scale(3.2); } }
-.pm:hover .gl-v { animation: gl-drop 0.9s ease-out; }
-@keyframes gl-drop { 0% { transform: translateY(-4px); opacity: 0; } 100% { transform: none; opacity: 1; } }
 .pm .gl-wave { stroke-dasharray: 1 1.2; }
 .pm:hover .gl-wave { animation: gl-speak 1.4s linear; }
 @keyframes gl-speak { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
