@@ -19,7 +19,8 @@
   --fg: #fff;
   --acc: #34d399;
   --grid: rgba(38, 38, 38, 0.6);
-  --grad: linear-gradient(135deg, #34d399 0%, #22d3ee 35%, #a78bfa 68%, #fb7185 100%);
+  /* signature: brand green settling into the text colour (white at night, ink by day) */
+  --grad: linear-gradient(135deg, var(--acc) 0%, var(--acc) 30%, var(--fg) 100%);
   --emerald: #34d399;
   --cyan: #22d3ee;
   --violet: #a78bfa;
@@ -38,7 +39,6 @@
   --fg: #0b1210;
   --acc: #047857;
   --grid: rgba(11, 18, 16, 0.07);
-  --grad: linear-gradient(135deg, #047857 0%, #0e7490 35%, #6d28d9 68%, #be123c 100%);
   --emerald: #047857;
   --cyan: #0e7490;
   --violet: #6d28d9;

@@ -12,7 +12,7 @@ import NetWorker from './introNet.worker?worker&inline'
 */
 
 // The site's heading gradient (--grad), read as a ramp, so these letters lead straight into the hero's name.
-const RAMP = [[0, 52, 211, 153], [0.35, 34, 211, 238], [0.68, 167, 139, 250], [1, 251, 113, 133]] as const
+const RAMP = [[0, 52, 211, 153], [0.3, 52, 211, 153], [1, 255, 255, 255]] as const
 const rampAt = (x: number) => {
   const k = RAMP.findIndex((s) => s[0] >= x)
   const [a, b] = k <= 0 ? [RAMP[0], RAMP[0]] : [RAMP[k - 1], RAMP[k]]

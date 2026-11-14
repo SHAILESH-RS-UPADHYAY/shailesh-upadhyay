@@ -202,7 +202,7 @@ function Navbar() {
           </motion.ul>
         )}
       </AnimatePresence>
-      <motion.div className="absolute bottom-0 inset-x-0 h-[2px] origin-left bg-gradient-to-r from-acc via-cyan-400 to-violet-400" style={{ scaleX: scrollYProgress }} />
+      <motion.div className="absolute bottom-0 inset-x-0 h-[2px] origin-left bg-gradient-to-r from-acc to-fg/50" style={{ scaleX: scrollYProgress }} />
     </motion.header>
   )
 }
@@ -246,9 +246,9 @@ function Hero() {
         maskImage: 'radial-gradient(ellipse at center, transparent 20%, black)', WebkitMaskImage: 'radial-gradient(ellipse at center, transparent 20%, black)',
       }} />
       <div aria-hidden className="aurora">
-        <span className="left-[58%] top-[6%] w-[32vw] h-[32vw] bg-violet-200" />
-        <span className="left-[74%] top-[48%] w-[24vw] h-[24vw] bg-rose-200" style={{ animationDelay: '-6s' }} />
-        <span className="left-[2%] top-[50%] w-[24vw] h-[24vw] bg-cyan-200" style={{ animationDelay: '-11s' }} />
+        <span className="left-[58%] top-[6%] w-[32vw] h-[32vw] bg-emerald-100" />
+        <span className="left-[74%] top-[48%] w-[24vw] h-[24vw] bg-red-100" style={{ animationDelay: '-6s' }} />
+        <span className="left-[2%] top-[50%] w-[24vw] h-[24vw] bg-emerald-100" style={{ animationDelay: '-11s' }} />
         <span className="left-[28%] top-[-14%] w-[20vw] h-[20vw] bg-amber-100" style={{ animationDelay: '-3s' }} />
         <span className="left-[44%] top-[40%] w-[14vw] h-[14vw] bg-emerald-200" style={{ animationDelay: '-8s' }} />
       </div>
@@ -337,14 +337,14 @@ function Hero() {
             transition={{ duration: 2.4, times: [0, 0.38, 0.66, 0.83, 1], ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.5, delay: 2.2 }}>
             <div className="relative group">
               <div className="absolute -inset-1 rounded-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-md"
-                style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.3), rgba(34,211,238,0.2), rgba(167,139,250,0.2), rgba(251,113,133,0.15))' }} />
+                style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.3), rgba(52,211,153,0.08))' }} />
               <div className="relative rounded-3xl overflow-hidden border border-fg/10 bg-bg/40">
                 <img src={asset('profile.webp')} alt="Portrait of Shailesh Upadhyay" width={1024} height={1536} fetchPriority="high"
                   className="block w-full h-auto" style={{ filter: 'grayscale(15%) contrast(1.05) brightness(0.96)' }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               </div>
-              {(['top-3 left-3 border-t-2 border-l-2 rounded-tl-lg border-acc', 'top-3 right-3 border-t-2 border-r-2 rounded-tr-lg border-cyan-400',
-                'bottom-3 left-3 border-b-2 border-l-2 rounded-bl-lg border-violet-400', 'bottom-3 right-3 border-b-2 border-r-2 rounded-br-lg border-rose-400']).map((c) => (
+              {(['top-3 left-3 border-t-2 border-l-2 rounded-tl-lg border-acc', 'top-3 right-3 border-t-2 border-r-2 rounded-tr-lg border-acc',
+                'bottom-3 left-3 border-b-2 border-l-2 rounded-bl-lg border-fg/50', 'bottom-3 right-3 border-b-2 border-r-2 rounded-br-lg border-fg/50']).map((c) => (
                 <div key={c} className={`absolute w-6 h-6 opacity-70 group-hover:opacity-100 transition-opacity ${c}`} />
               ))}
               <div className="screen-panel absolute -top-4 left-6 flex items-center gap-2 rounded-full border border-(--emerald)/25 bg-(--chip) backdrop-blur px-3.5 py-1.5 font-geist-mono text-[0.6875rem] text-fg/85">
@@ -411,7 +411,7 @@ function Experience() {
         <SectionHeader n="02" label="EXPERIENCE" title="Where I've shipped" />
         <div ref={ref} className="relative">
           <div className="absolute left-[7px] md:left-[14.25rem] top-2 bottom-2 w-px bg-fg/10" />
-          <motion.div className="absolute left-[7px] md:left-[14.25rem] top-2 bottom-2 w-px origin-top bg-gradient-to-b from-acc via-violet-400 to-rose-400"
+          <motion.div className="absolute left-[7px] md:left-[14.25rem] top-2 bottom-2 w-px origin-top bg-gradient-to-b from-acc to-fg/30"
             style={{ scaleY: scrollYProgress }} />
           <ol className="space-y-16 md:space-y-20">
             {experience.map((e) => (
@@ -591,7 +591,7 @@ function Contact() {
     <section id="contact" className="relative min-h-[calc(100dvh-4.5rem)] md:min-h-[calc(100dvh-5rem)] flex items-center py-16 md:py-20 px-5 md:px-10 border-t border-fg/[0.05] overflow-hidden">
       <div aria-hidden className="aurora">
         <span className="left-[8%] top-[15%] w-[30vw] h-[30vw] bg-emerald-200" />
-        <span className="left-[58%] top-[30%] w-[26vw] h-[26vw] bg-violet-200" style={{ animationDelay: '-7s' }} />
+        <span className="left-[58%] top-[30%] w-[26vw] h-[26vw] bg-emerald-100" style={{ animationDelay: '-7s' }} />
       </div>
       <div aria-hidden className="absolute left-1/2 lg:left-[27%] top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
         {[0, 1, 2].map((k) => (

@@ -174,8 +174,7 @@ export function MatrixRain() {
       if (t - last < 55 || c.getBoundingClientRect().bottom < 0) return
       last = t
       const css = getComputedStyle(c)
-      const trail = ctx.createLinearGradient(0, 0, c.width, 0)
-      ;(['--emerald', '--cyan', '--violet', '--rose'] as const).forEach((v, k) => trail.addColorStop(k / 3, css.getPropertyValue(v)))
+      const trail = css.getPropertyValue('--acc')
       const head = css.getPropertyValue('--rain-head')
       ctx.globalCompositeOperation = 'destination-out'
       ctx.fillStyle = 'rgba(0,0,0,0.1)'
