@@ -310,7 +310,6 @@ export const projects: {
     stack: ['Python', 'FastAPI', 'LangChain', 'Gemini', 'SQLite', 'Docker'],
     links: [
       { label: 'GitHub', href: 'https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend' },
-      { label: 'Live API', href: 'https://simplify-money-backend.onrender.com/docs' },
     ],
   },
 ]
@@ -386,10 +385,10 @@ export const products: {
     links: [{ label: 'Live', href: 'https://tether-capsule.vercel.app/' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/tether' }],
   },
   {
-    slug: 'simplify', name: 'Simplify Money', kind: 'Conversational finance backend', status: 'Live', accent: 'amber', mark: 'gold', shot: 'simplify', host: 'simplify-money-backend.onrender.com', deep: 'simplify',
-    text: 'Chat with an AI gold advisor that understands buy intent and prices gold live. The first load wakes the free server, so give it a moment.',
+    slug: 'simplify', name: 'Simplify Money', kind: 'Conversational finance backend', status: 'Backend', accent: 'amber', mark: 'gold', shot: 'simplify', deep: 'simplify',
+    text: 'Chat with an AI gold advisor that understands buy intent and prices gold live.',
     stack: ['FastAPI', 'LangChain', 'SQLite'],
-    links: [{ label: 'Live API', href: 'https://simplify-money-backend.onrender.com/docs' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend' }],
+    links: [{ label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend' }],
   },
   {
     slug: 'echosoul', name: 'EchoSoul', kind: 'Voice conversion studio', status: 'Runs locally', accent: 'rose', mark: 'echosoul.svg', shot: 'echosoul',
@@ -507,20 +506,19 @@ export const skills: { title: string; sub: string; accent: Accent; file: string;
     file: 'ai.sys',
     lines: [
       '→ LLMs       OpenAI, Gemini, Claude, Groq',
-      '→ RAG        LangChain, LangGraph, pgvector, BM25, reranking',
-      '→ Agents     tool-using agents, Botpress',
+      '→ RAG        LangChain, pgvector, BM25, reranking',
+      '→ Agents     tool-using agents, approval gates',
       '→ Vector DB  ChromaDB, Pinecone, pgvector',
-      '→ Voice AI   Whisper, Deepgram, ElevenLabs, Retell',
+      '→ Voice AI   Whisper, Deepgram',
     ],
   },
   {
-    title: 'ML & optimization',
-    sub: 'Training to fast inference',
+    title: 'ML & NLP',
+    sub: 'Training and language models',
     accent: 'rose',
     file: 'ml.sys',
     lines: [
       '→ Training   PyTorch',
-      '→ Inference  ONNX, TensorRT (INT8 / FP16)',
       '→ NLP        SpaCy NER, Sentence Transformers',
     ],
   },
@@ -551,7 +549,7 @@ export const skills: { title: string; sub: string; accent: Accent; file: string;
   },
 ]
 
-export const marquee = ['LangChain', 'LangGraph', 'RAG', 'Pinecone', 'pgvector', 'PyTorch', 'TensorRT', 'FastAPI', 'Next.js', 'React', 'TypeScript', 'Python', 'PostgreSQL', 'Redis', 'Supabase', 'Docker', 'GitHub Actions', 'Deepgram']
+export const marquee = ['LangChain', 'RAG', 'Pinecone', 'pgvector', 'PyTorch', 'FastAPI', 'Next.js', 'React', 'TypeScript', 'Python', 'PostgreSQL', 'Redis', 'Supabase', 'Docker', 'GitHub Actions', 'Deepgram']
 
 export const education = {
   degree: 'B.E. Computer Science Engineering',

@@ -585,7 +585,7 @@ function Contact() {
   const cards = [
     { label: 'GitHub', sub: '@SHAILESH-RS-UPADHYAY', href: profile.github, icon: 'github' as const },
     { label: 'LinkedIn', sub: 'Shailesh Upadhyay', href: profile.linkedin, icon: 'linkedin' as const },
-    { label: 'Resume', sub: 'PDF · 1 page', href: asset('resume.pdf?v=20261106'), icon: 'file' as const },
+    { label: 'Resume', sub: 'PDF · 1 page', href: asset('resume.pdf?v=20261114'), icon: 'file' as const },
   ]
   return (
     <section id="contact" className="relative min-h-[calc(100dvh-4.5rem)] md:min-h-[calc(100dvh-5rem)] flex items-center py-16 md:py-20 px-5 md:px-10 border-t border-fg/[0.05] overflow-hidden">

@@ -12,7 +12,7 @@
 
 <br /><br />
 
-<img src="docs/readme/stats.svg" width="100%" alt="−45% p95 latency on LLM streaming · under 15 ms production inference · 99.9% service uptime · 87.1% F1 on NER extraction" />
+<img src="docs/readme/stats.svg" width="100%" alt="−45% p95 latency on LLM streaming · 7 checks on every LLM answer · 99.9% service uptime · 87.1% F1 on NER extraction" />
 
 </div>
 
@@ -39,7 +39,7 @@
 **Food Cart** [live](https://food-cart-roan.vercel.app/) · [code](https://github.com/SHAILESH-RS-UPADHYAY/food-cart) &nbsp;│&nbsp;
 **Barfani Basket** [live](https://barfanibasket.in) &nbsp;│&nbsp;
 **Shiori** [live](https://shiori-nu.vercel.app/) &nbsp;│&nbsp;
-**Simplify Money** [API](https://simplify-money-backend.onrender.com/docs) · [code](https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend)
+**Simplify Money** [code](https://github.com/SHAILESH-RS-UPADHYAY/simplify-money-backend)
 
 <sub>More: <b>Inkly</b> print-on-demand mobile app · <a href="https://github.com/SHAILESH-RS-UPADHYAY/webvory-scalable-analytics-engine"><b>Analytics Engine</b></a> 1.3M records under 2s · <a href="https://github.com/SHAILESH-RS-UPADHYAY/autoflow"><b>AutoFlow</b></a> GenAI reports · <a href="https://github.com/SHAILESH-RS-UPADHYAY/finance-dashboard-backend"><b>Finance API</b></a> role-based access</sub>
 
@@ -69,7 +69,7 @@
 
 <img src="docs/readme/h-stack.svg" width="100%" alt="03 / Toolbelt — What I build with" />
 
-<img src="docs/readme/stack.svg" width="100%" alt="Python, FastAPI, asyncio, LangChain, LangGraph, RAG, Pinecone, pgvector, ChromaDB, PyTorch, ONNX, TensorRT, SpaCy, Next.js, React 19, TypeScript, PostgreSQL, Redis, Supabase, Docker, GitHub Actions, WebSockets, Deepgram, Claude, Gemini, Groq" />
+<img src="docs/readme/stack.svg" width="100%" alt="Python, FastAPI, asyncio, LangChain, OpenAI, RAG, Pinecone, pgvector, ChromaDB, PyTorch, Whisper, Sentence Transformers, SpaCy, Next.js, React 19, TypeScript, PostgreSQL, Redis, Supabase, Docker, GitHub Actions, WebSockets, Deepgram, Claude, Gemini, Groq" />
 
 <p align="center">
   <sub>This site: </sub>
