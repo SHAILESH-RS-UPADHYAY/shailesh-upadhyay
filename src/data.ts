@@ -199,6 +199,7 @@ export const projects: {
     stack: ['Next.js', 'TypeScript', 'Supabase', 'Pinecone', 'Vercel Cron', 'Gmail API', 'Chrome Extension'],
     links: [
       { label: 'Live site', href: 'https://radar-neon-theta.vercel.app/' },
+      { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/radar' },
       { label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/radar.md' },
     ],
   },
@@ -227,6 +228,7 @@ export const projects: {
     stack: ['Python', 'FastAPI', 'WebSockets', 'Neon', 'Clerk', 'Deepgram'],
     links: [
       { label: 'Live app', href: 'https://vettly-sigma.vercel.app/' },
+      { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/vettly' },
       { label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/vettly.md' },
     ],
   },
@@ -281,6 +283,7 @@ export const projects: {
     ],
     stack: ['React', 'TypeScript', 'Node.js', 'Deepgram', 'Zustand', 'Web Audio'],
     links: [
+      { label: 'Live site', href: 'https://eves-jet.vercel.app/' },
       { label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' },
     ],
   },
@@ -333,13 +336,13 @@ export const products: {
     slug: 'radar', name: 'RADAR', kind: 'AI job-intelligence engine', status: 'Live', accent: 'emerald', mark: 'radar', shot: 'radar', host: 'radar-neon-theta.vercel.app', deep: 'radar',
     text: 'Reads 30+ job feeds around the clock, checks each posting is real, scores it against your resume and opens the application already filled.',
     stack: ['Next.js', 'Supabase', 'Pinecone'],
-    links: [{ label: 'Live', href: 'https://radar-neon-theta.vercel.app/' }],
+    links: [{ label: 'Live', href: 'https://radar-neon-theta.vercel.app/' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/radar' }],
   },
   {
     slug: 'vettly', name: 'Vettly', kind: 'AI interview-prep studio', status: 'Live', accent: 'violet', mark: 'router', shot: 'vettly', host: 'vettly-sigma.vercel.app', deep: 'vettly',
     text: 'Turns your resume, GitHub and target job into interview prep grounded in your real work, then checks every answer for sounding human.',
     stack: ['FastAPI', 'Python', 'Neon'],
-    links: [{ label: 'Live', href: 'https://vettly-sigma.vercel.app/' }],
+    links: [{ label: 'Live', href: 'https://vettly-sigma.vercel.app/' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/vettly' }],
   },
   {
     slug: 'blueprint', name: 'Blueprint.sh', kind: 'Codebase architecture drawing', status: 'Live', accent: 'cyan', mark: 'blueprint.svg', shot: 'blueprint', host: 'blueprint-sh.vercel.app', deep: 'blueprint',
@@ -351,7 +354,7 @@ export const products: {
     slug: 'eves', name: 'EVES', kind: 'Meeting-intelligence desktop app', status: 'Desktop', accent: 'cyan', mark: 'wave', deep: 'eves',
     text: 'Records long engineering calls, transcribes them live in Hindi and English, and writes the prompt your coding agent needs. All of it stays on your machine.',
     stack: ['React', 'TypeScript', 'Deepgram'],
-    links: [{ label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' }],
+    links: [{ label: 'Live', href: 'https://eves-jet.vercel.app/' }, { label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' }],
   },
   {
     slug: 'autopsy', name: 'Autopsy', kind: 'Website forensics', status: 'Live', accent: 'rose', mark: 'autopsy.svg', shot: 'autopsy', host: 'autopsy-casefile.vercel.app',
