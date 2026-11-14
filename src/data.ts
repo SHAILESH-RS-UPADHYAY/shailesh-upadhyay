@@ -284,6 +284,7 @@ export const projects: {
     stack: ['React', 'TypeScript', 'Node.js', 'Deepgram', 'Zustand', 'Web Audio'],
     links: [
       { label: 'Live site', href: 'https://eves-jet.vercel.app/' },
+      { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/eves' },
       { label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' },
     ],
   },
@@ -354,7 +355,7 @@ export const products: {
     slug: 'eves', name: 'EVES', kind: 'Meeting-intelligence desktop app', status: 'Desktop', accent: 'cyan', mark: 'wave', deep: 'eves',
     text: 'Records long engineering calls, transcribes them live in Hindi and English, and writes the prompt your coding agent needs. All of it stays on your machine.',
     stack: ['React', 'TypeScript', 'Deepgram'],
-    links: [{ label: 'Live', href: 'https://eves-jet.vercel.app/' }, { label: 'Case study', href: 'https://github.com/SHAILESH-RS-UPADHYAY/SHAILESH-RS-UPADHYAY/blob/main/work/eves.md' }],
+    links: [{ label: 'Live', href: 'https://eves-jet.vercel.app/' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/eves' }],
   },
   {
     slug: 'autopsy', name: 'Autopsy', kind: 'Website forensics', status: 'Live', accent: 'rose', mark: 'autopsy.svg', shot: 'autopsy', host: 'autopsy-casefile.vercel.app',
