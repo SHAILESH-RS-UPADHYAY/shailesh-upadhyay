@@ -225,7 +225,7 @@ export function ResumeCard() {
         className="card group relative z-20 flex items-center gap-5 rounded-2xl border border-fg/10 pl-3 pr-7 py-3 text-left hover:border-acc/40 transition-colors cursor-pointer">
         {/* Outer span owns the hover "peek" (CSS), inner img owns the open/close morph (layoutId). */}
         <span className="relative z-20 block w-14 md:w-16 origin-bottom-left transition-transform duration-500 ease-out group-hover:scale-[3.2] group-hover:-rotate-2">
-          <motion.img layoutId="resume" src={asset('resume.webp?v=20261114')} alt="" width={1489} height={1927}
+          <motion.img layoutId="resume" src={asset('resume.webp?v=20261114c')} alt="" width={1489} height={2106}
             className="block w-full h-auto rounded-md shadow-lg group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
             style={{ visibility: open ? 'hidden' : 'visible' }} />
         </span>
@@ -245,11 +245,11 @@ export function ResumeCard() {
             {/* Fixed Header floating above */}
             <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none p-4 md:p-8">
               <div className="w-full max-w-4xl flex flex-wrap items-center justify-end gap-3 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
-                <a href={asset('resume.pdf?v=20261114')} download="Shailesh_Upadhyay_Resume.pdf"
+                <a href={asset('resume.pdf?v=20261114c')} download="Shailesh_Upadhyay_Resume.pdf"
                   className="font-oxanium text-sm font-medium px-5 py-2.5 rounded-xl bg-acc text-bg hover:opacity-90 active:scale-[0.97] transition shadow-lg">
                   Download PDF
                 </a>
-                <a href={asset('resume.pdf?v=20261114')} target="_blank" rel="noopener noreferrer"
+                <a href={asset('resume.pdf?v=20261114c')} target="_blank" rel="noopener noreferrer"
                   className="font-oxanium text-sm px-5 py-2.5 rounded-xl border border-fg/15 bg-bg/90 backdrop-blur-md text-fg/85 hover:bg-fg/10 transition shadow-lg">
                   Open in new tab
                 </a>
@@ -260,8 +260,8 @@ export function ResumeCard() {
 
             {/* Scrollable Content */}
             <div className="w-full min-h-full flex flex-col items-center p-4 md:p-8 pt-24 md:pt-28">
-              <motion.img layoutId="resume" src={asset('resume.webp?v=20261114')} alt="Resume of Shailesh Upadhyay, AI Backend Engineer"
-                width={1489} height={1927} onClick={(e) => e.stopPropagation()}
+              <motion.img layoutId="resume" src={asset('resume.webp?v=20261114c')} alt="Resume of Shailesh Upadhyay, AI Engineer"
+                width={1489} height={2106} onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-4xl h-auto rounded-lg shadow-[0_0_80px_rgba(52,211,153,0.15)]"
                 transition={{ duration: 0.5, ease: EASE }} />
             </div>
