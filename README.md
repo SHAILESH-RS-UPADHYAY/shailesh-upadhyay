@@ -35,7 +35,7 @@
 **Blueprint.sh** [live](https://blueprint-sh.vercel.app/) · [code](https://github.com/SHAILESH-RS-UPADHYAY/blueprint-sh) &nbsp;│&nbsp;
 **Autopsy** [live](https://autopsy-casefile.vercel.app/) · [code](https://github.com/SHAILESH-RS-UPADHYAY/autopsy) &nbsp;│&nbsp;
 **Tether** [live](https://tether-capsule.vercel.app/) · [code](https://github.com/SHAILESH-RS-UPADHYAY/tether) &nbsp;│&nbsp;
-**Devine CDC** [site](https://devinecdc.in) · [portal demo](https://divine-cdc-dashboard-o65s.vercel.app/login) &nbsp;│&nbsp;
+**Devine CDC** [site](https://devinecdc.in) · [portal demo](https://demo.devinecdc.in) &nbsp;│&nbsp;
 **Food Cart** [live](https://food-cart-roan.vercel.app/) · [code](https://github.com/SHAILESH-RS-UPADHYAY/food-cart) &nbsp;│&nbsp;
 **Barfani Basket** [live](https://barfanibasket.in) &nbsp;│&nbsp;
 **Shiori** [live](https://shiori-nu.vercel.app/) &nbsp;│&nbsp;

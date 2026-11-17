@@ -114,7 +114,7 @@ export const experience: {
     stack: ['Next.js', 'React', 'TypeScript', 'Supabase', 'Capacitor', 'Tailwind'],
     links: [
       { label: 'devinecdc.in', href: 'https://devinecdc.in' },
-      { label: 'Dashboard demo', href: 'https://divine-cdc-dashboard-o65s.vercel.app/login' },
+      { label: 'Dashboard demo', href: 'https://demo.devinecdc.in' },
       { label: 'LÜQ prototype', href: 'https://shailesh-rs-upadhyay.github.io/luq-prototype/' },
     ],
   },
@@ -352,7 +352,7 @@ export const products: {
     links: [{ label: 'Website', href: 'https://eves-jet.vercel.app/' }, { label: 'Code', href: 'https://github.com/SHAILESH-RS-UPADHYAY/eves' }],
   },
   {
-    slug: 'portal', name: 'Devine Portal', kind: 'Clinic dashboard, web and Android', status: 'Live', accent: 'violet', mark: 'devine-cdc.webp', shot: 'portal', host: 'divine-cdc-dashboard-o65s.vercel.app',
+    slug: 'portal', name: 'Devine Portal', kind: 'Clinic dashboard, web and Android', status: 'Live', accent: 'violet', mark: 'devine-cdc.webp', shot: 'portal', host: 'demo.devinecdc.in',
     text: "Families follow their child's therapy, therapists write daily session reports, and the clinic team runs children, schedules and logins. The link opens a demo copy filled with made-up children, families and therapists, so no real family's records are shown.",
     lines: [
       '# one codebase, on the web and on Android',
@@ -363,7 +363,7 @@ export const products: {
       '→ Supabase row-level security on every table',
     ],
     stack: ['React', 'Supabase', 'Capacitor'],
-    links: [{ label: 'Live demo', href: 'https://divine-cdc-dashboard-o65s.vercel.app/login' }],
+    links: [{ label: 'Live demo', href: 'https://demo.devinecdc.in' }],
   },
   {
     slug: 'blueprint', name: 'Blueprint.sh', kind: 'Codebase architecture drawing', status: 'Live', accent: 'cyan', mark: 'blueprint.svg', shot: 'blueprint', host: 'blueprint-sh.vercel.app', deep: 'blueprint',
